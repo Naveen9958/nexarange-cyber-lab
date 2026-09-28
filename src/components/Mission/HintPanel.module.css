@@ -1,0 +1,14 @@
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: flex; align-items: flex-end; justify-content: flex-end; padding: 80px 20px 20px; }
+.panel { background: var(--bg-elevated); border: 1px solid rgba(255,149,0,0.4); border-radius: var(--radius-lg); padding: 18px; width: 360px; animation: toast-in 0.3s ease; }
+.panelHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.panelTitle { font-family: var(--font-head); font-size: 0.82rem; color: var(--neon-orange); }
+.close { background: transparent; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: 2px 6px; }
+.close:hover { color: var(--text-primary); }
+.desc { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 12px; }
+.hintBox { background: rgba(255,149,0,0.06); border: 1px solid rgba(255,149,0,0.25); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; }
+.hintNum { font-family: var(--font-mono); font-size: 0.6rem; color: var(--neon-orange); margin-bottom: 5px; }
+.hintPenalty { color: var(--neon-red); }
+.hintText { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.5; }
+.revealBtn { width: 100%; padding: 9px; background: rgba(255,149,0,0.1); border: 1px solid rgba(255,149,0,0.35); border-radius: var(--radius); color: var(--neon-orange); font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: var(--transition); margin-top: 6px; }
+.revealBtn:hover { background: rgba(255,149,0,0.2); }
+.noMore { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); text-align: center; margin-top: 8px; }

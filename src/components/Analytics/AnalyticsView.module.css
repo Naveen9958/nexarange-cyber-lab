@@ -1,0 +1,14 @@
+.wrap { padding: 20px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; gap: 14px; align-items: flex-start; }
+.card { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+.card canvas { display: block; max-width: 100%; }
+.cardTitle { font-family: var(--font-mono); font-size: 0.62rem; color: var(--neon-cyan); letter-spacing: 2px; margin-bottom: 14px; }
+.metricRow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.metricLabel { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-secondary); width: 150px; flex-shrink: 0; }
+.metricBar { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.metricFill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+.metricVal { font-family: var(--font-mono); font-size: 0.65rem; width: 36px; text-align: right; }
+.statRow { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.statRow:last-child { border-bottom: none; }
+.statKey { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); }
+.statVal { font-family: var(--font-mono); font-size: 0.72rem; color: var(--neon-green); }

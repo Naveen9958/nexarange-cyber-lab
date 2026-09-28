@@ -1,0 +1,51 @@
+.wrap { max-width: 900px; margin: 0 auto; padding: 20px; overflow-y: auto; height: 100%; }
+.headerBar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.backBtn { font-family: var(--font-mono); font-size: 0.68rem; padding: 6px 12px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-secondary); cursor: pointer; transition: var(--transition); }
+.backBtn:hover { color: var(--neon-green); border-color: var(--border-glow); }
+.mNum { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 2px; }
+.mTitle { font-family: var(--font-head); font-size: 1.2rem; color: var(--text-primary); flex: 1; }
+.mXP { font-family: var(--font-head); font-size: 0.95rem; }
+.hintBtn { font-family: var(--font-mono); font-size: 0.65rem; padding: 6px 12px; background: rgba(255,149,0,0.08); border: 1px solid rgba(255,149,0,0.3); border-radius: var(--radius); color: var(--neon-orange); cursor: pointer; transition: var(--transition); }
+.hintBtn:hover { background: rgba(255,149,0,0.18); }
+
+.handoff { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: rgba(0,212,255,0.04); border: 1px dashed rgba(0,212,255,0.3); border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.7rem; margin-bottom: 14px; }
+.handoffLabel { color: var(--neon-cyan); font-size: 0.6rem; letter-spacing: 2px; }
+.handoffArrow { color: var(--neon-cyan); }
+.handoffVal { color: var(--text-secondary); }
+
+.briefing { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid; border-radius: var(--radius-lg); padding: 18px; margin-bottom: 14px; display: flex; gap: 14px; }
+.charAvatar { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 1.2rem; font-weight: 700; color: #000; flex-shrink: 0; }
+.charBody { flex: 1; }
+.charName { font-family: var(--font-head); font-size: 0.82rem; margin-bottom: 3px; }
+.charRole { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); margin-bottom: 8px; }
+.charDialogue { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; font-style: italic; }
+
+.evidencePanel { background: rgba(0,255,170,0.03); border: 1px solid rgba(0,255,170,0.18); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 14px; }
+.evidenceTitle { font-family: var(--font-mono); font-size: 0.62rem; color: var(--neon-green); letter-spacing: 2px; margin-bottom: 10px; }
+.evidenceItem { font-family: var(--font-mono); font-size: 0.73rem; color: var(--text-secondary); margin-bottom: 6px; padding: 7px 10px; background: rgba(0,0,0,0.3); border-radius: var(--radius); border-left: 2px solid var(--neon-green); }
+.evidenceKey { color: var(--neon-green); font-size: 0.62rem; display: block; margin-bottom: 1px; }
+
+.tasks { margin-bottom: 18px; }
+.tasksTitle { font-family: var(--font-mono); font-size: 0.62rem; color: var(--neon-cyan); letter-spacing: 2px; margin-bottom: 10px; }
+.task { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin-bottom: 6px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.73rem; color: var(--text-secondary); cursor: pointer; transition: var(--transition); }
+.task:hover { border-color: var(--border-glow); }
+.taskDone { color: var(--neon-green); text-decoration: line-through; opacity: 0.7; }
+.taskCheck { width: 16px; height: 16px; border: 1px solid var(--text-muted); border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.65rem; transition: var(--transition); }
+.checked { background: var(--neon-green); border-color: var(--neon-green); color: #000; }
+
+.answerBlock { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 14px; }
+.answerTitle { font-family: var(--font-head); font-size: 0.8rem; color: var(--neon-cyan); letter-spacing: 2px; margin-bottom: 10px; }
+.answerQ { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 12px; }
+.answerRow { display: flex; gap: 10px; }
+.answerInput { flex: 1; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 13px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.78rem; outline: none; transition: var(--transition); }
+.answerInput:focus { border-color: var(--border-glow); }
+.correct { border-color: var(--neon-green) !important; color: var(--neon-green); }
+.wrong { border-color: var(--neon-red) !important; color: var(--neon-red); }
+.submitBtn { padding: 9px 22px; background: rgba(0,255,170,0.1); border: 1px solid rgba(0,255,170,0.4); border-radius: var(--radius); color: var(--neon-green); font-family: var(--font-head); font-size: 0.78rem; letter-spacing: 2px; cursor: pointer; transition: var(--transition); }
+.submitBtn:hover { background: rgba(0,255,170,0.2); box-shadow: 0 0 14px rgba(0,255,170,0.2); }
+.feedbackOk { font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-green); margin-top: 8px; }
+.feedbackErr { font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-red); margin-top: 8px; }
+.alreadyDone { padding: 14px; background: rgba(0,255,170,0.06); border: 1px solid rgba(0,255,170,0.3); border-radius: var(--radius-lg); text-align: center; font-family: var(--font-mono); color: var(--neon-green); margin-bottom: 14px; }
+.completeBtn { width: 100%; padding: 13px; background: linear-gradient(135deg,var(--neon-green),var(--neon-cyan)); border: none; border-radius: var(--radius-lg); color: #000; font-family: var(--font-head); font-size: 0.95rem; letter-spacing: 3px; font-weight: 700; cursor: pointer; transition: var(--transition); margin-bottom: 40px; }
+.completeBtn:hover:not(:disabled) { box-shadow: 0 0 28px rgba(0,255,170,0.4); transform: translateY(-2px); }
+.completeBtn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }

@@ -1,0 +1,26 @@
+.wrap { padding: 20px; overflow-y: auto; height: 100%; }
+.labSection { margin-bottom: 32px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.labHeader { display: flex; justify-content: space-between; align-items: flex-start; padding: 18px 22px; background: var(--bg-surface); border-bottom: 1px solid var(--border); }
+.labHeaderLeft { }
+.labNum { font-family: var(--font-head); font-size: 0.7rem; letter-spacing: 4px; margin-bottom: 4px; }
+.labTitle { font-family: var(--font-head); font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.labMeta { font-family: var(--font-mono); font-size: 0.63rem; color: var(--text-muted); }
+.labHeaderRight { text-align: right; }
+.totalXP { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; }
+.track { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 1px; }
+.missionChain { display: flex; flex-direction: column; }
+.missionCard { display: flex; align-items: center; gap: 16px; padding: 14px 22px; border-bottom: 1px solid var(--border); cursor: pointer; transition: var(--transition); }
+.missionCard:last-child { border-bottom: none; }
+.missionCard:hover:not(.mLocked) { background: rgba(0,255,170,0.04); }
+.mDone { background: rgba(0,255,170,0.03); }
+.mLocked { opacity: 0.4; cursor: not-allowed; }
+.mNum { font-family: var(--font-head); font-size: 0.9rem; width: 28px; flex-shrink: 0; }
+.mInfo { flex: 1; }
+.mTitle { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; font-family: var(--font-ui); }
+.mMeta { display: flex; gap: 12px; align-items: center; }
+.mPartner { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); }
+.mXP { font-family: var(--font-mono); font-size: 0.62rem; font-weight: 700; }
+.mBadge { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); }
+.launchBtn { font-family: var(--font-head); font-size: 0.75rem; letter-spacing: 2px; flex-shrink: 0; }
+.doneTag { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 2px; border: 1px solid; padding: 3px 8px; border-radius: var(--radius); }
+.lockTag { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); border: 1px solid var(--border); padding: 3px 8px; border-radius: var(--radius); }

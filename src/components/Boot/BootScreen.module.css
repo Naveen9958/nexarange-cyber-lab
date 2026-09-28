@@ -1,0 +1,46 @@
+.boot {
+  position: fixed; inset: 0;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.content { width: 520px; text-align: center; }
+.logo {
+  font-family: var(--font-head);
+  font-size: 3.2rem; font-weight: 900;
+  color: var(--neon-green);
+  text-shadow: 0 0 30px var(--neon-green), 0 0 60px var(--neon-green);
+  letter-spacing: 12px;
+  animation: bootblink 0.4s step-end 3;
+}
+.version {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; color: var(--neon-cyan);
+  letter-spacing: 2px; margin: 8px 0 28px;
+}
+.barWrap {
+  width: 100%; height: 3px;
+  background: rgba(0,255,170,0.12);
+  border: 1px solid rgba(0,255,170,0.3);
+  margin-bottom: 16px;
+}
+.bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+  box-shadow: 0 0 10px var(--neon-green);
+  transition: width 0.15s ease;
+}
+.log {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; color: var(--neon-green);
+  text-align: left; max-height: 130px; overflow: hidden;
+  line-height: 1.8;
+}
+.cursor { animation: bootblink 0.7s step-end infinite; }
+.scanline {
+  position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px
+  );
+}

@@ -1,0 +1,36 @@
+.sidebar {
+  width: 72px; flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 12px 0; z-index: 100;
+}
+.logo {
+  font-family: var(--font-head);
+  font-size: 0.9rem; color: var(--neon-green);
+  letter-spacing: 2px; margin-bottom: 20px;
+}
+.bracket { color: var(--neon-cyan); }
+.navItems { display: flex; flex-direction: column; gap: 2px; flex: 1; width: 100%; padding: 0 6px; }
+.navBtn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  width: 100%; padding: 9px 0;
+  background: transparent; border: 1px solid transparent;
+  border-radius: var(--radius); color: var(--text-muted);
+  cursor: pointer; transition: var(--transition);
+  font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 1px;
+}
+.navBtn:hover { color: var(--neon-green); border-color: rgba(0,255,170,0.2); background: rgba(0,255,170,0.05); }
+.navBtn.active { color: var(--neon-green); border-color: rgba(0,255,170,0.4); background: rgba(0,255,170,0.08); }
+.navIcon { font-size: 1rem; }
+.navLabel { font-size: 0.52rem; }
+.user { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px; border-top: 1px solid var(--border); width: 100%; }
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; color: #000;
+}
+.userInfo { text-align: center; }
+.userName { font-family: var(--font-mono); font-size: 0.55rem; color: var(--neon-green); }
+.userRank { font-family: var(--font-mono); font-size: 0.48rem; color: var(--text-muted); }

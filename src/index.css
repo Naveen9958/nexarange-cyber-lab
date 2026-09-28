@@ -1,0 +1,45 @@
+/* =============================================
+   NEXARANGE — Global CSS Variables & Reset
+   ============================================= */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-base:     #050810;
+  --bg-surface:  #0a0f1e;
+  --bg-card:     #0d1428;
+  --bg-elevated: #111a30;
+  --border:      rgba(0,220,180,0.15);
+  --border-glow: rgba(0,220,180,0.45);
+  --neon-green:  #00ffaa;
+  --neon-cyan:   #00d4ff;
+  --neon-purple: #b855ff;
+  --neon-red:    #ff3366;
+  --neon-orange: #ff9500;
+  --neon-yellow: #ffdd00;
+  --text-primary:   #e0eeff;
+  --text-secondary: #7a9bc4;
+  --text-muted:     #3a5070;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-head: 'Orbitron', sans-serif;
+  --font-ui:   'Rajdhani', sans-serif;
+  --radius:    4px;
+  --radius-lg: 8px;
+  --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;}
+body{background:var(--bg-base);color:var(--text-primary);font-family:var(--font-ui);min-height:100vh;overflow:hidden;}
+button{cursor:pointer;font-family:inherit;}
+input,select{font-family:inherit;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:2px;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.07) 3px,rgba(0,0,0,0.07) 4px);}
+
+@keyframes pulse-glow{0%,100%{opacity:1;}50%{opacity:.55;}}
+@keyframes glitch-1{0%,89%,100%{transform:none;opacity:0;}90%{transform:translate(-3px,0);opacity:.6;}92%{transform:translate(3px,0);opacity:.4;}}
+@keyframes glitch-2{0%,85%,100%{transform:none;opacity:0;}86%{transform:translate(3px,0);opacity:.5;}88%{transform:translate(-3px,0);opacity:.3;}}
+@keyframes toast-in{0%{transform:translateX(120px);opacity:0;}100%{transform:translateX(0);opacity:1;}}
+@keyframes fadeInUp{0%{transform:translateY(16px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
+@keyframes bootblink{0%,100%{opacity:1;}50%{opacity:0;}}
+@keyframes tickermove{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}

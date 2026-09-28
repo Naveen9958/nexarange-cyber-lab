@@ -1,0 +1,58 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  padding: 20px;
+  overflow-y: auto;
+  height: 100%;
+}
+/* Hero spans full width */
+.hero { grid-column: 1/-1; background: linear-gradient(135deg,var(--bg-surface),var(--bg-card)); border: 1px solid var(--border); border-left: 3px solid var(--neon-green); border-radius: var(--radius-lg); padding: 20px 28px; position: relative; overflow: hidden; }
+.heroGlitch { font-family: var(--font-head); font-size: 2.4rem; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px var(--neon-green); letter-spacing: 8px; position: relative; }
+.heroGlitch::before { content: attr(data-text); position: absolute; top: 0; left: 0; color: var(--neon-cyan); animation: glitch-1 4s infinite; clip-path: polygon(0 0,100% 0,100% 40%,0 40%); }
+.heroGlitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; color: var(--neon-red); animation: glitch-2 4s infinite; clip-path: polygon(0 60%,100% 60%,100% 100%,0 100%); }
+.heroSub { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px; }
+.ticker { overflow: hidden; margin-top: 10px; padding: 6px 0; border-top: 1px solid rgba(0,212,255,0.15); }
+.tickerInner { font-family: var(--font-mono); font-size: 0.65rem; color: var(--neon-cyan); white-space: nowrap; animation: tickermove 30s linear infinite; display: inline-block; }
+
+/* Stat Cards */
+.statCard { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; position: relative; overflow: hidden; transition: var(--transition); }
+.statCard:hover { border-color: var(--border-glow); transform: translateY(-2px); }
+.statCard::before { content:''; position: absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg,var(--neon-green),transparent); }
+.statIcon { font-size: 1.4rem; margin-bottom: 6px; }
+.statVal { font-family: var(--font-head); font-size: 1.7rem; font-weight: 700; }
+.statLabel { font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); letter-spacing: 2px; margin: 4px 0 8px; }
+.bar { height: 3px; background: rgba(0,255,170,0.1); border-radius: 2px; overflow: hidden; }
+.barFill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+/* Lab Cards — span 2 cols */
+.labCard { grid-column: span 2; background: var(--bg-card); border: 1px solid; border-radius: var(--radius-lg); padding: 18px; cursor: pointer; transition: var(--transition); position: relative; overflow: hidden; }
+.labCard:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.labCardHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.labTrackTag { font-family: var(--font-mono); font-size: 0.58rem; border: 1px solid; padding: 2px 8px; border-radius: var(--radius); letter-spacing: 1px; background: rgba(0,0,0,0.3); }
+.labStatusTag { font-family: var(--font-mono); font-size: 0.6rem; }
+.labId { font-family: var(--font-head); font-size: 0.7rem; letter-spacing: 4px; margin-bottom: 2px; }
+.labTitle { font-family: var(--font-head); font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+.labMeta { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-secondary); margin-bottom: 10px; }
+.labDesc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
+.labFooter { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 12px; }
+.labProg { flex: 1; }
+.labProgLabel { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 5px; }
+.labProgBar { height: 4px; background: rgba(0,255,170,0.1); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
+.labProgFill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+.labProgText { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-secondary); }
+.labXP { font-family: var(--font-head); font-size: 1.1rem; margin-left: 16px; }
+.labBtn { width: 100%; padding: 9px; background: rgba(0,0,0,0.3); border: 1px solid; border-radius: var(--radius); font-family: var(--font-head); font-size: 0.82rem; letter-spacing: 3px; transition: var(--transition); }
+.labBtn:hover { background: rgba(0,255,170,0.12); box-shadow: 0 0 20px rgba(0,255,170,0.2); }
+
+/* Panels — span 2 cols */
+.panel { grid-column: span 2; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+.panelTitle { font-family: var(--font-mono); font-size: 0.62rem; color: var(--neon-green); letter-spacing: 2px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.actItem { display: flex; gap: 10px; font-family: var(--font-mono); font-size: 0.68rem; margin-bottom: 6px; }
+.actTime { color: var(--text-muted); flex-shrink: 0; }
+.actMsg { color: var(--text-secondary); line-height: 1.4; }
+.badgeGrid { display: flex; flex-wrap: wrap; gap: 10px; min-height: 60px; }
+.badgeEmpty { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); align-self: center; }
+.badgeItem { display: flex; flex-direction: column; align-items: center; gap: 3px; background: rgba(0,255,170,0.05); border: 1px solid rgba(0,255,170,0.2); border-radius: var(--radius); padding: 8px 10px; }
+.badgeEmoji { font-size: 1.4rem; }
+.badgeName { font-family: var(--font-mono); font-size: 0.52rem; color: var(--neon-green); text-align: center; }
