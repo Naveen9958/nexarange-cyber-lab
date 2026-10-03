@@ -1,14 +1,14 @@
 /* Sidebar.module.css — Professional Cyber Command Center Sidebar */
 
 .sidebar {
-  width: 92px;
+  width: 86px;
   flex-shrink: 0;
   background: var(--bg-surface);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 18px 0 14px;
+  padding: 16px 0;
   z-index: 100;
   position: relative;
   user-select: none;

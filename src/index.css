@@ -64,6 +64,11 @@
   --shadow-lg:      0 16px 40px rgba(0, 0, 0, 0.7);
   --shadow-cyan:    0 0 20px rgba(0, 245, 200, 0.2);
 
+  --terminal-bg:        #03060F;
+  --terminal-chrome:    #080D1A;
+  --terminal-bar:       #050914;
+  --terminal-text:      #EAF2FF;
+
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition:      0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -81,12 +86,19 @@
 
 /* ─── Light Mode Palette ─── */
 [data-theme='light'] {
+  color-scheme: light;
+
   --bg-base:        #edf2f7;
   --bg-surface:     #ffffff;
   --bg-surface-2:   #f8fafc;
   --bg-card:        #ffffff;
   --bg-card-hover:  #f1f5f9;
   --bg-elevated:    #e2e8f0;
+
+  --terminal-bg:        #ffffff;
+  --terminal-chrome:    #f1f5f9;
+  --terminal-bar:       #f8fafc;
+  --terminal-text:      #0f172a;
 
   --cyan-primary:   #00897b;
   --cyan-bright:    #00796b;

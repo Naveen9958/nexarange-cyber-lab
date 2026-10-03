@@ -1,4 +1,4 @@
-// src/components/Layout/Sidebar.jsx — Redesigned Navigation Sidebar
+// src/components/Layout/Sidebar.jsx — Streamlined Navigation Rail
 import React from 'react';
 import useStore from '../../store/useStore';
 import {
@@ -23,28 +23,12 @@ const NAV = [
 ];
 
 export default function Sidebar() {
-  const {
-    view,
-    setView,
-    operator,
-    getLevel,
-    toggleProfileDropdown,
-    profileDropdownOpen,
-  } = useStore();
-  const level = getLevel();
+  const { view, setView } = useStore();
 
   return (
     <>
       {/* Desktop & Tablet Sidebar */}
       <aside className={s.sidebar} aria-label="Main Navigation">
-        {/* Brand Mark */}
-        <div className={s.logo} onClick={() => setView('dashboard')} role="button" tabIndex={0}>
-          <div className={s.logoBox}>
-            <span className={s.logoText}>NR</span>
-          </div>
-          <span className={s.logoDot} />
-        </div>
-
         {/* Navigation Items */}
         <nav className={s.navItems}>
           {NAV.map((n) => {
@@ -67,33 +51,6 @@ export default function Sidebar() {
             );
           })}
         </nav>
-
-        {/* Operator Profile Trigger */}
-        <div
-          className={s.user}
-          onClick={() => toggleProfileDropdown('sidebar')}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              toggleProfileDropdown('sidebar');
-            }
-          }}
-          data-profile-trigger="true"
-          role="button"
-          tabIndex={0}
-          title="Open Profile & Appearance Settings"
-          aria-haspopup="dialog"
-          aria-expanded={profileDropdownOpen}
-        >
-          <div className={s.avatarWrap}>
-            <div className={s.avatar}>{operator.avatar}</div>
-            <span className={s.statusDot} />
-          </div>
-          <div className={s.userInfo}>
-            <div className={s.userName}>{operator.name}</div>
-            <div className={s.userRank}>LVL 0{level}</div>
-          </div>
-        </div>
       </aside>
 
       {/* Mobile Bottom Navigation Bar */}

@@ -8,6 +8,7 @@ import {
   IconMoon,
   IconMonitor,
   IconLogOut,
+  IconTarget,
 } from '../Common/Icons';
 import s from './ProfileDropdown.module.css';
 
@@ -22,6 +23,7 @@ export default function ProfileDropdown() {
     profileDropdownAnchor,
     setOperatorModalOpen,
     resetProgress,
+    initiateLogout,
     showToast,
   } = useStore();
 
@@ -72,7 +74,7 @@ export default function ProfileDropdown() {
     showToast('Telemetry & configuration exported to clipboard.', 'success');
   };
 
-  const handleResetSession = () => {
+  const handleResetProgress = () => {
     if (!confirmReset) {
       setConfirmReset(true);
       return;
@@ -80,6 +82,10 @@ export default function ProfileDropdown() {
     resetProgress();
     setConfirmReset(false);
     setProfileDropdownOpen(false);
+  };
+
+  const handleLogoutClick = () => {
+    initiateLogout();
   };
 
   const THEME_OPTIONS = [
@@ -172,16 +178,16 @@ export default function ProfileDropdown() {
 
       <div className={s.divider} />
 
-      {/* Logout / Reset Action */}
+      {/* Progress Reset (Separate from Logout) */}
       <div className={s.section}>
         {confirmReset ? (
           <div className={s.confirmBox}>
-            <span className={s.confirmText}>Reset session progress?</span>
+            <span className={s.confirmText}>Reset mission progress?</span>
             <div className={s.confirmActions}>
               <button
                 type="button"
                 className={s.confirmYes}
-                onClick={handleResetSession}
+                onClick={handleResetProgress}
               >
                 Confirm
               </button>
@@ -196,15 +202,30 @@ export default function ProfileDropdown() {
           </div>
         ) : (
           <button
-            className={`${s.menuItem} ${s.logoutItem}`}
-            onClick={handleResetSession}
+            className={s.menuItem}
+            onClick={handleResetProgress}
             role="button"
             tabIndex={0}
           >
-            <IconLogOut size={15} className={s.logoutIcon} />
-            <span className={s.itemText}>Logout</span>
+            <IconTarget size={15} className={s.itemIcon} />
+            <span className={s.itemText}>Progress Reset</span>
           </button>
         )}
+      </div>
+
+      <div className={s.divider} />
+
+      {/* Logout Action (Triggers Confirmation Modal) */}
+      <div className={s.section}>
+        <button
+          className={`${s.menuItem} ${s.logoutItem}`}
+          onClick={handleLogoutClick}
+          role="button"
+          tabIndex={0}
+        >
+          <IconLogOut size={15} className={s.logoutIcon} />
+          <span className={s.itemText}>Logout</span>
+        </button>
       </div>
     </div>
   );

@@ -24,6 +24,34 @@ const applyThemeToDOM = (mode) => {
   return resolved;
 };
 
+const getStoredOperator = () => {
+  if (typeof window === 'undefined') {
+    return {
+      name: 'Naveen',
+      callsign: '0xNAVEEN',
+      role: 'AI Security Analyst',
+      avatar: 'N',
+      baseRank: 247,
+      clearance: 'TS/SCI-AI',
+    };
+  }
+  try {
+    const raw = localStorage.getItem('nexarange-operator');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.name) return parsed;
+    }
+  } catch (e) {}
+  return {
+    name: 'Naveen',
+    callsign: '0xNAVEEN',
+    role: 'AI Security Analyst',
+    avatar: 'N',
+    baseRank: 247,
+    clearance: 'TS/SCI-AI',
+  };
+};
+
 const useStore = create((set, get) => ({
   // ── View Navigation ──
   view: 'dashboard',         // 'dashboard' | 'labs' | 'terminal' | 'leaderboard' | 'friends' | 'analytics' | 'certificates' | 'mission' | 'debrief'
@@ -55,14 +83,7 @@ const useStore = create((set, get) => ({
   },
 
   // ── Operator Profile (Consistent Source of Truth) ──
-  operator: {
-    name: 'Naveen',
-    callsign: '0xNAVEEN',
-    role: 'AI Security Analyst',
-    avatar: 'N',
-    baseRank: 247,
-    clearance: 'TS/SCI-AI',
-  },
+  operator: getStoredOperator(),
 
   // ── Metrics & Progression ──
   totalXP: 0,
@@ -77,6 +98,108 @@ const useStore = create((set, get) => ({
   toasts: [],
   xpToast: null,
   badgeToast: null,
+
+  // ── Authentication & Session State (Single Source of Truth) ──
+  isAuthenticated: typeof window !== 'undefined' ? localStorage.getItem('nexarange-auth') !== 'false' : true,
+  authToken: typeof window !== 'undefined' ? localStorage.getItem('nexarange-token') || 'nr_auth_tok_0x9921b7' : 'nr_auth_tok_0x9921b7',
+  sessionState: typeof window !== 'undefined' && localStorage.getItem('nexarange-auth') === 'false' ? 'TERMINATED' : 'ACTIVE',
+  sessionId: 'NR-SES-882194',
+  route: typeof window !== 'undefined' ? window.location.pathname : '/',
+  logoutModalOpen: false,
+
+  setRoute: (route) => {
+    if (typeof window !== 'undefined' && window.location.pathname !== route) {
+      window.history.pushState(null, '', route);
+    }
+    set({ route });
+  },
+
+  setLogoutModalOpen: (open) => set({ logoutModalOpen: open }),
+
+  initiateLogout: () => {
+    set({ logoutModalOpen: true, profileDropdownOpen: false });
+  },
+
+  confirmLogout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nexarange-auth', 'false');
+      localStorage.removeItem('nexarange-token');
+      window.history.pushState(null, '', '/logout');
+    }
+    set({
+      isAuthenticated: false,
+      authToken: null,
+      sessionState: 'TERMINATED',
+      logoutModalOpen: false,
+      profileDropdownOpen: false,
+      operatorModalOpen: false,
+      route: '/logout',
+      view: 'dashboard',
+    });
+    get().addToast({
+      title: 'SESSION TERMINATED',
+      text: 'Command Center session closed securely.',
+      type: 'warning',
+    });
+  },
+
+  login: (operatorInput = 'Naveen', extraData = {}) => {
+    let newOp = { ...get().operator };
+    if (typeof operatorInput === 'string') {
+      const trimmed = operatorInput.trim() || 'Operator';
+      const cleanCallsign = trimmed.toUpperCase().startsWith('0X') ? trimmed.toUpperCase() : `0x${trimmed.toUpperCase()}`;
+      newOp = {
+        name: trimmed.replace(/^0x/i, '') || trimmed,
+        callsign: cleanCallsign,
+        role: extraData.role || 'AI Security Analyst',
+        avatar: (trimmed.replace(/^0x/i, '') || trimmed).charAt(0).toUpperCase() || 'O',
+        baseRank: 247,
+        clearance: extraData.clearance || 'TS/SCI-AI',
+      };
+    } else if (typeof operatorInput === 'object' && operatorInput !== null) {
+      const rawName = operatorInput.name?.trim() || operatorInput.callsign?.replace(/^0x/i, '').trim() || 'Operator';
+      const rawCallsign = operatorInput.callsign?.trim() || rawName;
+      const cleanCallsign = rawCallsign.toUpperCase().startsWith('0X') ? rawCallsign.toUpperCase() : `0x${rawCallsign.toUpperCase()}`;
+      newOp = {
+        name: rawName,
+        callsign: cleanCallsign,
+        role: operatorInput.role || 'AI Security Analyst',
+        avatar: rawName.charAt(0).toUpperCase() || 'O',
+        baseRank: 247,
+        clearance: operatorInput.clearance || 'TS/SCI-AI',
+      };
+    }
+
+    const token = 'nr_auth_tok_' + Math.random().toString(36).substring(2, 10);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nexarange-auth', 'true');
+      localStorage.setItem('nexarange-token', token);
+      localStorage.setItem('nexarange-operator', JSON.stringify(newOp));
+      if (extraData.passphrase || (typeof operatorInput === 'object' && operatorInput?.passphrase)) {
+        localStorage.setItem('nexarange-passphrase', extraData.passphrase || operatorInput.passphrase);
+      }
+      window.history.pushState(null, '', '/');
+    }
+    set({
+      operator: newOp,
+      isAuthenticated: true,
+      authToken: token,
+      sessionState: 'ACTIVE',
+      route: '/',
+      view: 'dashboard',
+      logoutModalOpen: false,
+      profileDropdownOpen: false,
+    });
+    get().addToast({
+      title: 'ACCESS GRANTED',
+      text: `Secure session established for ${newOp.callsign} (${newOp.name}).`,
+      type: 'success',
+    });
+  },
+
+  registerOperator: (userData) => {
+    get().login(userData);
+  },
 
   // ── Modals & Menus ──
   operatorModalOpen: false,

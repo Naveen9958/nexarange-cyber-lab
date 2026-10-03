@@ -1,4 +1,4 @@
-// src/App.jsx — Root component
+// src/App.jsx — Root Application with Protected Routes & Session Routing
 import { useState, useCallback, useEffect } from 'react';
 import useStore from './store/useStore';
 
@@ -7,6 +7,9 @@ import Sidebar from './components/Layout/Sidebar';
 import TopBar from './components/Layout/TopBar';
 import OperatorModal from './components/Layout/OperatorModal';
 import ProfileDropdown from './components/Layout/ProfileDropdown';
+import LogoutModal from './components/Auth/LogoutModal';
+import LogoutPage from './components/Auth/LogoutPage';
+import LoginPage from './components/Auth/LoginPage';
 import Dashboard from './components/Dashboard/Dashboard';
 import LabsView from './components/Labs/LabsView';
 import TerminalView from './components/Terminal/TerminalView';
@@ -39,11 +42,64 @@ function ViewRouter() {
 export default function App() {
   const [booted, setBooted] = useState(false);
   const handleBoot = useCallback(() => setBooted(true), []);
-  const { theme } = useStore();
+  const { theme, isAuthenticated, route } = useStore();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme || 'dark');
   }, [theme]);
+
+  // Handle browser back/forward buttons and enforce protected routes
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentPath = window.location.pathname;
+      const isAuth = useStore.getState().isAuthenticated;
+      if (!isAuth && currentPath !== '/logout' && currentPath !== '/login') {
+        window.history.replaceState(null, '', '/login');
+        useStore.setState({ route: '/login' });
+      } else {
+        useStore.setState({ route: currentPath });
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Unauthenticated users are strictly guarded against protected dashboard routes
+  if (!isAuthenticated) {
+    if (route === '/logout') {
+      return (
+        <>
+          <LogoutPage />
+          <ToastSystem />
+        </>
+      );
+    }
+    return (
+      <>
+        <LoginPage />
+        <ToastSystem />
+      </>
+    );
+  }
+
+  // Explicit route views for authenticated users
+  if (route === '/logout') {
+    return (
+      <>
+        <LogoutPage />
+        <ToastSystem />
+      </>
+    );
+  }
+
+  if (route === '/login') {
+    return (
+      <>
+        <LoginPage />
+        <ToastSystem />
+      </>
+    );
+  }
 
   if (!booted) return <BootScreen onComplete={handleBoot} />;
 
@@ -60,6 +116,7 @@ export default function App() {
       </div>
       <OperatorModal />
       <ProfileDropdown />
+      <LogoutModal />
       <ToastSystem />
     </div>
   );

@@ -1,37 +1,18 @@
-// src/components/Layout/TopBar.jsx — Streamlined Cyber Operations Header
+// src/components/Layout/TopBar.jsx — Refined NexaRange Command Bar with Official Logo
 import { useState, useEffect } from 'react';
 import useStore from '../../store/useStore';
-import {
-  IconShield,
-  IconZap,
-} from '../Common/Icons';
 import s from './TopBar.module.css';
-
-const SECTION_MAP = {
-  dashboard:    { code: 'HQ', title: 'Telemetry & Operations Overview' },
-  labs:         { code: 'LABS', title: 'Active Operations & Incident Response' },
-  terminal:     { code: 'TERM', title: 'Simulated Security Shell v2.6' },
-  leaderboard:  { code: 'RANK', title: 'Global Operator Rankings' },
-  friends:      { code: 'SQUAD', title: 'Peer Intelligence & Cooperative Squad' },
-  analytics:    { code: 'STATS', title: 'Skill Matrix & Progression Metrics' },
-  certificates: { code: 'CERTS', title: 'Credentials & Security Accreditations' },
-  mission:      { code: 'OPS', title: 'Incident Triage & Threat Mitigation' },
-  debrief:      { code: 'DEBRIEF', title: 'Case Analysis & Retrospective' },
-};
 
 export default function TopBar() {
   const {
-    view,
-    totalXP,
-    getLevel,
     threatLevel,
     operator,
     toggleProfileDropdown,
     profileDropdownOpen,
+    setView,
   } = useStore();
 
   const [time, setTime] = useState('');
-  const level = getLevel();
 
   useEffect(() => {
     const tick = () => {
@@ -43,21 +24,34 @@ export default function TopBar() {
     return () => clearInterval(id);
   }, []);
 
-  const section = SECTION_MAP[view] || { code: view.toUpperCase(), title: 'Security Enclave' };
   const isElevated = threatLevel === 'ELEVATED' || threatLevel === 'CRITICAL';
 
   return (
     <header className={s.topbar}>
-      {/* Left: Compact Context Indicator (No duplicate branding, clean hierarchy) */}
+      {/* Left: Official NexaRange Logo & Branding */}
       <div className={s.left}>
-        <div className={s.contextIndicator}>
-          <span className={s.contextCode}>{section.code}</span>
-          <span className={s.contextDot}>·</span>
-          <span className={s.contextTitle}>{section.title}</span>
+        <div
+          className={s.brand}
+          onClick={() => setView('dashboard')}
+          role="button"
+          tabIndex={0}
+          title="NexaRange Command Center"
+        >
+          <div className={s.brandLogoWrap}>
+            <img
+              src="/nexarange-logo.png"
+              alt="NexaRange Emblem"
+              className={s.brandLogoImg}
+            />
+          </div>
+          <div className={s.brandTitle}>
+            <span className={s.brandNexa}>Nexa</span>
+            <span className={s.brandRange}>Range</span>
+          </div>
         </div>
       </div>
 
-      {/* Right: Telemetry Status Pills, XP, Level, Clock, Profile */}
+      {/* Right: System Status, DEFCON, Time, Profile Avatar */}
       <div className={s.right}>
         {/* System Operational Status */}
         <div className={s.statusPill}>
@@ -69,19 +63,6 @@ export default function TopBar() {
         <div className={`${s.threatPill} ${isElevated ? s.threatActive : ''}`}>
           <span className={s.threatLabel}>DEFCON:</span>
           <span className={s.threatVal}>{threatLevel}</span>
-        </div>
-
-        {/* Level Tag */}
-        <div className={s.levelPill}>
-          <IconShield size={14} className={s.levelIcon} />
-          <span>LVL 0{level}</span>
-        </div>
-
-        {/* XP Counter */}
-        <div className={s.xpBox}>
-          <IconZap size={14} className={s.xpIcon} />
-          <span className={s.xpLabel}>XP</span>
-          <span className={s.xpValue}>{totalXP.toLocaleString()}</span>
         </div>
 
         {/* Live Clock */}

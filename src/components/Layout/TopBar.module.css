@@ -16,56 +16,69 @@
   gap: 16px;
 }
 
-/* ── Left Context Indicator (Clean, compact, no duplicate branding) ── */
+/* ── Left NexaRange Branding ── */
 .left {
   display: flex;
   align-items: center;
   min-width: 0;
 }
 
-.contextIndicator {
-  display: flex;
+.brand {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-width: 0;
+  gap: 11px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
 
-.contextCode {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--cyan-primary);
-  letter-spacing: 1.5px;
-  padding: 3px 8px;
-  background: var(--cyan-dim);
-  border: 1px solid var(--cyan-border);
-  border-radius: var(--radius-sm);
+.brand:hover {
+  transform: scale(1.02);
+}
+
+.brandLogoWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 240, 210, 0.45);
+  box-shadow: 0 0 14px rgba(0, 245, 200, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
   flex-shrink: 0;
 }
 
-.contextDot {
-  color: var(--text-muted);
-  font-weight: 600;
-  user-select: none;
-  font-size: 0.85rem;
+.brandLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.contextTitle {
+.brandTitle {
   font-family: var(--font-head);
-  font-size: var(--text-sm);
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.brandNexa {
   color: var(--text-primary);
-  letter-spacing: 0.4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.brandRange {
+  color: var(--cyan-primary);
+  text-shadow: 0 0 14px var(--cyan-glow);
 }
 
 /* ── Right Telemetry Area ── */
 .right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
@@ -74,7 +87,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 11px;
+  padding: 5px 12px;
   background: rgba(25, 230, 165, 0.08);
   border: 1px solid rgba(25, 230, 165, 0.25);
   border-radius: var(--radius-sm);
@@ -102,7 +115,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 11px;
+  padding: 5px 12px;
   background: rgba(255, 176, 32, 0.08);
   border: 1px solid rgba(255, 176, 32, 0.25);
   border-radius: var(--radius-sm);
@@ -126,65 +139,20 @@
   color: var(--status-danger);
 }
 
-/* Level Pill */
-.levelPill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  background: rgba(124, 92, 255, 0.1);
-  border: 1px solid rgba(124, 92, 255, 0.25);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--accent-purple);
-  letter-spacing: 1px;
-}
-
-.levelIcon {
-  color: var(--accent-purple);
-}
-
-/* XP Box */
-.xpBox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  background: rgba(0, 245, 200, 0.08);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-}
-
-.xpIcon {
-  color: var(--cyan-primary);
-}
-
-.xpLabel {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  letter-spacing: 1px;
-}
-
-.xpValue {
-  font-family: var(--font-head);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  color: var(--cyan-primary);
-}
-
 /* Clock */
 .clockBox {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--text-secondary);
   letter-spacing: 1.5px;
-  padding: 5px 10px;
+  padding: 5px 12px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
+}
+
+.clockTime {
+  font-weight: 500;
 }
 
 /* Profile Button */
@@ -223,57 +191,26 @@
   box-shadow: 0 0 8px var(--cyan-dim);
 }
 
-/* ── Responsive adjustments (1920px -> 360px) ── */
-@media (max-width: 1200px) {
-  .statusPill {
-    display: none;
-  }
-}
-
-@media (max-width: 1024px) {
-  .clockBox {
-    display: none;
-  }
-}
-
+/* ── Responsive adjustments ── */
 @media (max-width: 860px) {
   .threatPill {
     display: none;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   .topbar {
     padding: 0 14px;
     height: 54px;
-    gap: 8px;
   }
 
-  .contextTitle {
-    display: none;
-  }
-
-  .contextDot {
+  .statusPill {
     display: none;
   }
 }
 
-@media (max-width: 480px) {
-  .levelPill {
-    display: none;
-  }
-
-  .xpBox {
-    padding: 4px 8px;
-  }
-
-  .xpLabel {
-    display: none;
-  }
-}
-
-@media (max-width: 360px) {
-  .xpBox {
+@media (max-width: 400px) {
+  .clockBox {
     display: none;
   }
 }
