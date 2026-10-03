@@ -38,6 +38,11 @@ function ViewRouter() {
 export default function App() {
   const [booted, setBooted] = useState(false);
   const handleBoot = useCallback(() => setBooted(true), []);
+  const { theme } = useStore();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme || 'dark');
+  }, [theme]);
 
   if (!booted) return <BootScreen onComplete={handleBoot} />;
 

@@ -1,7 +1,12 @@
 // src/components/Layout/TopBar.jsx — Refined Command Center Status Bar
 import { useState, useEffect } from 'react';
 import useStore from '../../store/useStore';
-import { IconShield, IconZap, IconUser } from '../Common/Icons';
+import {
+  IconShield,
+  IconZap,
+  IconSun,
+  IconMoon,
+} from '../Common/Icons';
 import s from './TopBar.module.css';
 
 const SECTION_TITLES = {
@@ -17,7 +22,17 @@ const SECTION_TITLES = {
 };
 
 export default function TopBar() {
-  const { view, totalXP, getLevel, threatLevel, setOperatorModalOpen, operator } = useStore();
+  const {
+    view,
+    totalXP,
+    getLevel,
+    threatLevel,
+    setOperatorModalOpen,
+    operator,
+    theme,
+    toggleTheme,
+  } = useStore();
+
   const [time, setTime] = useState('');
   const level = getLevel();
 
@@ -32,8 +47,6 @@ export default function TopBar() {
   }, []);
 
   const section = SECTION_TITLES[view] || { title: view.toUpperCase(), subtitle: 'Cyber Enclave' };
-
-  // Threat badge color mapping
   const isElevated = threatLevel === 'ELEVATED' || threatLevel === 'CRITICAL';
 
   return (
@@ -47,7 +60,7 @@ export default function TopBar() {
         <span className={s.sectionSubtitle}>{section.subtitle}</span>
       </div>
 
-      {/* Center/Right: Status Badges, XP, Level, Clock */}
+      {/* Center/Right: Status Badges, XP, Level, Theme, Clock */}
       <div className={s.right}>
         {/* System Operational Status */}
         <div className={s.statusPill}>
@@ -73,6 +86,26 @@ export default function TopBar() {
           <span className={s.xpLabel}>XP</span>
           <span className={s.xpValue}>{totalXP.toLocaleString()}</span>
         </div>
+
+        {/* Light / Dark Mode Toggle Button */}
+        <button
+          className={s.themeToggleBtn}
+          onClick={toggleTheme}
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          aria-label="Toggle light and dark mode"
+        >
+          {theme === 'dark' ? (
+            <>
+              <IconSun size={15} className={s.sunIcon} />
+              <span className={s.themeLabel}>LIGHT</span>
+            </>
+          ) : (
+            <>
+              <IconMoon size={15} className={s.moonIcon} />
+              <span className={s.themeLabel}>DARK</span>
+            </>
+          )}
+        </button>
 
         {/* Live Clock */}
         <div className={s.clockBox} title="Enclave UTC Time">

@@ -38,8 +38,10 @@ export default function MissionView() {
     setLab,
   } = useStore();
 
-  const lab = LAB_DATA[currentLab || 1];
-  const mission = lab?.missions[currentMission !== null ? currentMission : 0];
+  const labId = currentLab || 1;
+  const lab = LAB_DATA[labId] || LAB_DATA[1];
+  const missionIdx = typeof currentMission === 'number' && lab?.missions?.[currentMission] ? currentMission : 0;
+  const mission = lab?.missions?.[missionIdx] || lab?.missions?.[0];
 
   const [phase, setPhase] = useState(PHASE.BRIEFING);
   const [answer, setAnswer] = useState('');
@@ -57,6 +59,12 @@ export default function MissionView() {
     setAnimKey((k) => k + 1);
   }, [mission?.id]);
 
+  useEffect(() => {
+    if (mission?.id && mission?.tasks?.length) {
+      initMissionTasks(mission.id, mission.tasks.length);
+    }
+  }, [mission?.id]);
+
   if (!mission) {
     return (
       <div className={s.emptyState}>
@@ -69,10 +77,11 @@ export default function MissionView() {
   }
 
   const isDone = !!completedMissions[mission.id];
-  const prevEvidence = currentMission > 0 ? lab.missions[currentMission - 1].evidence_out : null;
+  const prevEvidence = missionIdx > 0 && lab?.missions?.[missionIdx - 1]
+    ? lab.missions[missionIdx - 1].evidence_out
+    : null;
 
-  initMissionTasks(mission.id, mission.tasks.length);
-  const tasks = missionTasks[mission.id] || [];
+  const tasks = (mission?.id && missionTasks[mission.id]) || (mission?.tasks ? Array(mission.tasks.length).fill(false) : []);
   const completedTasksCount = tasks.filter(Boolean).length;
 
   // ── Answer check ──
@@ -96,29 +105,52 @@ export default function MissionView() {
     if (isDone) return;
     completeMission(mission.id, mission.xp, mission.badge);
     setPhase(PHASE.COMPLETE);
-    const nextIdx = currentMission + 1;
+    const nextIdx = missionIdx + 1;
     setTimeout(() => {
       if (nextIdx < lab.missions.length) {
-        useStore.getState().openMission(currentLab, nextIdx);
+        useStore.getState().openMission(labId, nextIdx);
       } else {
-        useStore.getState().showDebrief(currentLab);
+        useStore.getState().showDebrief(labId);
       }
     }, 3000);
   }
 
-  // ── Tool block map ──
-  const toolBlock = {
-    log: <LogViewer lines={mission.logLines} />,
-    log_terminal: <LogViewer lines={mission.logLines} termCmds={mission.terminalCmds} />,
-    burp: <BurpBlock requests={mission.burpRequests} />,
-    tickets: <TicketBlock tickets={mission.tickets} onSelect={(id) => setAnswer(id)} />,
-    policy: <PolicyBlock policies={mission.policies} />,
-    agent: <AgentBuilder patterns={mission.agentPatterns} onDeploy={() => { setAnswer('DEPLOY_ALL'); setAnswerOk(true); }} />,
-    marketplace: <MarketplaceBlock listings={mission.marketplaceListings} audit={mission.clusterAudit} />,
-    k8s: <K8sBlock pods={mission.pods} termCmds={mission.terminalCmds} />,
-    deepfake: <DeepfakeBlock indicators={mission.videoIndicators} />,
-    crypto: <CryptoBlock algorithms={mission.cryptoAlgorithms} />,
-  }[mission.type];
+  // ── Tool block map (rendered on demand with safe fallbacks) ──
+  function renderToolBlock() {
+    if (!mission) return null;
+    switch (mission.type) {
+      case 'log':
+        return <LogViewer lines={mission.logLines || []} />;
+      case 'log_terminal':
+        return <LogViewer lines={mission.logLines || []} termCmds={mission.terminalCmds || []} />;
+      case 'burp':
+        return <BurpBlock requests={mission.burpRequests || []} />;
+      case 'tickets':
+        return <TicketBlock tickets={mission.tickets || []} onSelect={(id) => setAnswer(id)} />;
+      case 'policy':
+        return <PolicyBlock policies={mission.policies || []} />;
+      case 'agent':
+        return (
+          <AgentBuilder
+            patterns={mission.agentPatterns || []}
+            onDeploy={() => {
+              setAnswer('DEPLOY_ALL');
+              setAnswerOk(true);
+            }}
+          />
+        );
+      case 'marketplace':
+        return <MarketplaceBlock listings={mission.marketplaceListings || []} audit={mission.clusterAudit} />;
+      case 'k8s':
+        return <K8sBlock pods={mission.pods || []} termCmds={mission.terminalCmds || []} />;
+      case 'deepfake':
+        return <DeepfakeBlock indicators={mission.videoIndicators || []} />;
+      case 'crypto':
+        return <CryptoBlock algorithms={mission.cryptoAlgorithms || []} />;
+      default:
+        return null;
+    }
+  }
 
   // ─────────────────────────────────────────────
   // PHASE 1: BRIEFING
@@ -320,7 +352,7 @@ export default function MissionView() {
           <main className={s.challengeCol}>
             {/* Tool Interactive Block */}
             <div className={s.toolContainer}>
-              {toolBlock}
+              {renderToolBlock()}
             </div>
 
             {/* Submission Section */}

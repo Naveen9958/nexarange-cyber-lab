@@ -7,6 +7,22 @@ const useStore = create((set, get) => ({
   currentLab: null,          // 1 | 2
   currentMission: null,      // 0-4 index
   
+  // ── Theme State ──
+  theme: (typeof window !== 'undefined' && localStorage.getItem('nr-theme')) || 'dark',
+  toggleTheme: () => {
+    const next = get().theme === 'dark' ? 'light' : 'dark';
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nr-theme', next);
+      document.documentElement.setAttribute('data-theme', next);
+    }
+    set({ theme: next });
+    get().addToast({
+      title: 'THEME MODE TOGGLED',
+      text: `Switched to ${next.toUpperCase()} MODE.`,
+      type: 'info',
+    });
+  },
+
   // ── Operator Profile (Consistent Source of Truth) ──
   operator: {
     name: 'Naveen',
