@@ -58,10 +58,14 @@ const EXTENDED_RESPONSES = {
 };
 
 export default function TerminalView() {
+  const { operator } = useStore();
+  const opName = operator?.name || 'Operator';
+  const opCallsign = operator?.callsign || '0xOPERATOR';
+
   const [output, setOutput] = useState([
     { text: '═══════════════════════════════════════════════════════════════════════', cls: 'muted' },
     { text: '  NEXARANGE SECURE ENCLAVE TERMINAL v2.6.4 — CLASSIFIED SIMULATION', cls: 'head' },
-    { text: '  Operator: NAVEEN  |  Session: SESS-SEC-994  |  Lab Connection: ACTIVE', cls: 'info' },
+    { text: `  Operator: ${opCallsign.toUpperCase()} (${opName.toUpperCase()})  |  Session: SESS-SEC-994  |  Lab Connection: ACTIVE`, cls: 'info' },
     { text: '═══════════════════════════════════════════════════════════════════════', cls: 'muted' },
     { text: 'Type "help" for a list of simulated security assessment commands.', cls: 'accent' },
   ]);
@@ -99,7 +103,17 @@ export default function TerminalView() {
       const lower = c.toLowerCase();
       let resp = EXTENDED_RESPONSES[lower] || KALI_GLOBAL[c] || KALI_GLOBAL[lower];
 
-      if (lower === 'help') {
+      if (lower === 'whoami') {
+        resp = `Operator: ${opCallsign} (${opName})\nRole: ${operator?.role || 'AI Security Analyst'}\nClearance: ${operator?.clearance || 'TS/SCI-AI'}\nEnvironment: nexarange-kali-sandbox (Simulated Enclave)`;
+      } else if (lower === 'status') {
+        resp = `[ENCLAVE TELEMETRY STATUS]
+  ● Security Enclave: LAB-01-SECURE
+  ● Host: nexarange-kali (Linux 6.1.0-kali9-amd64)
+  ● Operator: ${opCallsign} (${opName}) (Clearance: ${operator?.clearance || 'TS/SCI-AI'})
+  ● Tunnel: WireGuard mTLS / AES-256-GCM
+  ● Threat Mitigation Engine: ARMED
+  ● Active Defense Daemons: 4 running (auth-mon, mcp-audit, k8s-watch, net-sentry)`;
+      } else if (lower === 'help') {
         resp = `NEXARANGE SIMULATION TERMINAL — SAFE INVESTIGATION SUITE
 Available commands:
   help                  Display this command reference
@@ -166,7 +180,7 @@ Available commands:
 
         <div className={s.chromeTitle}>
           <IconTerminal size={14} className={s.chromeIcon} />
-          <span>naveen@nexarange-kali: ~ (Simulated Enclave)</span>
+          <span>{opName.toLowerCase()}@nexarange-kali: ~ (Simulated Enclave)</span>
         </div>
 
         <div className={s.enclaveStatus}>
@@ -210,7 +224,7 @@ Available commands:
 
       {/* ── Command Input Line ── */}
       <div className={s.inputBar}>
-        <span className={s.prompt}>operator@nexarange:~$</span>
+        <span className={s.prompt}>{opName.toLowerCase()}@nexarange:~$</span>
         <input
           className={s.commandInput}
           value={cmd}
