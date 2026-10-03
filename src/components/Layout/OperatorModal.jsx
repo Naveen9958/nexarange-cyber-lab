@@ -1,6 +1,6 @@
-// src/components/Layout/OperatorModal.jsx — Operator Profile & Settings Modal
 import React, { useEffect, useState } from 'react';
 import useStore from '../../store/useStore';
+import { LAB_DATA } from '../../data/labData';
 import {
   IconShield,
   IconAward,
@@ -56,6 +56,7 @@ export default function OperatorModal() {
   const rank = getRank();
   const level = getLevel();
   const missionsCount = Object.keys(completedMissions).length;
+  const totalMissions = Object.values(LAB_DATA).reduce((sum, l) => sum + (l.missions?.length || 0), 0);
 
   const THEME_OPTIONS = [
     { id: 'dark', label: 'Dark', icon: IconMoon },
@@ -141,7 +142,7 @@ export default function OperatorModal() {
                 </div>
                 <div className={s.statBox}>
                   <div className={s.statLabel}><IconAward size={13} /> MISSIONS</div>
-                  <div className={s.statVal}>{missionsCount} / 10</div>
+                  <div className={s.statVal}>{missionsCount} / {totalMissions}</div>
                 </div>
               </div>
 

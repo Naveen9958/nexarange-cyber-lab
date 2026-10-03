@@ -16,11 +16,12 @@ export default function LabsView() {
   const [trackFilter, setTrackFilter] = useState('all'); // 'all' | 'ai' | 'cloud'
   const [search, setSearch] = useState('');
 
-  const labList = [LAB_DATA[1], LAB_DATA[2]];
+  const labList = [LAB_DATA[1], LAB_DATA[2], LAB_DATA[3], LAB_DATA[4], LAB_DATA[5]].filter(Boolean);
 
   const filteredLabs = labList.filter((lab) => {
-    if (trackFilter === 'ai' && lab.id !== 1) return false;
-    if (trackFilter === 'cloud' && lab.id !== 2) return false;
+    if (trackFilter === 'ai' && ![1, 3].includes(lab.id)) return false;
+    if (trackFilter === 'cloud' && ![2, 5].includes(lab.id)) return false;
+    if (trackFilter === 'soc' && lab.id !== 4) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
       const matchLab = lab.title.toLowerCase().includes(q) || lab.subtitle.toLowerCase().includes(q) || lab.company.toLowerCase().includes(q);
@@ -48,19 +49,25 @@ export default function LabsView() {
               className={`${s.tabBtn} ${trackFilter === 'all' ? s.tabActive : ''}`}
               onClick={() => setTrackFilter('all')}
             >
-              All Tracks
+              All Tracks ({labList.length})
             </button>
             <button
               className={`${s.tabBtn} ${trackFilter === 'ai' ? s.tabActive : ''}`}
               onClick={() => setTrackFilter('ai')}
             >
-              AI Security
+              AI Security (2)
             </button>
             <button
               className={`${s.tabBtn} ${trackFilter === 'cloud' ? s.tabActive : ''}`}
               onClick={() => setTrackFilter('cloud')}
             >
-              Cloud Infrastructure
+              Cloud & API (2)
+            </button>
+            <button
+              className={`${s.tabBtn} ${trackFilter === 'soc' ? s.tabActive : ''}`}
+              onClick={() => setTrackFilter('soc')}
+            >
+              SOC & IR (1)
             </button>
           </div>
 
@@ -92,7 +99,15 @@ export default function LabsView() {
                     <span className={s.labIdBadge}>OPERATION 0{lab.id}</span>
                     <span className={s.labTrackBadge}>{lab.subtitle.toUpperCase()}</span>
                     <span className={s.labDifficultyBadge}>
-                      {lab.id === 1 ? 'DIFFICULTY: ADVANCED' : 'DIFFICULTY: EXPERT'}
+                      {lab.id === 1
+                        ? 'DIFFICULTY: ADVANCED'
+                        : lab.id === 2
+                        ? 'DIFFICULTY: EXPERT'
+                        : lab.id === 3
+                        ? 'DIFFICULTY: HARDCORE'
+                        : lab.id === 4
+                        ? 'DIFFICULTY: CRITICAL'
+                        : 'DIFFICULTY: MASTER'}
                     </span>
                   </div>
 

@@ -16,15 +16,6 @@ export default function CertificatesView() {
   const { completedMissions, showToast, operator } = useStore();
   const [activeCert, setActiveCert] = useState(null);
 
-  const lab1 = LAB_DATA[1];
-  const lab2 = LAB_DATA[2];
-
-  const lab1DoneCount = lab1.missions.filter((m) => completedMissions[m.id]).length;
-  const lab2DoneCount = lab2.missions.filter((m) => completedMissions[m.id]).length;
-
-  const lab1Done = lab1DoneCount === lab1.missions.length;
-  const lab2Done = lab2DoneCount === lab2.missions.length;
-
   const certData = [
     {
       labId: 1,
@@ -33,9 +24,9 @@ export default function CertificatesView() {
       name: 'Advanced AI Security Analyst (AISA)',
       code: 'NR-AISA-9941',
       issuer: 'NexaRange Cyber Range Institute',
-      completedCount: lab1DoneCount,
-      totalCount: lab1.missions.length,
-      isUnlocked: lab1Done,
+      completedCount: LAB_DATA[1]?.missions.filter((m) => completedMissions[m.id]).length || 0,
+      totalCount: LAB_DATA[1]?.missions.length || 5,
+      isUnlocked: (LAB_DATA[1]?.missions.filter((m) => completedMissions[m.id]).length || 0) === 5,
       requirements: 'Neutralize all 5 autonomous agent attack vectors in Lab 01',
       description: 'Accreditation verifying demonstrated capability in detecting token validator bypasses, MCP connector privilege escalation, prompt injections, and zero-trust policy enforcement.',
     },
@@ -46,11 +37,50 @@ export default function CertificatesView() {
       name: 'Cloud Forensics & Deepfake Incident Specialist (CFDIS)',
       code: 'NR-CFDIS-8402',
       issuer: 'NexaRange Cyber Range Institute',
-      completedCount: lab2DoneCount,
-      totalCount: lab2.missions.length,
-      isUnlocked: lab2Done,
+      completedCount: LAB_DATA[2]?.missions.filter((m) => completedMissions[m.id]).length || 0,
+      totalCount: LAB_DATA[2]?.missions.length || 5,
+      isUnlocked: (LAB_DATA[2]?.missions.filter((m) => completedMissions[m.id]).length || 0) === 5,
       requirements: 'Complete all 5 cloud investigation & cryptographic migration vectors in Lab 02',
       description: 'Accreditation validating competence in analyzing synthetic audio deepfakes, malicious Python wheel supply chains, rogue Kubernetes workloads, and quantum-resistant algorithm transitions.',
+    },
+    {
+      labId: 3,
+      caseId: 'ON-307',
+      track: 'AI Red Teaming & LLM Defense',
+      name: 'Advanced LLM Security & RAG Defense Specialist (ALSD)',
+      code: 'NR-ALSD-3071',
+      issuer: 'NexaRange Cyber Range Institute',
+      completedCount: LAB_DATA[3]?.missions.filter((m) => completedMissions[m.id]).length || 0,
+      totalCount: LAB_DATA[3]?.missions.length || 5,
+      isUnlocked: (LAB_DATA[3]?.missions.filter((m) => completedMissions[m.id]).length || 0) === 5,
+      requirements: 'Neutralize all 5 vector poisoning & jailbreak attack vectors in Lab 03',
+      description: 'Accreditation verifying mastery in vector database knowledge corruption detection, indirect prompt injection mitigation, unauthorized MCP tool audit, and neural defense mesh deployment.',
+    },
+    {
+      labId: 4,
+      caseId: 'AG-418',
+      track: 'SOC Defense & Incident Response',
+      name: 'Enterprise Ransomware Incident Responder (ERIR)',
+      code: 'NR-ERIR-4188',
+      issuer: 'NexaRange Cyber Range Institute',
+      completedCount: LAB_DATA[4]?.missions.filter((m) => completedMissions[m.id]).length || 0,
+      totalCount: LAB_DATA[4]?.missions.length || 5,
+      isUnlocked: (LAB_DATA[4]?.missions.filter((m) => completedMissions[m.id]).length || 0) === 5,
+      requirements: 'Contain all 5 ransomware lateral movement & extortion vectors in Lab 04',
+      description: 'Accreditation certifying capability in Sysmon phishing macro tracing, dark web extortion intelligence, Kubernetes cryptor containment, synthetic audio forensics, and memory key extraction.',
+    },
+    {
+      labId: 5,
+      caseId: 'TF-590',
+      track: 'Application Security & API Defense',
+      name: 'Cloud API & Zero-Day Penetration Tester (CZPT)',
+      code: 'NR-CZPT-5902',
+      issuer: 'NexaRange Cyber Range Institute',
+      completedCount: LAB_DATA[5]?.missions.filter((m) => completedMissions[m.id]).length || 0,
+      totalCount: LAB_DATA[5]?.missions.length || 5,
+      isUnlocked: (LAB_DATA[5]?.missions.filter((m) => completedMissions[m.id]).length || 0) === 5,
+      requirements: 'Eliminate all 5 OWASP API security vulnerabilities in Lab 05',
+      description: 'Accreditation validating expertise in Broken Object Level Authorization (BOLA), JWT algorithm confusion attacks, production GraphQL introspection defense, and API gateway zero-trust quarantines.',
     },
   ];
 

@@ -13,12 +13,12 @@ import {
 import s from './AnalyticsView.module.css';
 
 const SKILL_CATEGORIES = [
-  { name: 'AI Security', key: 'ai', missionIds: ['m1_1', 'm1_2', 'm1_3'] },
-  { name: 'Cloud Infra', key: 'cloud', missionIds: ['m2_1', 'm2_2'] },
-  { name: 'Forensics', key: 'forensics', missionIds: ['m1_1', 'm2_4'] },
-  { name: 'Cryptography', key: 'crypto', missionIds: ['m2_5'] },
-  { name: 'Networking', key: 'network', missionIds: ['m1_2', 'm1_4'] },
-  { name: 'Kubernetes', key: 'k8s', missionIds: ['m2_3'] },
+  { name: 'AI Security', key: 'ai', missionIds: ['m1_1', 'm1_2', 'm1_3', 'm3_1', 'm3_2', 'm3_4'] },
+  { name: 'Cloud Infra', key: 'cloud', missionIds: ['m2_1', 'm2_2', 'm4_3', 'm5_4'] },
+  { name: 'Forensics', key: 'forensics', missionIds: ['m1_1', 'm2_4', 'm4_1', 'm4_4'] },
+  { name: 'Cryptography', key: 'crypto', missionIds: ['m2_5', 'm4_5', 'm5_2'] },
+  { name: 'AppSec & APIs', key: 'network', missionIds: ['m1_2', 'm1_4', 'm3_3', 'm5_1', 'm5_3'] },
+  { name: 'Kubernetes', key: 'k8s', missionIds: ['m2_3', 'm4_3'] },
 ];
 
 export default function AnalyticsView() {
@@ -41,7 +41,7 @@ export default function AnalyticsView() {
 
   // ── Calculate XP Progression Points ──
   const xpProgression = useMemo(() => {
-    const allMissions = [...LAB_DATA[1].missions, ...LAB_DATA[2].missions];
+    const allMissions = Object.values(LAB_DATA).flatMap((lab) => lab.missions);
     let accum = 0;
     const points = [{ label: 'Baseline', xp: 0 }];
 
@@ -61,7 +61,7 @@ export default function AnalyticsView() {
   const pad = { top: 20, right: 30, bottom: 40, left: 55 };
   const graphW = chartW - pad.left - pad.right;
   const graphH = chartH - pad.top - pad.bottom;
-  const maxScaleXP = Math.max(2000, totalXP + 300);
+  const maxScaleXP = Math.max(5000, totalXP + 300);
 
   // Radar Polygon Points calculation
   const radarCx = 150;
@@ -348,7 +348,7 @@ export default function AnalyticsView() {
           <div className={s.kpiRows}>
             <div className={s.kpiRow}>
               <span className={s.kpiKey}>Missions Completed</span>
-              <span className={s.kpiVal}>{completedCount} / 10</span>
+              <span className={s.kpiVal}>{completedCount} / {Object.values(LAB_DATA).reduce((sum, l) => sum + l.missions.length, 0)}</span>
             </div>
             <div className={s.kpiRow}>
               <span className={s.kpiKey}>Global Ranking</span>

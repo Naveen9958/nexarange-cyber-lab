@@ -25,32 +25,26 @@ export default function Dashboard() {
     getRank,
   } = useStore();
 
+  const allLabs = [LAB_DATA[1], LAB_DATA[2], LAB_DATA[3], LAB_DATA[4], LAB_DATA[5]].filter(Boolean);
+  const totalMissionsCount = allLabs.reduce((sum, l) => sum + l.missions.length, 0);
   const completedCount = Object.keys(completedMissions).length;
-  const completionPct = Math.round((completedCount / 10) * 100);
+  const completionPct = Math.round((completedCount / totalMissionsCount) * 100);
   const currentRank = getRank();
 
-  const lab1 = LAB_DATA[1];
-  const lab2 = LAB_DATA[2];
-  const lab1Done = lab1.missions.filter((m) => completedMissions[m.id]).length;
-  const lab2Done = lab2.missions.filter((m) => completedMissions[m.id]).length;
-
   function handleContinue() {
-    // Find first incomplete mission across labs
-    const m1Idx = lab1.missions.findIndex((m) => !completedMissions[m.id]);
-    if (m1Idx !== -1) {
-      openMission(1, m1Idx);
-      return;
-    }
-    const m2Idx = lab2.missions.findIndex((m) => !completedMissions[m.id]);
-    if (m2Idx !== -1) {
-      openMission(2, m2Idx);
-      return;
+    for (const lab of allLabs) {
+      const idx = lab.missions.findIndex((m) => !completedMissions[m.id]);
+      if (idx !== -1) {
+        openMission(lab.id, idx);
+        return;
+      }
     }
     openMission(1, 0);
   }
 
   function handleLaunchLab(labId) {
     const lab = LAB_DATA[labId];
+    if (!lab) return;
     const idx = lab.missions.findIndex((m) => !completedMissions[m.id]);
     openMission(labId, idx === -1 ? 0 : idx);
   }
@@ -135,15 +129,15 @@ export default function Dashboard() {
               <IconTarget size={18} />
             </div>
           </div>
-          <div className={s.statValue}>{completedCount} <span className={s.statUnit}>/ 10</span></div>
+          <div className={s.statValue}>{completedCount} <span className={s.statUnit}>/ {totalMissionsCount}</span></div>
           <div className={s.statFooter}>
             <div className={s.statProgressBar}>
               <div
                 className={s.statProgressFill}
-                style={{ width: `${(completedCount / 10) * 100}%`, background: 'var(--status-success)' }}
+                style={{ width: `${(completedCount / totalMissionsCount) * 100}%`, background: 'var(--status-success)' }}
               />
             </div>
-            <span className={s.statFootnote}>{10 - completedCount} operational targets pending</span>
+            <span className={s.statFootnote}>{totalMissionsCount - completedCount} operational targets pending</span>
           </div>
         </div>
 
@@ -194,24 +188,24 @@ export default function Dashboard() {
           <span className={s.sectionDesc}>Select an enterprise scenario to deploy investigation tools</span>
         </div>
         <button className={s.sectionLink} onClick={() => setView('labs')}>
-          <span>All 2 Operations</span>
+          <span>All {allLabs.length} Operations</span>
           <IconArrowRight size={14} />
         </button>
       </div>
 
       <div className={s.labsGrid}>
-        <LabCard
-          lab={lab1}
-          completedMissionsCount={lab1Done}
-          onLaunch={() => handleLaunchLab(1)}
-          onDetails={() => { setLab(1); setView('labs'); }}
-        />
-        <LabCard
-          lab={lab2}
-          completedMissionsCount={lab2Done}
-          onLaunch={() => handleLaunchLab(2)}
-          onDetails={() => { setLab(2); setView('labs'); }}
-        />
+        {allLabs.map((lab) => {
+          const done = lab.missions.filter((m) => completedMissions[m.id]).length;
+          return (
+            <LabCard
+              key={lab.id}
+              lab={lab}
+              completedMissionsCount={done}
+              onLaunch={() => handleLaunchLab(lab.id)}
+              onDetails={() => { setLab(lab.id); setView('labs'); }}
+            />
+          );
+        })}
       </div>
 
       {/* ── Intelligence Feed & Accolades Row ── */}
