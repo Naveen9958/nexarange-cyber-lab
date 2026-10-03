@@ -203,6 +203,9 @@ const useStore = create((set, get) => ({
 
   // ── Modals & Menus ──
   operatorModalOpen: false,
+  operatorModalTab: 'profile', // 'profile' | 'settings'
+  setOperatorModalOpen: (open, tab = 'profile') => set({ operatorModalOpen: open, operatorModalTab: tab }),
+  setOperatorModalTab: (tab) => set({ operatorModalTab: tab }),
   profileDropdownOpen: false,
   profileDropdownAnchor: 'sidebar', // 'sidebar' | 'header'
 

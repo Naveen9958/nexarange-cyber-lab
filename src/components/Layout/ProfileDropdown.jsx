@@ -66,12 +66,12 @@ export default function ProfileDropdown() {
 
   const handleOpenProfile = () => {
     setProfileDropdownOpen(false);
-    setOperatorModalOpen(true);
+    setOperatorModalOpen(true, 'profile');
   };
 
-  const handleExportSettings = () => {
+  const handleOpenSettings = () => {
     setProfileDropdownOpen(false);
-    showToast('Telemetry & configuration exported to clipboard.', 'success');
+    setOperatorModalOpen(true, 'settings');
   };
 
   const handleResetProgress = () => {
@@ -130,7 +130,7 @@ export default function ProfileDropdown() {
 
         <button
           className={s.menuItem}
-          onClick={handleExportSettings}
+          onClick={handleOpenSettings}
           role="button"
           tabIndex={0}
         >
