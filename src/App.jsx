@@ -1,5 +1,5 @@
 // src/App.jsx — Root component
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import useStore from './store/useStore';
 
 import BootScreen from './components/Boot/BootScreen';

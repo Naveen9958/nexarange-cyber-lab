@@ -5,11 +5,9 @@ import { LAB_DATA } from '../../data/labData';
 import {
   IconZap,
   IconLock,
-  IconUnlock,
   IconCheckCircle,
   IconArrowRight,
   IconSearch,
-  IconShield,
 } from '../Common/Icons';
 import s from './LabsView.module.css';
 
@@ -83,12 +81,7 @@ export default function LabsView() {
       <div className={s.labsContainer}>
         {filteredLabs.map((lab) => {
           const completedInLab = lab.missions.filter((m) => completedMissions[m.id]).length;
-          const isLabDone = completedInLab === lab.missions.length;
           const progressPct = Math.round((completedInLab / lab.missions.length) * 100);
-          const isLab2 = lab.id === 2;
-          const lab1DoneCount = LAB_DATA[1].missions.filter((m) => completedMissions[m.id]).length;
-          // Lab 2 unlocks after Lab 1 has at least 3 completed missions or can be browsed
-          const isLab2Locked = false; // keep open for user testing, but display prereqs clearly
 
           return (
             <div key={lab.id} className={s.labCard}>

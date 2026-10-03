@@ -10,8 +10,6 @@ import {
   IconArrowRight,
   IconShield,
   IconFlask,
-  IconLock,
-  IconCheckCircle,
 } from '../Common/Icons';
 import s from './Dashboard.module.css';
 

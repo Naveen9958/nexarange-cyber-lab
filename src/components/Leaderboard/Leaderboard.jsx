@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import useStore from '../../store/useStore';
 import { LEADERBOARD } from '../../data/labData';
-import { IconTrophy, IconSearch, IconZap, IconShield, IconUser } from '../Common/Icons';
+import { IconTrophy, IconSearch, IconZap } from '../Common/Icons';
 import s from './Leaderboard.module.css';
 
 export default function Leaderboard() {

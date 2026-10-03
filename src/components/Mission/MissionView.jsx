@@ -17,9 +17,6 @@ import {
   IconArrowRight,
   IconCheckCircle,
   IconAlertCircle,
-  IconShield,
-  IconFlask,
-  IconLock,
 } from '../Common/Icons';
 import s from './MissionView.module.css';
 

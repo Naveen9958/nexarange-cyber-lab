@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import useStore from '../../store/useStore';
 import { KALI_GLOBAL } from '../../data/labData';
-import { IconTerminal, IconShield, IconZap } from '../Common/Icons';
+import { IconTerminal } from '../Common/Icons';
 import s from './TerminalView.module.css';
 
 const QUICK_COMMANDS = ['help', 'status', 'scan', 'inspect', 'trace', 'analyze', 'clear'];
@@ -58,7 +58,6 @@ const EXTENDED_RESPONSES = {
 };
 
 export default function TerminalView() {
-  const { totalXP } = useStore();
   const [output, setOutput] = useState([
     { text: '═══════════════════════════════════════════════════════════════════════', cls: 'muted' },
     { text: '  NEXARANGE SECURE ENCLAVE TERMINAL v2.6.4 — CLASSIFIED SIMULATION', cls: 'head' },
