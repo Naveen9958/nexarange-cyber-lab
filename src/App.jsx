@@ -5,6 +5,7 @@ import useStore from './store/useStore';
 import BootScreen from './components/Boot/BootScreen';
 import Sidebar from './components/Layout/Sidebar';
 import TopBar from './components/Layout/TopBar';
+import OperatorModal from './components/Layout/OperatorModal';
 import Dashboard from './components/Dashboard/Dashboard';
 import LabsView from './components/Labs/LabsView';
 import TerminalView from './components/Terminal/TerminalView';
@@ -46,9 +47,12 @@ export default function App() {
       <div className="app-main">
         <TopBar />
         <main className="app-content">
-          <ViewRouter />
+          <div className="app-content-container">
+            <ViewRouter />
+          </div>
         </main>
       </div>
+      <OperatorModal />
       <ToastSystem />
     </div>
   );

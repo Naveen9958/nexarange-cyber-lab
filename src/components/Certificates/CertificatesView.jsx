@@ -1,70 +1,209 @@
-// src/components/Certificates/CertificatesView.jsx
+// src/components/Certificates/CertificatesView.jsx — Official Credentials Vault
 import { useState } from 'react';
 import useStore from '../../store/useStore';
 import { LAB_DATA } from '../../data/labData';
+import {
+  IconAward,
+  IconLock,
+  IconUnlock,
+  IconDownload,
+  IconCheckCircle,
+  IconShield,
+} from '../Common/Icons';
 import s from './CertificatesView.module.css';
 
 export default function CertificatesView() {
-  const { completedMissions, badges, showToast } = useStore();
-  const [showCert, setShowCert] = useState(null);
+  const { completedMissions, showToast, operator } = useStore();
+  const [activeCert, setActiveCert] = useState(null);
 
-  const lab1Missions = LAB_DATA[1].missions;
-  const lab2Missions = LAB_DATA[2].missions;
-  const lab1Done = lab1Missions.every((m) => completedMissions[m.id]);
-  const lab2Done = lab2Missions.every((m) => completedMissions[m.id]);
+  const lab1 = LAB_DATA[1];
+  const lab2 = LAB_DATA[2];
 
-  const certCode = () => `NR-${Math.random().toString(36).substr(2,4).toUpperCase()}-${Math.random().toString(36).substr(2,6).toUpperCase()}`;
+  const lab1DoneCount = lab1.missions.filter((m) => completedMissions[m.id]).length;
+  const lab2DoneCount = lab2.missions.filter((m) => completedMissions[m.id]).length;
+
+  const lab1Done = lab1DoneCount === lab1.missions.length;
+  const lab2Done = lab2DoneCount === lab2.missions.length;
+
+  const certData = [
+    {
+      labId: 1,
+      caseId: 'NC-114',
+      track: 'AI Security Operations',
+      name: 'Advanced AI Security Analyst (AISA)',
+      code: 'NR-AISA-9941',
+      issuer: 'NexaRange Cyber Range Institute',
+      completedCount: lab1DoneCount,
+      totalCount: lab1.missions.length,
+      isUnlocked: lab1Done,
+      requirements: 'Neutralize all 5 autonomous agent attack vectors in Lab 01',
+      description: 'Accreditation verifying demonstrated capability in detecting token validator bypasses, MCP connector privilege escalation, prompt injections, and zero-trust policy enforcement.',
+    },
+    {
+      labId: 2,
+      caseId: 'VC-233',
+      track: 'Cloud Infrastructure & Synthetic Media',
+      name: 'Cloud Forensics & Deepfake Incident Specialist (CFDIS)',
+      code: 'NR-CFDIS-8402',
+      issuer: 'NexaRange Cyber Range Institute',
+      completedCount: lab2DoneCount,
+      totalCount: lab2.missions.length,
+      isUnlocked: lab2Done,
+      requirements: 'Complete all 5 cloud investigation & cryptographic migration vectors in Lab 02',
+      description: 'Accreditation validating competence in analyzing synthetic audio deepfakes, malicious Python wheel supply chains, rogue Kubernetes workloads, and quantum-resistant algorithm transitions.',
+    },
+  ];
 
   return (
     <div className={s.wrap}>
-      <div className={s.title}>// CREDENTIALS VAULT</div>
-      <div className={s.grid}>
-        {[
-          { labId: 1, title: 'Ghost in the Machine', color: 'green', done: lab1Done, cert: 'Advanced AI Security Analyst' },
-          { labId: 2, title: 'The Deepfake Deal', color: 'cyan', done: lab2Done, cert: 'Cloud Infrastructure Security Engineer' },
-        ].map((c) => {
-          const neon = `var(--neon-${c.color})`;
+      {/* ── Page Header ── */}
+      <div className={s.header}>
+        <div>
+          <h1 className={s.title}>OPERATIONAL CREDENTIALS VAULT</h1>
+          <p className={s.subtitle}>
+            Cryptographically sealed certifications awarded upon successful resolution and forensic debrief of full-spectrum cyber incidents.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Certificate Cards Grid ── */}
+      <div className={s.certsGrid}>
+        {certData.map((c) => {
+          const progressPct = Math.round((c.completedCount / c.totalCount) * 100);
+
           return (
-            <div key={c.labId} className={s.certCard} style={{ borderColor: c.done ? `rgba(${c.color === 'green' ? '0,255,170':'0,212,255'},0.35)` : 'var(--border)' }}>
-              <div className={s.certLabel} style={{ color: neon }}>CASE {c.labId === 1 ? 'NC-114' : 'VC-233'}</div>
-              <div className={s.certTitle}>{c.title}</div>
-              <div className={s.certBadgeArea}>
-                <div className={s.certBadge} style={{ borderColor: neon, boxShadow: c.done ? `0 0 20px ${neon}44` : 'none' }}>
-                  <div className={s.certBadgeInner}>{c.done ? '🏆' : '🔒'}</div>
+            <div
+              key={c.code}
+              className={`${s.certCard} ${c.isUnlocked ? s.cardUnlocked : s.cardLocked}`}
+            >
+              <div className={s.cardTopRow}>
+                <span className={s.caseBadge}>CASE: {c.caseId}</span>
+                <span className={`${s.statusBadge} ${c.isUnlocked ? s.statusUnlocked : s.statusLocked}`}>
+                  {c.isUnlocked ? (
+                    <>
+                      <IconCheckCircle size={14} /> UNLOCKED & ISSUED
+                    </>
+                  ) : (
+                    <>
+                      <IconLock size={14} /> IN PROGRESS
+                    </>
+                  )}
+                </span>
+              </div>
+
+              {/* Certificate Seal Emblem */}
+              <div className={s.sealArea}>
+                <div className={`${s.sealCircle} ${c.isUnlocked ? s.sealActive : ''}`}>
+                  <IconAward size={36} />
                 </div>
               </div>
-              <div className={s.certCourseTitle}>{c.cert}</div>
-              {c.done ? (
-                <button className={s.viewBtn} style={{ color: neon, borderColor: `rgba(${c.color === 'green' ? '0,255,170':'0,212,255'},0.4)` }}
-                  onClick={() => setShowCert(c)}>
-                  VIEW CERTIFICATE
-                </button>
-              ) : (
-                <div className={s.lockedMsg}>Complete all 5 missions to unlock</div>
-              )}
+
+              <div className={s.certDetails}>
+                <span className={s.trackLabel}>{c.track.toUpperCase()}</span>
+                <h3 className={s.certName}>{c.name}</h3>
+                <p className={s.certDesc}>{c.description}</p>
+              </div>
+
+              {/* Requirements & Progress */}
+              <div className={s.progressSection}>
+                <div className={s.progLabelRow}>
+                  <span className={s.reqText}>{c.requirements}</span>
+                  <span className={s.progNumbers}>
+                    {c.completedCount} / {c.totalCount} ({progressPct}%)
+                  </span>
+                </div>
+                <div className={s.progressBar}>
+                  <div
+                    className={s.progressFill}
+                    style={{
+                      width: `${progressPct}%`,
+                      background: c.isUnlocked ? 'var(--status-success)' : 'var(--cyan-primary)',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className={s.cardActions}>
+                {c.isUnlocked ? (
+                  <button className={s.viewCertBtn} onClick={() => setActiveCert(c)}>
+                    <IconAward size={16} />
+                    <span>VIEW ACCREDITATION</span>
+                  </button>
+                ) : (
+                  <div className={s.lockedNotice}>
+                    <IconLock size={14} />
+                    <span>Complete {c.totalCount - c.completedCount} more missions in Operation 0{c.labId} to unlock</span>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {showCert && (
-        <div className={s.certModal} onClick={() => setShowCert(null)}>
-          <div className={s.certDocument} onClick={(e) => e.stopPropagation()}>
+      {/* ── Certificate Preview Modal ── */}
+      {activeCert && (
+        <div className={s.modalBackdrop} onClick={() => setActiveCert(null)}>
+          <div className={s.modalContent} onClick={(e) => e.stopPropagation()}>
+            {/* Parchment Styled Certificate Document */}
             <div className={s.certDoc}>
-              <div className={s.certDocHeader}>
-                <div className={s.certDocTitle}>NEXARANGE CYBER OPERATIONS PLATFORM</div>
-                <div className={s.certDocSub}>Certificate of Achievement</div>
+              <div className={s.docBorder}>
+                <div className={s.docCornerTopLeft} />
+                <div className={s.docCornerTopRight} />
+                <div className={s.docCornerBottomLeft} />
+                <div className={s.docCornerBottomRight} />
+
+                <div className={s.docHeader}>
+                  <div className={s.docOrg}>NEXARANGE CYBER RANGE OPERATIONS</div>
+                  <div className={s.docSeal}>SEAL OF PROFESSIONAL DEMONSTRATION</div>
+                  <h2 className={s.docTitle}>CERTIFICATE OF OPERATIONAL MASTERY</h2>
+                </div>
+
+                <div className={s.docBody}>
+                  <p className={s.certifyText}>This credential hereby confirms that security operator</p>
+                  <div className={s.operatorNameDisplay}>{operator.name.toUpperCase()}</div>
+                  <p className={s.competencyText}>
+                    has successfully solved, mitigated, and forensically documented all threat stages within the enterprise incident scenario:
+                  </p>
+                  <div className={s.accreditationTitle}>{activeCert.name}</div>
+                  <p className={s.caseNotice}>Case Enclave: {activeCert.caseId} • {activeCert.track}</p>
+                </div>
+
+                <div className={s.docFooter}>
+                  <div className={s.signCol}>
+                    <div className={s.signatureLine}>Devika Rao / AI SecOps Lead</div>
+                    <span className={s.signLabel}>INCIDENT COMMAND CHAIR</span>
+                  </div>
+
+                  <div className={s.hashCol}>
+                    <span className={s.hashLabel}>VERIFICATION SERIAL</span>
+                    <span className={s.hashVal}>{activeCert.code}</span>
+                    <span className={s.hashDate}>ISSUED: {new Date().toLocaleDateString('en-GB')}</span>
+                  </div>
+
+                  <div className={s.signCol}>
+                    <div className={s.signatureLine}>NexaRange Range Director</div>
+                    <span className={s.signLabel}>SYSTEMS VERIFICATION</span>
+                  </div>
+                </div>
               </div>
-              <div className={s.certDocAwardText}>This certifies that</div>
-              <div className={s.certDocName}>NAVEEN</div>
-              <div className={s.certDocAwardText}>has successfully completed all missions in</div>
-              <div className={s.certDocTrack}>{showCert.cert}</div>
-              <div className={s.certDocCase}>Case ID: {showCert.labId === 1 ? 'NC-114' : 'VC-233'} · {new Date().toLocaleDateString('en-GB')}</div>
-              <div className={s.certDocCode}>Verification Code: <span style={{color:'var(--neon-cyan)'}}>{certCode()}</span></div>
             </div>
-            <div className={s.certActions}>
-              <button className={s.dlBtn} onClick={() => { showToast('Certificate PDF downloaded!', 'cyan'); }}>⬇ DOWNLOAD PDF</button>
-              <button className={s.closeBtn} onClick={() => setShowCert(null)}>CLOSE</button>
+
+            {/* Modal Controls */}
+            <div className={s.modalControls}>
+              <button
+                className={s.downloadBtn}
+                onClick={() => {
+                  showToast(`Verification PDF for ${activeCert.code} generated.`, 'success');
+                }}
+              >
+                <IconDownload size={16} />
+                <span>DOWNLOAD CREDENTIAL (PDF)</span>
+              </button>
+              <button className={s.closeModalBtn} onClick={() => setActiveCert(null)}>
+                CLOSE
+              </button>
             </div>
           </div>
         </div>

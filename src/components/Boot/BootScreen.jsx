@@ -1,4 +1,4 @@
-// src/components/Boot/BootScreen.jsx
+// src/components/Boot/BootScreen.jsx — High-tech Enclave Initialization
 import { useState, useEffect } from 'react';
 import { BOOT_LINES } from '../../data/labData';
 import s from './BootScreen.module.css';
@@ -16,26 +16,45 @@ export default function BootScreen({ onComplete }) {
         i++;
       } else {
         clearInterval(id);
-        setTimeout(onComplete, 600);
+        setTimeout(onComplete, 500);
       }
-    }, 170);
-    return () => clearInterval(id);
+    }, 140);
+
+    const onKey = (e) => {
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+        clearInterval(id);
+        onComplete();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('keydown', onKey);
+    };
   }, [onComplete]);
 
   return (
     <div className={s.boot}>
       <div className={s.content}>
         <div className={s.logo}>NEXARANGE</div>
-        <div className={s.version}>// ELITE CYBER OPERATIONS PLATFORM v4.7.2 //</div>
+        <div className={s.version}>// CYBER SECURITY & AI DEFENSE PLATFORM v2.6 //</div>
+
         <div className={s.barWrap}>
           <div className={s.bar} style={{ width: `${progress}%` }} />
         </div>
+
         <div className={s.log}>
-          {lines.map((l, i) => <div key={i}>{l}</div>)}
-          <span className={s.cursor}>█</span>
+          {lines.map((l, i) => (
+            <div key={i} className={s.logLine}>{l}</div>
+          ))}
+          <span className={s.cursor}>_</span>
         </div>
+
+        <button className={s.skipBtn} onClick={onComplete}>
+          SKIP BOOT SEQUENCE [ESC / SPACE]
+        </button>
       </div>
-      <div className={s.scanline} />
     </div>
   );
 }

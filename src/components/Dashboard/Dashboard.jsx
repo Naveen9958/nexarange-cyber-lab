@@ -1,134 +1,355 @@
-// src/components/Dashboard/Dashboard.jsx
+// src/components/Dashboard/Dashboard.jsx — Polished Command Center HQ
+import React from 'react';
 import useStore from '../../store/useStore';
 import { LAB_DATA } from '../../data/labData';
+import {
+  IconZap,
+  IconTarget,
+  IconAward,
+  IconGlobe,
+  IconArrowRight,
+  IconShield,
+  IconFlask,
+  IconLock,
+  IconCheckCircle,
+} from '../Common/Icons';
 import s from './Dashboard.module.css';
 
 export default function Dashboard() {
-  const { totalXP, badges, completedMissions, openMission, setView, setLab } = useStore();
+  const {
+    totalXP,
+    sessionXP,
+    badges,
+    completedMissions,
+    openMission,
+    setView,
+    setLab,
+    getRank,
+  } = useStore();
+
   const completedCount = Object.keys(completedMissions).length;
+  const completionPct = Math.round((completedCount / 10) * 100);
+  const currentRank = getRank();
 
-  const lab1Done = LAB_DATA[1].missions.filter((m) => completedMissions[m.id]).length;
-  const lab2Done = LAB_DATA[2].missions.filter((m) => completedMissions[m.id]).length;
+  const lab1 = LAB_DATA[1];
+  const lab2 = LAB_DATA[2];
+  const lab1Done = lab1.missions.filter((m) => completedMissions[m.id]).length;
+  const lab2Done = lab2.missions.filter((m) => completedMissions[m.id]).length;
 
-  function handleLaunch(labId) {
+  function handleContinue() {
+    // Find first incomplete mission across labs
+    const m1Idx = lab1.missions.findIndex((m) => !completedMissions[m.id]);
+    if (m1Idx !== -1) {
+      openMission(1, m1Idx);
+      return;
+    }
+    const m2Idx = lab2.missions.findIndex((m) => !completedMissions[m.id]);
+    if (m2Idx !== -1) {
+      openMission(2, m2Idx);
+      return;
+    }
+    openMission(1, 0);
+  }
+
+  function handleLaunchLab(labId) {
     const lab = LAB_DATA[labId];
     const idx = lab.missions.findIndex((m) => !completedMissions[m.id]);
     openMission(labId, idx === -1 ? 0 : idx);
   }
 
   return (
-    <div className={s.grid}>
-      {/* Hero */}
-      <div className={s.hero}>
-        <div className={s.heroGlitch} data-text="CYBER RANGE">CYBER RANGE</div>
-        <div className={s.heroSub}>ACTIVE OPERATIONS: <span className="neon-cyan">2 TRACKS AVAILABLE</span></div>
-        <div className={s.ticker}>
-          <div className={s.tickerInner}>
-            ⚡ 1,247 operators active globally &nbsp;//&nbsp; 🔴 THREAT LEVEL: CRITICAL &nbsp;//&nbsp;
-            🏅 0XSHADOW earned Case VC-233 Closed &nbsp;//&nbsp; 📡 Lab 01 Mission 2 completion: 73%
+    <div className={s.dashboard}>
+      {/* ── Command Center Hero ── */}
+      <section className={s.hero}>
+        <div className={s.heroGlow} />
+        <div className={s.heroContent}>
+          <div className={s.heroTag}>
+            <span className={s.tagDot} />
+            <span>ENTERPRISE CYBER DEFENSE INITIATIVE</span>
+          </div>
+
+          <h1 className={s.heroTitle}>
+            NEXARANGE <span className={s.heroAccent}>COMMAND CENTER</span>
+          </h1>
+
+          <p className={s.heroSubtitle}>
+            Build offensive and defensive security skills through realistic AI-powered mission simulations, real-world CVE telemetry, and live agent mitigation protocols.
+          </p>
+
+          <div className={s.heroActions}>
+            <button className={s.primaryBtn} onClick={handleContinue}>
+              <IconZap size={16} />
+              <span>CONTINUE MISSION</span>
+            </button>
+            <button className={s.secondaryBtn} onClick={() => setView('labs')}>
+              <IconFlask size={16} />
+              <span>VIEW ALL LABS</span>
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Stat Cards */}
-      {[
-        { icon: '⚡', val: totalXP.toLocaleString(), label: 'TOTAL XP', pct: Math.min((totalXP / 2000) * 100, 100), color: 'green' },
-        { icon: '🎯', val: `${completedCount}/10`, label: 'MISSIONS COMPLETE', pct: (completedCount / 10) * 100, color: 'cyan' },
-        { icon: '🏅', val: badges.length, label: 'BADGES EARNED', pct: (badges.length / 12) * 100, color: 'purple' },
-        { icon: '🌐', val: '#247', label: 'GLOBAL RANK', pct: 60, color: 'red' },
-      ].map((c) => (
-        <div className={s.statCard} key={c.label}>
-          <div className={s.statIcon}>{c.icon}</div>
-          <div className={s.statVal} style={{ color: `var(--neon-${c.color})` }}>{c.val}</div>
-          <div className={s.statLabel}>{c.label}</div>
-          <div className={s.bar}>
-            <div className={s.barFill} style={{ width: `${c.pct}%`, background: `var(--neon-${c.color})`, boxShadow: `0 0 6px var(--neon-${c.color})` }} />
+        {/* Hero Telemetry Status Strip */}
+        <div className={s.heroTelemetry}>
+          <div className={s.telemetryItem}>
+            <span className={s.telemLabel}>ACTIVE OPERATORS</span>
+            <span className={s.telemVal}>1,248 GLOBAL</span>
+          </div>
+          <div className={s.telemetryDivider} />
+          <div className={s.telemetryItem}>
+            <span className={s.telemLabel}>ACTIVE THREAT CHAIN</span>
+            <span className={s.telemVal}>AGENT IDENTITY TAMPER</span>
+          </div>
+          <div className={s.telemetryDivider} />
+          <div className={s.telemetryItem}>
+            <span className={s.telemLabel}>SECURITY POSTURE</span>
+            <span className={s.telemValSec}>DEFCON 4 · GUARDED</span>
           </div>
         </div>
-      ))}
+      </section>
 
-      {/* Lab 1 Card */}
-      <LabCard
-        lab={LAB_DATA[1]}
-        done={lab1Done}
-        onLaunch={() => handleLaunch(1)}
-        onDetails={() => { setLab(1); setView('labs'); }}
-      />
-      {/* Lab 2 Card */}
-      <LabCard
-        lab={LAB_DATA[2]}
-        done={lab2Done}
-        onLaunch={() => handleLaunch(2)}
-        onDetails={() => { setLab(2); setView('labs'); }}
-      />
-
-      {/* Activity */}
-      <div className={s.panel}>
-        <div className={s.panelTitle}>// RECENT INTELLIGENCE</div>
-        {[
-          { time: '14:07:31', msg: '🟢 New threat vector identified in Lab 01' },
-          { time: '13:55:12', msg: '🔵 Leaderboard updated — global sync complete' },
-          { time: '13:42:05', msg: '🟣 Farah Sheikh briefing package ready' },
-          { time: '13:30:00', msg: '🔴 MCP server anomaly detected — mission 2 hot' },
-        ].map((a) => (
-          <div className={s.actItem} key={a.time}>
-            <span className={s.actTime}>{a.time}</span>
-            <span className={s.actMsg}>{a.msg}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Badges */}
-      <div className={s.panel}>
-        <div className={s.panelTitle}>// EARNED BADGES</div>
-        <div className={s.badgeGrid}>
-          {badges.length === 0 ? (
-            <div className={s.badgeEmpty}>Complete missions to unlock badges.</div>
-          ) : badges.map((b, i) => (
-            <div className={s.badgeItem} key={i} title={b.name}>
-              <div className={s.badgeEmoji}>{b.emoji}</div>
-              <div className={s.badgeName}>{b.name}</div>
+      {/* ── 4 Refined Stat Cards (Zero Text Clipping) ── */}
+      <div className={s.statsGrid}>
+        {/* TOTAL XP */}
+        <div className={s.statCard}>
+          <div className={s.statHeader}>
+            <span className={s.statLabel}>TOTAL XP</span>
+            <div className={`${s.statIconWrap} ${s.iconCyan}`}>
+              <IconZap size={18} />
             </div>
-          ))}
+          </div>
+          <div className={s.statValue}>{totalXP.toLocaleString()} <span className={s.statUnit}>XP</span></div>
+          <div className={s.statFooter}>
+            <div className={s.statProgressBar}>
+              <div
+                className={s.statProgressFill}
+                style={{ width: `${Math.min((totalXP / 2000) * 100, 100)}%`, background: 'var(--cyan-primary)' }}
+              />
+            </div>
+            <span className={s.statFootnote}>+{sessionXP} earned this session</span>
+          </div>
+        </div>
+
+        {/* MISSIONS COMPLETE */}
+        <div className={s.statCard}>
+          <div className={s.statHeader}>
+            <span className={s.statLabel}>MISSIONS COMPLETED</span>
+            <div className={`${s.statIconWrap} ${s.iconGreen}`}>
+              <IconTarget size={18} />
+            </div>
+          </div>
+          <div className={s.statValue}>{completedCount} <span className={s.statUnit}>/ 10</span></div>
+          <div className={s.statFooter}>
+            <div className={s.statProgressBar}>
+              <div
+                className={s.statProgressFill}
+                style={{ width: `${(completedCount / 10) * 100}%`, background: 'var(--status-success)' }}
+              />
+            </div>
+            <span className={s.statFootnote}>{10 - completedCount} operational targets pending</span>
+          </div>
+        </div>
+
+        {/* CURRENT RANK */}
+        <div className={s.statCard}>
+          <div className={s.statHeader}>
+            <span className={s.statLabel}>CURRENT RANK</span>
+            <div className={`${s.statIconWrap} ${s.iconPurple}`}>
+              <IconGlobe size={18} />
+            </div>
+          </div>
+          <div className={s.statValue}>#{currentRank}</div>
+          <div className={s.statFooter}>
+            <div className={s.statProgressBar}>
+              <div className={s.statProgressFill} style={{ width: '68%', background: 'var(--accent-purple)' }} />
+            </div>
+            <span className={s.statFootnote}>Next Milestone: #180 at 500 XP</span>
+          </div>
+        </div>
+
+        {/* COMPLETION RATE */}
+        <div className={s.statCard}>
+          <div className={s.statHeader}>
+            <span className={s.statLabel}>TOTAL COMPLETION</span>
+            <div className={`${s.statIconWrap} ${s.iconWarning}`}>
+              <IconAward size={18} />
+            </div>
+          </div>
+          <div className={s.statValue}>{completionPct}<span className={s.statUnit}>%</span></div>
+          <div className={s.statFooter}>
+            <div className={s.statProgressBar}>
+              <div
+                className={s.statProgressFill}
+                style={{ width: `${completionPct}%`, background: 'var(--status-warning)' }}
+              />
+            </div>
+            <span className={s.statFootnote}>
+              {completionPct === 0 ? 'Start your first mission' : `${badges.length} badges in vault`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Active Operations Lab Cards ── */}
+      <div className={s.sectionHeader}>
+        <div className={s.sectionHeaderLeft}>
+          <h2 className={s.sectionTitle}>ACTIVE SIMULATION LABS</h2>
+          <span className={s.sectionDesc}>Select an enterprise scenario to deploy investigation tools</span>
+        </div>
+        <button className={s.sectionLink} onClick={() => setView('labs')}>
+          <span>All 2 Operations</span>
+          <IconArrowRight size={14} />
+        </button>
+      </div>
+
+      <div className={s.labsGrid}>
+        <LabCard
+          lab={lab1}
+          completedMissionsCount={lab1Done}
+          onLaunch={() => handleLaunchLab(1)}
+          onDetails={() => { setLab(1); setView('labs'); }}
+        />
+        <LabCard
+          lab={lab2}
+          completedMissionsCount={lab2Done}
+          onLaunch={() => handleLaunchLab(2)}
+          onDetails={() => { setLab(2); setView('labs'); }}
+        />
+      </div>
+
+      {/* ── Intelligence Feed & Accolades Row ── */}
+      <div className={s.bottomRow}>
+        {/* Recent Intelligence Telemetry */}
+        <div className={s.panel}>
+          <div className={s.panelHeader}>
+            <div className={s.panelTitleGroup}>
+              <span className={s.panelTag}>LIVE SOC FEED</span>
+              <h3 className={s.panelTitle}>RECENT INTELLIGENCE</h3>
+            </div>
+            <span className={s.panelDot} />
+          </div>
+
+          <div className={s.intelList}>
+            {[
+              { time: '14:07:31', tag: 'ADVISORY', color: 'cyan', msg: 'Zero-day token bypass pattern observed in auth-validator v2.1.3' },
+              { time: '13:55:12', tag: 'SYNC', color: 'green', msg: 'Global leaderboard synced — 1,248 operators evaluated' },
+              { time: '13:42:05', tag: 'INTEL', color: 'purple', msg: 'Forensic memory dump extracted from compromised renderer pod' },
+              { time: '13:30:00', tag: 'ALERT', color: 'warning', msg: 'Unauthorized MCP connector invocation registered: conn_012' },
+            ].map((item, idx) => (
+              <div key={idx} className={s.intelItem}>
+                <span className={s.intelTime}>{item.time}</span>
+                <span className={`${s.intelTag} ${s['tag_' + item.color]}`}>{item.tag}</span>
+                <span className={s.intelMsg}>{item.msg}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Badges / Accolades Preview */}
+        <div className={s.panel}>
+          <div className={s.panelHeader}>
+            <div className={s.panelTitleGroup}>
+              <span className={s.panelTag}>OPERATOR ACCOLADES</span>
+              <h3 className={s.panelTitle}>EARNED BADGES</h3>
+            </div>
+            <button className={s.panelAction} onClick={() => setView('certificates')}>
+              Vault ({badges.length})
+            </button>
+          </div>
+
+          {badges.length === 0 ? (
+            <div className={s.emptyBadges}>
+              <div className={s.emptyIcon}><IconShield size={32} /></div>
+              <div className={s.emptyTitle}>NO BADGES UNLOCKED YET</div>
+              <p className={s.emptyText}>Complete individual mission challenges to earn cryptographic qualification badges and credentials.</p>
+              <button className={s.emptyBtn} onClick={handleContinue}>Start Lab 01</button>
+            </div>
+          ) : (
+            <div className={s.badgeGrid}>
+              {badges.map((b, i) => (
+                <div key={i} className={s.badgeCard} title={b.name}>
+                  <div className={s.badgeEmoji}>{b.emoji}</div>
+                  <div className={s.badgeName}>{b.name}</div>
+                  <span className={s.badgeSecured}>SECURED</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function LabCard({ lab, done, onLaunch, onDetails }) {
-  const c = lab.color;
-  const neon = `var(--neon-${c})`;
+function LabCard({ lab, completedMissionsCount, onLaunch, onDetails }) {
+  const isComplete = completedMissionsCount === lab.missions.length;
+  const progressPct = Math.round((completedMissionsCount / lab.missions.length) * 100);
+
   return (
-    <div className={s.labCard} style={{ borderColor: `rgba(${c === 'green' ? '0,255,170' : '0,212,255'},0.25)` }} onClick={onDetails}>
-      <div className={s.labCardHeader}>
-        <span className={s.labTrackTag} style={{ color: neon, borderColor: `rgba(${c === 'green' ? '0,255,170' : '0,212,255'},0.3)` }}>
-          {lab.subtitle.toUpperCase()}
-        </span>
-        <span className={s.labStatusTag} style={{ color: neon }}>● ACTIVE</span>
-      </div>
-      <div className={s.labId} style={{ color: neon, opacity: 0.6 }}>LAB 0{lab.id}</div>
-      <div className={s.labTitle} style={{ color: lab.id === 1 ? 'var(--text-primary)' : neon }}>{lab.title}</div>
-      <div className={s.labMeta}>📍 {lab.company} &nbsp;·&nbsp; 🎭 {lab.role}</div>
-      <div className={s.labDesc}>{lab.id === 1
-        ? 'An advanced persistent AI threat has infiltrated NexaCorp\'s agentic infrastructure. Neutralize five attack vectors before the rogue agent escalates access.'
-        : 'A deepfake CFO call triggered a $47M wire transfer. Trace the attack chain from poisoned ML libraries to quantum-vulnerable cryptography.'
-      }</div>
-      <div className={s.labFooter}>
-        <div className={s.labProg}>
-          <div className={s.labProgLabel}>MISSION PROGRESS</div>
-          <div className={s.labProgBar}><div className={s.labProgFill} style={{ width: `${(done / 5) * 100}%`, background: neon, boxShadow: `0 0 8px ${neon}` }} /></div>
-          <div className={s.labProgText}>{done}/5 Missions</div>
+    <div className={s.labCard} onClick={onDetails}>
+      <div className={s.labCardInner}>
+        {/* Top Tag Row */}
+        <div className={s.labTopRow}>
+          <div className={s.labTags}>
+            <span className={s.labTrackTag}>{lab.subtitle.toUpperCase()}</span>
+            <span className={s.labCaseId}>{lab.caseId}</span>
+          </div>
+          <span className={s.labStatusTag}>
+            <span className={s.statusPulse} />
+            {isComplete ? 'COMPLETED' : 'OPERATIONAL'}
+          </span>
         </div>
-        <div className={s.labXP} style={{ color: neon }}>{lab.totalXP} XP</div>
+
+        {/* Lab Identification */}
+        <div className={s.labIdentity}>
+          <span className={s.labNumber}>OPERATION 0{lab.id}</span>
+          <h3 className={s.labTitle}>{lab.title}</h3>
+          <div className={s.labTarget}>
+            <span>Target: <strong>{lab.company}</strong></span>
+            <span className={s.targetDot}>•</span>
+            <span>Role: <strong>{lab.role}</strong></span>
+          </div>
+        </div>
+
+        {/* Narrative Description */}
+        <p className={s.labSummary}>
+          {lab.id === 1
+            ? 'An advanced persistent agent threat has infiltrated autonomous infrastructure. Investigate auth bypasses, MCP connectors, and prompt injections.'
+            : 'A deepfake executive audio call initiated a $47M unauthorized transaction. Trace supply chain poisonings, rogue k8s pods, and quantum-vulnerable cryptography.'
+          }
+        </p>
+
+        {/* Footer Metrics */}
+        <div className={s.labFooter}>
+          <div className={s.labProgWrap}>
+            <div className={s.labProgLabelRow}>
+              <span>PROGRESS</span>
+              <span className={s.labProgCount}>{completedMissionsCount} of {lab.missions.length} Missions ({progressPct}%)</span>
+            </div>
+            <div className={s.labProgressBar}>
+              <div className={s.labProgressFill} style={{ width: `${progressPct}%` }} />
+            </div>
+          </div>
+
+          <div className={s.labXPBadge}>
+            <IconZap size={14} />
+            <span>+{lab.totalXP} XP</span>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className={s.labActions}>
+          <button
+            className={s.labLaunchBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onLaunch();
+            }}
+          >
+            {isComplete ? 'REVIEW OPERATION' : completedMissionsCount > 0 ? 'CONTINUE MISSION' : 'LAUNCH OPERATION'}
+            <IconArrowRight size={16} />
+          </button>
+        </div>
       </div>
-      <button
-        className={s.labBtn}
-        style={{ color: neon, borderColor: `rgba(${c === 'green' ? '0,255,170' : '0,212,255'},0.4)` }}
-        onClick={(e) => { e.stopPropagation(); onLaunch(); }}
-      >
-        LAUNCH MISSION
-      </button>
     </div>
   );
 }

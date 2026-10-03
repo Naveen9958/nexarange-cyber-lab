@@ -1,25 +1,35 @@
-// src/components/Debrief/DebriefView.jsx
+// src/components/Debrief/DebriefView.jsx — Case Debrief & Attack Chain Reconstruction
 import useStore from '../../store/useStore';
 import { LAB_DATA } from '../../data/labData';
+import { IconAward, IconCheckCircle, IconZap, IconShield } from '../Common/Icons';
 import s from './DebriefView.module.css';
 
 export default function DebriefView() {
   const { currentLab, completedMissions, totalXP, badges, setView } = useStore();
   const lab = LAB_DATA[currentLab || 1];
 
+  const completedInLab = lab.missions.filter((m) => completedMissions[m.id]).length;
+  const labXP = lab.missions.reduce(
+    (acc, m) => (completedMissions[m.id] ? acc + m.xp : acc),
+    0
+  );
+
   return (
     <div className={s.wrap}>
+      {/* ── Case Closed Banner ── */}
       <div className={s.topBanner}>
-        <div className={s.bannerTitle}>CASE {lab.caseId} — CLOSED</div>
-        <div className={s.bannerSub}>{lab.title}</div>
+        <div className={s.bannerTag}>CASE RESOLUTION REPORT</div>
+        <h1 className={s.bannerTitle}>CASE {lab.caseId} // CLOSED & SECURED</h1>
+        <p className={s.bannerSub}>{lab.title} — {lab.subtitle}</p>
       </div>
 
+      {/* ── Attack Chain Reconstruction ── */}
       <div className={s.section}>
-        <div className={s.sectionTitle}>// ATTACK CHAIN RECONSTRUCTION</div>
+        <div className={s.sectionTitle}>// ATTACK CHAIN RECONSTRUCTION TIMELINE</div>
         <div className={s.chain}>
           {lab.debriefChain.map((step, i) => (
             <div key={i} className={s.chainItem}>
-              <div className={s.chainNode}>{i + 1}</div>
+              <div className={s.chainNode}>0{i + 1}</div>
               <div className={s.chainLabel}>{step}</div>
               {i < lab.debriefChain.length - 1 && <div className={s.chainArrow}>→</div>}
             </div>
@@ -27,30 +37,58 @@ export default function DebriefView() {
         </div>
       </div>
 
+      {/* ── Metrics & Badges ── */}
       <div className={s.row}>
         <div className={s.card}>
-          <div className={s.cardTitle}>// MISSION STATS</div>
-          <div className={s.stat}><span className={s.statKey}>Missions Completed</span><span className={s.statVal}>{lab.missions.filter((m) => completedMissions[m.id]).length}/5</span></div>
-          <div className={s.stat}><span className={s.statKey}>XP Earned This Lab</span><span className={s.statVal}>{lab.missions.reduce((acc, m) => completedMissions[m.id] ? acc + m.xp : acc, 0)} XP</span></div>
-          <div className={s.stat}><span className={s.statKey}>Total Platform XP</span><span className={s.statVal}>{totalXP.toLocaleString()} XP</span></div>
-          <div className={s.stat}><span className={s.statKey}>Badges Earned</span><span className={s.statVal}>{badges.length}</span></div>
+          <div className={s.cardTitle}>// CASE METRICS</div>
+          <div className={s.stat}>
+            <span className={s.statKey}>Missions Neutralized</span>
+            <span className={s.statVal}>{completedInLab} / 5</span>
+          </div>
+          <div className={s.stat}>
+            <span className={s.statKey}>XP Secured in Scenario</span>
+            <span className={s.statVal}>+{labXP} XP</span>
+          </div>
+          <div className={s.stat}>
+            <span className={s.statKey}>Total Enclave XP</span>
+            <span className={s.statVal}>{totalXP.toLocaleString()} XP</span>
+          </div>
+          <div className={s.stat}>
+            <span className={s.statKey}>Badges Credited</span>
+            <span className={s.statVal}>{badges.length}</span>
+          </div>
         </div>
+
         <div className={s.card}>
-          <div className={s.cardTitle}>// EARNED BADGES</div>
+          <div className={s.cardTitle}>// ACCREDITATION BADGES</div>
           <div className={s.badgeRow}>
-            {lab.missions.map((m) => (
-              <div key={m.id} className={`${s.badgeItem} ${completedMissions[m.id] ? s.badgeEarned : s.badgeLocked}`} title={m.badge.name}>
-                <div className={s.badgeEmoji}>{completedMissions[m.id] ? m.badge.emoji : '🔒'}</div>
-                <div className={s.badgeName}>{m.badge.name}</div>
-              </div>
-            ))}
+            {lab.missions.map((m) => {
+              const isEarned = !!completedMissions[m.id];
+              return (
+                <div
+                  key={m.id}
+                  className={`${s.badgeItem} ${isEarned ? s.badgeEarned : s.badgeLocked}`}
+                  title={m.badge.name}
+                >
+                  <div className={s.badgeEmoji}>{isEarned ? m.badge.emoji : '🔒'}</div>
+                  <div className={s.badgeName}>{m.badge.name}</div>
+                  <span className={s.badgeStatus}>{isEarned ? 'UNLOCKED' : 'LOCKED'}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
+      {/* ── Navigation Actions ── */}
       <div className={s.actions}>
-        <button className={s.certBtn} onClick={() => setView('certificates')}>🏆 VIEW CERTIFICATE</button>
-        <button className={s.dashBtn} onClick={() => setView('dashboard')}>← RETURN TO HQ</button>
+        <button className={s.certBtn} onClick={() => setView('certificates')}>
+          <IconAward size={18} />
+          <span>VIEW OFFICIAL ACCREDITATION</span>
+        </button>
+        <button className={s.dashBtn} onClick={() => setView('dashboard')}>
+          RETURN TO COMMAND CENTER
+        </button>
       </div>
     </div>
   );

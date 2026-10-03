@@ -1,120 +1,407 @@
-/* FriendsView.module.css */
-.wrap { padding: 24px; overflow-y: auto; height: 100%; }
-.section { margin-bottom: 28px; }
-.sectionTitle {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--neon-green);
-  letter-spacing: 3px;
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  text-transform: uppercase;
+/* FriendsView.module.css — Professional Squad Network */
+
+.wrap {
+  padding: 28px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
 }
-.addRow { display: flex; gap: 12px; }
-.addInput {
-  flex: 1;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 11px 16px;
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-head);
+  font-size: var(--text-2xl);
+  font-weight: 800;
   color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--text-base);
-  outline: none;
-  transition: var(--transition);
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
 }
-.addInput:focus { border-color: var(--border-glow); }
-.addBtn {
-  padding: 11px 20px;
-  background: rgba(0,212,255,0.1);
-  border: 1px solid rgba(0,212,255,0.4);
-  border-radius: var(--radius);
-  color: var(--neon-cyan);
-  font-family: var(--font-head);
+
+.subtitle {
   font-size: var(--text-sm);
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: var(--transition);
+  color: var(--text-secondary);
+  max-width: 650px;
 }
-.addBtn:hover {
-  background: rgba(0,212,255,0.22);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0,212,255,0.2);
-}
-.reqCard {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 18px;
+
+/* ── Add Operator Invite Box ── */
+.inviteBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  margin-bottom: 10px;
-  transition: var(--transition);
+  border-radius: var(--radius);
+  padding: 6px;
 }
-.reqCard:hover { border-color: var(--border-glow); }
-.reqAvatar {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-head);
-  font-size: var(--text-lg);
+
+.inviteInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  min-width: 180px;
 }
-.reqName { flex: 1; font-family: var(--font-head); font-size: var(--text-base); color: var(--text-primary); }
-.reqXP { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--neon-green); margin-right: 10px; font-weight: 700; }
-.acceptBtn {
-  padding: 7px 16px;
-  background: rgba(0,255,170,0.1); border: 1px solid rgba(0,255,170,0.4);
-  border-radius: var(--radius); color: var(--neon-green);
-  font-family: var(--font-mono); font-size: var(--text-sm);
-  cursor: pointer; transition: var(--transition);
+
+.inviteBtn {
+  background: var(--cyan-primary);
+  color: #030814;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+  white-space: nowrap;
 }
-.acceptBtn:hover { background: rgba(0,255,170,0.22); }
-.declineBtn {
-  padding: 7px 16px;
-  background: rgba(255,51,102,0.08); border: 1px solid rgba(255,51,102,0.35);
-  border-radius: var(--radius); color: var(--neon-red);
-  font-family: var(--font-mono); font-size: var(--text-sm);
-  cursor: pointer; transition: var(--transition);
+
+.inviteBtn:hover {
+  background: #2affd4;
 }
-.declineBtn:hover { background: rgba(255,51,102,0.2); }
-.friendGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+/* ── Sections ── */
+.section {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
-.friendCard {
+
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 2px;
+  color: var(--cyan-primary);
+}
+
+.pendingBadge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  background: rgba(255, 176, 32, 0.1);
+  color: var(--status-warning);
+  border: 1px solid rgba(255, 176, 32, 0.3);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+/* ── Requests Grid ── */
+.requestsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.requestCard {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 176, 32, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.reqAvatarWrap {
+  flex-shrink: 0;
+}
+
+.reqAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 176, 32, 0.8), #ff6b00);
+  color: #030814;
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reqDetails {
+  flex: 1;
+}
+
+.reqName {
+  font-family: var(--font-head);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.reqMeta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.metaDot {
+  margin: 0 6px;
+}
+
+.reqActions {
+  display: flex;
+  gap: 6px;
+}
+
+.acceptBtn {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #030814;
+  background: var(--status-success);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.acceptBtn:hover {
+  background: #25f5b2;
+}
+
+.declineBtn {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.declineBtn:hover {
+  color: var(--status-danger);
+  border-color: rgba(255, 56, 100, 0.4);
+}
+
+/* ── Squad Controls ── */
+.squadControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.onlineBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--status-success);
+  font-weight: 600;
+}
+
+.onlineDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-success);
+  box-shadow: 0 0 6px var(--status-success);
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filterTabs {
+  display: flex;
+  background: var(--bg-card);
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  gap: 4px;
+}
+
+.tabBtn {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+}
+
+.tabActive {
+  background: rgba(0, 245, 200, 0.1);
+  color: var(--cyan-primary);
+  font-weight: 700;
+}
+
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+}
+
+.searchIcon {
+  color: var(--text-muted);
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  width: 130px;
+}
+
+/* ── Operator Cards Grid ── */
+.operatorsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.operatorCard {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 20px 16px;
-  text-align: center;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   transition: var(--transition);
 }
-.friendCard:hover {
-  border-color: var(--border-glow);
+
+.operatorCard:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border-color: var(--border-glow);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
 }
-.friendAvatarWrap { position: relative; display: inline-block; margin-bottom: 10px; }
-.friendAvatar {
-  width: 54px; height: 54px;
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.avatarContainer {
+  position: relative;
+}
+
+.opAvatar {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--bg-elevated);
-  border: 2px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(0, 245, 200, 0.2), rgba(0, 119, 255, 0.2));
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-head);
-  font-size: var(--text-xl);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--cyan-primary);
 }
-.onlineDot {
-  position: absolute; bottom: 2px; right: 2px;
-  width: 13px; height: 13px;
+
+.liveStatus {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   border: 2px solid var(--bg-card);
 }
-.online  { background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
-.offline { background: var(--text-muted); }
-.friendName { font-family: var(--font-head); font-size: var(--text-base); color: var(--text-primary); margin-bottom: 4px; font-weight: 700; }
-.friendXP { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--neon-green); margin-bottom: 6px; font-weight: 700; }
-.friendStatus { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-muted); line-height: 1.4; }
+
+.liveOnline  { background: var(--status-success); box-shadow: 0 0 6px var(--status-success); }
+.liveOffline { background: var(--text-muted); }
+
+.statusTag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.cardBody {
+  margin-bottom: 16px;
+}
+
+.operatorCallsign {
+  font-family: var(--font-head);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.opTrackBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent-purple);
+  margin-bottom: 12px;
+}
+
+.opStatusBox {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.statusLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.statusText {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.xpCounter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--cyan-primary);
+}
+
+.activeTimestamp {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
