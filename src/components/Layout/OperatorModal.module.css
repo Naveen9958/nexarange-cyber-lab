@@ -227,3 +227,92 @@
   background: rgba(255, 56, 100, 0.1);
   border-color: var(--status-danger);
 }
+
+/* ── Appearance Theme Row ── */
+.themeRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.themePill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.themePill:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.themePill:focus-visible {
+  outline: 2px solid var(--cyan-primary);
+  outline-offset: 1px;
+}
+
+.themePillActive {
+  background: var(--cyan-dim);
+  border-color: var(--cyan-primary);
+  color: var(--cyan-primary);
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(0, 245, 200, 0.15);
+}
+
+.radioDot {
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.themePillActive .radioDot {
+  color: var(--cyan-primary);
+}
+
+/* ── Inline Reset Confirm ── */
+.confirmBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.confirmText {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--status-danger);
+  flex: 1;
+}
+
+.confirmYes,
+.confirmNo {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.confirmYes {
+  background: var(--status-danger);
+  color: #fff;
+}
+
+.confirmNo {
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border-color: var(--border-subtle);
+}

@@ -11,13 +11,13 @@
 /* ── Hero Section ── */
 .hero {
   position: relative;
-  background: linear-gradient(135deg, rgba(13, 20, 37, 0.95), rgba(7, 11, 22, 0.98));
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-surface-2));
   border: 1px solid var(--border);
   border-left: 4px solid var(--cyan-primary);
   border-radius: var(--radius-lg);
   padding: 32px 36px 24px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-md);
 }
 
 .heroGlow {

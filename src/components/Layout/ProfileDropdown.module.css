@@ -1,0 +1,304 @@
+/* ProfileDropdown.module.css — Sleek Cyber Command Profile & Appearance Menu */
+
+.dropdown {
+  width: 260px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 20px var(--cyan-dim);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 999;
+  animation: dropdownIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Anchoring */
+.anchorSidebar {
+  position: fixed;
+  bottom: 24px;
+  left: 104px;
+}
+
+.anchorHeader {
+  position: fixed;
+  top: 66px;
+  right: 24px;
+}
+
+/* ── User Header ── */
+.userHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan-primary), #0077ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #030814;
+  border: 1px solid rgba(0, 245, 200, 0.4);
+  flex-shrink: 0;
+  box-shadow: 0 0 12px var(--cyan-dim);
+}
+
+.userMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.userName {
+  font-family: var(--font-head);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+}
+
+.userRole {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0 -4px;
+}
+
+/* ── Section & Items ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-align: left;
+  width: 100%;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+  outline: none;
+}
+
+.menuItem:focus-visible {
+  border-color: var(--cyan-primary);
+}
+
+.itemIcon {
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.menuItem:hover .itemIcon {
+  color: var(--cyan-primary);
+}
+
+.itemText {
+  flex: 1;
+}
+
+.itemBadge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(124, 92, 255, 0.12);
+  color: var(--accent-purple);
+  border: 1px solid rgba(124, 92, 255, 0.25);
+}
+
+/* ── Appearance / Theme Section ── */
+.themeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.themeHeading {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.themeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.themeBtn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  width: 100%;
+  text-align: left;
+}
+
+.themeBtn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.themeBtn:focus-visible {
+  outline: 2px solid var(--cyan-primary);
+  outline-offset: 1px;
+}
+
+.themeBtnActive {
+  background: var(--cyan-dim);
+  border-color: var(--border);
+  color: var(--cyan-primary);
+  font-weight: 600;
+}
+
+.radioBullet {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1;
+  display: inline-block;
+  width: 12px;
+}
+
+.bulletActive {
+  color: var(--cyan-primary);
+  text-shadow: 0 0 6px var(--cyan-glow);
+}
+
+.themeBtnIcon {
+  color: var(--text-muted);
+}
+
+.themeBtnActive .themeBtnIcon {
+  color: var(--cyan-primary);
+}
+
+.themeBtnLabel {
+  flex: 1;
+}
+
+/* ── Logout / Reset ── */
+.logoutItem {
+  color: var(--status-danger);
+}
+
+.logoutItem:hover {
+  background: rgba(255, 56, 100, 0.1);
+  border-color: rgba(255, 56, 100, 0.25);
+  color: var(--status-danger);
+}
+
+.logoutIcon {
+  color: var(--status-danger);
+}
+
+.confirmBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(255, 56, 100, 0.08);
+  border: 1px solid rgba(255, 56, 100, 0.25);
+  border-radius: var(--radius-sm);
+}
+
+.confirmText {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--status-danger);
+}
+
+.confirmActions {
+  display: flex;
+  gap: 6px;
+}
+
+.confirmYes,
+.confirmNo {
+  flex: 1;
+  padding: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.confirmYes {
+  background: var(--status-danger);
+  color: #fff;
+}
+
+.confirmNo {
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border-color: var(--border-subtle);
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 768px) {
+  .dropdown {
+    width: auto !important;
+    left: 14px !important;
+    right: 14px !important;
+    bottom: 70px !important;
+    top: auto !important;
+  }
+}

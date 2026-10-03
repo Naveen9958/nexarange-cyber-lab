@@ -138,7 +138,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(13, 20, 37, 0.7);
+  background: var(--glass-bg);
   backdrop-filter: blur(2px);
   border-radius: var(--radius);
   z-index: 2;

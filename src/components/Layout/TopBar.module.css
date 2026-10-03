@@ -1,9 +1,9 @@
-/* TopBar.module.css — Professional Glassmorphic Header */
+/* TopBar.module.css — Professional Glassmorphic Cyber Header */
 
 .topbar {
   height: 60px;
   flex-shrink: 0;
-  background: rgba(7, 11, 22, 0.85);
+  background: var(--bg-surface);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--border);
@@ -13,49 +13,60 @@
   padding: 0 24px;
   position: relative;
   z-index: 90;
+  gap: 16px;
 }
 
-/* ── Left Breadcrumb ── */
+/* ── Left Context Indicator (Clean, compact, no duplicate branding) ── */
 .left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  min-width: 0;
 }
 
-.sectionBadge {
+.contextIndicator {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  min-width: 0;
 }
 
-.sectionPrefix {
+.contextCode {
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  letter-spacing: 2px;
-}
-
-.sectionTitle {
-  font-family: var(--font-head);
-  font-size: var(--text-base);
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--cyan-primary);
   letter-spacing: 1.5px;
+  padding: 3px 8px;
+  background: var(--cyan-dim);
+  border: 1px solid var(--cyan-border);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
 }
 
-.sectionSubtitle {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
+.contextDot {
   color: var(--text-muted);
-  border-left: 1px solid var(--border-subtle);
-  padding-left: 12px;
+  font-weight: 600;
+  user-select: none;
+  font-size: 0.85rem;
+}
+
+.contextTitle {
+  font-family: var(--font-head);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Right Telemetry Area ── */
 .right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 /* Operational Status */
@@ -63,7 +74,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 12px;
+  padding: 5px 11px;
   background: rgba(25, 230, 165, 0.08);
   border: 1px solid rgba(25, 230, 165, 0.25);
   border-radius: var(--radius-sm);
@@ -91,7 +102,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 5px 11px;
   background: rgba(255, 176, 32, 0.08);
   border: 1px solid rgba(255, 176, 32, 0.25);
   border-radius: var(--radius-sm);
@@ -140,7 +151,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 14px;
+  padding: 5px 12px;
   background: rgba(0, 245, 200, 0.08);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -171,57 +182,29 @@
   color: var(--text-secondary);
   letter-spacing: 1.5px;
   padding: 5px 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
 }
 
-/* Light / Dark Mode Toggle Button */
-.themeToggleBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 11px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.themeToggleBtn:hover {
-  background: rgba(0, 245, 200, 0.12);
-  border-color: var(--cyan-primary);
-  color: var(--cyan-primary);
-}
-
-.sunIcon {
-  color: #ffb020;
-}
-
-.moonIcon {
-  color: var(--cyan-primary);
-}
-
-.themeLabel {
-  letter-spacing: 1px;
-  font-size: 0.68rem;
-}
-
 /* Profile Button */
 .profileBtn {
-  margin-left: 4px;
+  margin-left: 2px;
   padding: 2px;
   border-radius: 50%;
-  transition: transform var(--transition-fast);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 
 .profileBtn:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
+}
+
+.profileBtn:focus-visible {
+  outline: 2px solid var(--cyan-primary);
+  outline-offset: 2px;
 }
 
 .profileAvatar {
@@ -237,11 +220,24 @@
   font-size: 0.85rem;
   font-weight: 700;
   border: 1px solid rgba(0, 245, 200, 0.4);
+  box-shadow: 0 0 8px var(--cyan-dim);
 }
 
-/* ── Responsive adjustments ── */
+/* ── Responsive adjustments (1920px -> 360px) ── */
+@media (max-width: 1200px) {
+  .statusPill {
+    display: none;
+  }
+}
+
 @media (max-width: 1024px) {
-  .sectionSubtitle {
+  .clockBox {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .threatPill {
     display: none;
   }
 }
@@ -250,11 +246,34 @@
   .topbar {
     padding: 0 14px;
     height: 54px;
+    gap: 8px;
   }
 
-  .statusPill,
-  .threatPill,
-  .clockBox {
+  .contextTitle {
+    display: none;
+  }
+
+  .contextDot {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .levelPill {
+    display: none;
+  }
+
+  .xpBox {
+    padding: 4px 8px;
+  }
+
+  .xpLabel {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .xpBox {
     display: none;
   }
 }

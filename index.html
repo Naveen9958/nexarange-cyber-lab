@@ -4,6 +4,24 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300f5c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='12 2 2 7 12 12 22 7 12 2'/><polyline points='2 17 12 22 22 17'/><polyline points='2 12 12 17 22 12'/></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('nexarange-theme') || localStorage.getItem('nr-theme');
+          var mode = saved || 'dark';
+          var resolved = mode;
+          if (mode === 'system') {
+            var mql = window.matchMedia('(prefers-color-scheme: dark)');
+            resolved = mql.matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', resolved);
+          document.documentElement.setAttribute('data-theme-mode', mode);
+          document.documentElement.style.colorScheme = resolved;
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
     <title>NEXARANGE — Cyber Security & AI Training Command Center</title>
     <meta name="description" content="Next-generation cybersecurity and AI security training command center. Build offensive and defensive capabilities through realistic mission simulations." />
     <link rel="preconnect" href="https://fonts.googleapis.com">

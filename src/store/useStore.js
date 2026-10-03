@@ -1,26 +1,57 @@
 // src/store/useStore.js — Zustand global state: Single Source of Truth
 import { create } from 'zustand';
 
+// Theme helper utilities
+const getStoredThemeMode = () => {
+  if (typeof window === 'undefined') return 'dark';
+  return localStorage.getItem('nexarange-theme') || localStorage.getItem('nr-theme') || 'dark';
+};
+
+const resolveTheme = (mode) => {
+  if (typeof window === 'undefined') return 'dark';
+  if (mode === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return mode === 'light' ? 'light' : 'dark';
+};
+
+const applyThemeToDOM = (mode) => {
+  if (typeof window === 'undefined') return 'dark';
+  const resolved = resolveTheme(mode);
+  document.documentElement.setAttribute('data-theme', resolved);
+  document.documentElement.setAttribute('data-theme-mode', mode);
+  document.documentElement.style.colorScheme = resolved;
+  return resolved;
+};
+
 const useStore = create((set, get) => ({
   // ── View Navigation ──
   view: 'dashboard',         // 'dashboard' | 'labs' | 'terminal' | 'leaderboard' | 'friends' | 'analytics' | 'certificates' | 'mission' | 'debrief'
   currentLab: null,          // 1 | 2
   currentMission: null,      // 0-4 index
   
-  // ── Theme State ──
-  theme: (typeof window !== 'undefined' && localStorage.getItem('nr-theme')) || 'dark',
-  toggleTheme: () => {
-    const next = get().theme === 'dark' ? 'light' : 'dark';
+  // ── Theme State (Single Source of Truth) ──
+  themeMode: getStoredThemeMode(), // 'dark' | 'light' | 'system'
+  theme: resolveTheme(getStoredThemeMode()), // 'dark' | 'light'
+
+  setTheme: (mode) => {
+    if (!['dark', 'light', 'system'].includes(mode)) return;
+    const resolved = applyThemeToDOM(mode);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('nr-theme', next);
-      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('nexarange-theme', mode);
     }
-    set({ theme: next });
+    set({ themeMode: mode, theme: resolved });
     get().addToast({
-      title: 'THEME MODE TOGGLED',
-      text: `Switched to ${next.toUpperCase()} MODE.`,
+      title: 'APPEARANCE UPDATED',
+      text: `Theme set to ${mode.toUpperCase()}${mode === 'system' ? ` (${resolved.toUpperCase()})` : ''}.`,
       type: 'info',
     });
+  },
+
+  toggleTheme: () => {
+    const current = get().theme;
+    const next = current === 'dark' ? 'light' : 'dark';
+    get().setTheme(next);
   },
 
   // ── Operator Profile (Consistent Source of Truth) ──
@@ -47,8 +78,10 @@ const useStore = create((set, get) => ({
   xpToast: null,
   badgeToast: null,
 
-  // ── Modals ──
+  // ── Modals & Menus ──
   operatorModalOpen: false,
+  profileDropdownOpen: false,
+  profileDropdownAnchor: 'sidebar', // 'sidebar' | 'header'
 
   // ── Squad (Friends) ──
   friends: [],
@@ -68,10 +101,17 @@ const useStore = create((set, get) => ({
   },
 
   // ── Actions ──
-  setView: (view) => set({ view }),
+  setView: (view) => set({ view, profileDropdownOpen: false }),
   setLab: (labId) => set({ currentLab: labId }),
   setMission: (idx) => set({ currentMission: idx }),
-  setOperatorModalOpen: (open) => set({ operatorModalOpen: open }),
+  setOperatorModalOpen: (open) => set({ operatorModalOpen: open, profileDropdownOpen: false }),
+  setProfileDropdownOpen: (open, anchor = 'sidebar') =>
+    set({ profileDropdownOpen: open, profileDropdownAnchor: anchor }),
+  toggleProfileDropdown: (anchor = 'sidebar') =>
+    set((s) => ({
+      profileDropdownOpen: !s.profileDropdownOpen,
+      profileDropdownAnchor: anchor,
+    })),
   setThreatLevel: (threatLevel) => set({ threatLevel }),
 
   openMission: (labId, missionIdx) =>
@@ -210,5 +250,26 @@ const useStore = create((set, get) => ({
     });
   },
 }));
+
+// Listen for dynamic system theme changes when themeMode is 'system'
+if (typeof window !== 'undefined') {
+  try {
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleMediaChange = () => {
+      const state = useStore.getState();
+      if (state.themeMode === 'system') {
+        const resolved = applyThemeToDOM('system');
+        useStore.setState({ theme: resolved });
+      }
+    };
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handleMediaChange);
+    } else if (mql.addListener) {
+      mql.addListener(handleMediaChange);
+    }
+  } catch (e) {
+    // Unsupported or headless environment
+  }
+}
 
 export default useStore;

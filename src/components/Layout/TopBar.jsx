@@ -1,24 +1,22 @@
-// src/components/Layout/TopBar.jsx — Refined Command Center Status Bar
+// src/components/Layout/TopBar.jsx — Streamlined Cyber Operations Header
 import { useState, useEffect } from 'react';
 import useStore from '../../store/useStore';
 import {
   IconShield,
   IconZap,
-  IconSun,
-  IconMoon,
 } from '../Common/Icons';
 import s from './TopBar.module.css';
 
-const SECTION_TITLES = {
-  dashboard:    { title: 'COMMAND CENTER', subtitle: 'HQ Telemetry & Operations Overview' },
-  labs:         { title: 'SECURITY LABS', subtitle: 'Active Operations & Incident Response' },
-  terminal:     { title: 'ENCLAVE TERMINAL', subtitle: 'Simulated Security Shell v2.6' },
-  leaderboard:  { title: 'GLOBAL LEADERBOARD', subtitle: 'Global Operator Rankings' },
-  friends:      { title: 'SQUAD NETWORK', subtitle: 'Peer Intelligence & Cooperative Squad' },
-  analytics:    { title: 'PERFORMANCE ANALYTICS', subtitle: 'Skill Matrix & Progression Metrics' },
-  certificates: { title: 'CREDENTIALS VAULT', subtitle: 'Official Case Accreditations' },
-  mission:      { title: 'ACTIVE MISSION', subtitle: 'Incident Triage & Threat Mitigation' },
-  debrief:      { title: 'OPERATION DEBRIEF', subtitle: 'Case Analysis & Retrospective' },
+const SECTION_MAP = {
+  dashboard:    { code: 'HQ', title: 'Telemetry & Operations Overview' },
+  labs:         { code: 'LABS', title: 'Active Operations & Incident Response' },
+  terminal:     { code: 'TERM', title: 'Simulated Security Shell v2.6' },
+  leaderboard:  { code: 'RANK', title: 'Global Operator Rankings' },
+  friends:      { code: 'SQUAD', title: 'Peer Intelligence & Cooperative Squad' },
+  analytics:    { code: 'STATS', title: 'Skill Matrix & Progression Metrics' },
+  certificates: { code: 'CERTS', title: 'Credentials & Security Accreditations' },
+  mission:      { code: 'OPS', title: 'Incident Triage & Threat Mitigation' },
+  debrief:      { code: 'DEBRIEF', title: 'Case Analysis & Retrospective' },
 };
 
 export default function TopBar() {
@@ -27,10 +25,9 @@ export default function TopBar() {
     totalXP,
     getLevel,
     threatLevel,
-    setOperatorModalOpen,
     operator,
-    theme,
-    toggleTheme,
+    toggleProfileDropdown,
+    profileDropdownOpen,
   } = useStore();
 
   const [time, setTime] = useState('');
@@ -46,21 +43,21 @@ export default function TopBar() {
     return () => clearInterval(id);
   }, []);
 
-  const section = SECTION_TITLES[view] || { title: view.toUpperCase(), subtitle: 'Cyber Enclave' };
+  const section = SECTION_MAP[view] || { code: view.toUpperCase(), title: 'Security Enclave' };
   const isElevated = threatLevel === 'ELEVATED' || threatLevel === 'CRITICAL';
 
   return (
     <header className={s.topbar}>
-      {/* Left: Operational Section Title */}
+      {/* Left: Compact Context Indicator (No duplicate branding, clean hierarchy) */}
       <div className={s.left}>
-        <div className={s.sectionBadge}>
-          <span className={s.sectionPrefix}>NEXARANGE //</span>
-          <span className={s.sectionTitle}>{section.title}</span>
+        <div className={s.contextIndicator}>
+          <span className={s.contextCode}>{section.code}</span>
+          <span className={s.contextDot}>·</span>
+          <span className={s.contextTitle}>{section.title}</span>
         </div>
-        <span className={s.sectionSubtitle}>{section.subtitle}</span>
       </div>
 
-      {/* Center/Right: Status Badges, XP, Level, Theme, Clock */}
+      {/* Right: Telemetry Status Pills, XP, Level, Clock, Profile */}
       <div className={s.right}>
         {/* System Operational Status */}
         <div className={s.statusPill}>
@@ -87,36 +84,20 @@ export default function TopBar() {
           <span className={s.xpValue}>{totalXP.toLocaleString()}</span>
         </div>
 
-        {/* Light / Dark Mode Toggle Button */}
-        <button
-          className={s.themeToggleBtn}
-          onClick={toggleTheme}
-          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          aria-label="Toggle light and dark mode"
-        >
-          {theme === 'dark' ? (
-            <>
-              <IconSun size={15} className={s.sunIcon} />
-              <span className={s.themeLabel}>LIGHT</span>
-            </>
-          ) : (
-            <>
-              <IconMoon size={15} className={s.moonIcon} />
-              <span className={s.themeLabel}>DARK</span>
-            </>
-          )}
-        </button>
-
         {/* Live Clock */}
         <div className={s.clockBox} title="Enclave UTC Time">
           <span className={s.clockTime}>{time}</span>
         </div>
 
-        {/* Profile Avatar Button */}
+        {/* Profile Avatar Button (Toggles Profile & Appearance Menu) */}
         <button
           className={s.profileBtn}
-          onClick={() => setOperatorModalOpen(true)}
-          title="Open Operator Profile"
+          onClick={() => toggleProfileDropdown('header')}
+          data-profile-trigger="true"
+          title="Open Operator Profile & Settings"
+          aria-label="Operator Profile and Appearance Settings"
+          aria-expanded={profileDropdownOpen}
+          aria-haspopup="dialog"
         >
           <div className={s.profileAvatar}>{operator.avatar}</div>
         </button>

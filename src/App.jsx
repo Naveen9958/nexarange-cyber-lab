@@ -6,6 +6,7 @@ import BootScreen from './components/Boot/BootScreen';
 import Sidebar from './components/Layout/Sidebar';
 import TopBar from './components/Layout/TopBar';
 import OperatorModal from './components/Layout/OperatorModal';
+import ProfileDropdown from './components/Layout/ProfileDropdown';
 import Dashboard from './components/Dashboard/Dashboard';
 import LabsView from './components/Labs/LabsView';
 import TerminalView from './components/Terminal/TerminalView';
@@ -58,6 +59,7 @@ export default function App() {
         </main>
       </div>
       <OperatorModal />
+      <ProfileDropdown />
       <ToastSystem />
     </div>
   );

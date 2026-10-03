@@ -23,7 +23,14 @@ const NAV = [
 ];
 
 export default function Sidebar() {
-  const { view, setView, operator, getLevel, setOperatorModalOpen } = useStore();
+  const {
+    view,
+    setView,
+    operator,
+    getLevel,
+    toggleProfileDropdown,
+    profileDropdownOpen,
+  } = useStore();
   const level = getLevel();
 
   return (
@@ -64,10 +71,19 @@ export default function Sidebar() {
         {/* Operator Profile Trigger */}
         <div
           className={s.user}
-          onClick={() => setOperatorModalOpen(true)}
+          onClick={() => toggleProfileDropdown('sidebar')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggleProfileDropdown('sidebar');
+            }
+          }}
+          data-profile-trigger="true"
           role="button"
           tabIndex={0}
-          title="Open Operator Profile"
+          title="Open Profile & Appearance Settings"
+          aria-haspopup="dialog"
+          aria-expanded={profileDropdownOpen}
         >
           <div className={s.avatarWrap}>
             <div className={s.avatar}>{operator.avatar}</div>
