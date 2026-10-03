@@ -23,7 +23,7 @@ const ENCLAVE_ROLES = [
 ];
 
 export default function LoginPage() {
-  const { login, operator } = useStore();
+  const { login, registerOperator, operator } = useStore();
   
   // Auth Mode: 'signin' | 'register'
   const [authMode, setAuthMode] = useState('signin');
@@ -45,38 +45,36 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   // Handle Login Submission
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      const targetCallsign = callsign.trim() || 'OPERATOR';
-      login({
-        callsign: targetCallsign,
-        name: targetCallsign.replace(/^0x/i, ''),
-        passphrase: passphrase || 'CYBER-SECURE-KEY',
-        role: operator?.role || 'AI Security Analyst',
-      });
-    }, 400);
+    const targetCallsign = callsign.trim() || '0xNAVEEN';
+    await login({
+      callsign: targetCallsign,
+      name: targetCallsign.replace(/^0x/i, ''),
+      passphrase: passphrase || 'CyberAccess2026!',
+      role: operator?.role || 'AI Security Analyst',
+    });
+    setLoading(false);
   };
 
   // Handle Registration Submission
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      const name = regName.trim() || 'Cyber Operator';
-      const cleanCallsign = regCallsign.trim() 
-        ? (regCallsign.trim().toUpperCase().startsWith('0X') ? regCallsign.trim().toUpperCase() : `0x${regCallsign.trim().toUpperCase()}`)
-        : `0x${name.toUpperCase().replace(/\s+/g, '')}`;
+    const name = regName.trim() || 'Cyber Operator';
+    const cleanCallsign = regCallsign.trim() 
+      ? (regCallsign.trim().toUpperCase().startsWith('0X') ? regCallsign.trim().toUpperCase() : `0x${regCallsign.trim().toUpperCase()}`)
+      : `0x${name.toUpperCase().replace(/\s+/g, '')}`;
 
-      login({
-        name,
-        callsign: cleanCallsign,
-        role: regRole,
-        passphrase: regPassphrase || 'CYBER-ACCESS-KEY',
-        clearance: 'TS/SCI-AI',
-      });
-    }, 450);
+    await registerOperator({
+      name,
+      callsign: cleanCallsign,
+      role: regRole,
+      passphrase: regPassphrase || 'CyberAccess2026!',
+      clearance: 'TS/SCI-AI',
+    });
+    setLoading(false);
   };
 
   return (

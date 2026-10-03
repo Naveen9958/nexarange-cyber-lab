@@ -1,6 +1,7 @@
 // src/components/Terminal/TerminalView.jsx — Realistic Simulated Security Terminal
 import { useState, useRef, useEffect } from 'react';
 import useStore from '../../store/useStore';
+import api from '../../services/api';
 import { KALI_GLOBAL } from '../../data/labData';
 import { IconTerminal } from '../Common/Icons';
 import s from './TerminalView.module.css';
@@ -74,13 +75,27 @@ export default function TerminalView() {
   const [histIdx, setHistIdx] = useState(-1);
   const [isExecuting, setIsExecuting] = useState(false);
 
+  const [activeSessionId, setActiveSessionId] = useState(null);
   const bottomRef = useRef(null);
+
+  // Initialize terminal session with backend on mount
+  useEffect(() => {
+    let mounted = true;
+    api.terminal.createSession(1)
+      .then((res) => {
+        if (mounted && res.success && res.data?.session?.sessionId) {
+          setActiveSessionId(res.data.session.sessionId);
+        }
+      })
+      .catch(() => {});
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [output]);
 
-  function executeCommand(inputCmd) {
+  async function executeCommand(inputCmd) {
     const c = (inputCmd || cmd).trim();
     if (!c) return;
 
@@ -98,6 +113,26 @@ export default function TerminalView() {
 
     setIsExecuting(true);
     setCmd('');
+
+    // Attempt backend execution first
+    try {
+      let sessId = activeSessionId;
+      if (!sessId) {
+        const sessRes = await api.terminal.createSession(1);
+        sessId = sessRes.data?.session?.sessionId;
+        setActiveSessionId(sessId);
+      }
+      if (sessId) {
+        const res = await api.terminal.executeCommand(sessId, c);
+        if (res.success && res.data?.lines) {
+          setOutput([...out, ...res.data.lines]);
+          setIsExecuting(false);
+          return;
+        }
+      }
+    } catch (err) {
+      // Fallback to client simulation if offline
+    }
 
     setTimeout(() => {
       const lower = c.toLowerCase();

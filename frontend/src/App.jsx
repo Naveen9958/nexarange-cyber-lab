@@ -48,6 +48,11 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme || 'dark');
   }, [theme]);
 
+  // Synchronize authenticated session with backend
+  useEffect(() => {
+    useStore.getState().syncSession?.();
+  }, []);
+
   // Handle browser back/forward buttons and enforce protected routes
   useEffect(() => {
     const handlePopState = () => {
