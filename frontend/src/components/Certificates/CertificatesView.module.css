@@ -1,0 +1,429 @@
+/* CertificatesView.module.css — Professional Credentials Vault */
+
+.wrap {
+  padding: 28px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-family: var(--font-head);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 1.5px;
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  max-width: 720px;
+}
+
+/* ── Cert Cards Grid ── */
+.certsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.certCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 380px;
+  transition: var(--transition);
+}
+
+.cardUnlocked {
+  border-color: rgba(25, 230, 165, 0.35);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(25, 230, 165, 0.08);
+}
+
+.cardLocked {
+  border-color: var(--border-subtle);
+  opacity: 0.9;
+}
+
+.cardTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.caseBadge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  color: var(--cyan-primary);
+  background: rgba(0, 245, 200, 0.08);
+  border: 1px solid rgba(0, 240, 210, 0.25);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.statusUnlocked {
+  color: var(--status-success);
+  background: rgba(25, 230, 165, 0.1);
+  border: 1px solid rgba(25, 230, 165, 0.3);
+}
+
+.statusLocked {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ── Seal Area ── */
+.sealArea {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.sealCircle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.sealActive {
+  background: linear-gradient(135deg, rgba(25, 230, 165, 0.15), rgba(0, 245, 200, 0.25));
+  border-color: var(--status-success);
+  color: var(--status-success);
+  box-shadow: 0 0 20px rgba(25, 230, 165, 0.3);
+}
+
+.certDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.trackLabel {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+
+.certName {
+  font-family: var(--font-head);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.certDesc {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 480px;
+}
+
+/* ── Progress Section ── */
+.progressSection {
+  margin-bottom: 20px;
+}
+
+.progLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.reqText {
+  color: var(--text-muted);
+}
+
+.progNumbers {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.progressBar {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+
+/* ── Actions ── */
+.cardActions {
+  display: flex;
+  justify-content: center;
+}
+
+.viewCertBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: var(--status-success);
+  color: #030814;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: var(--radius);
+  transition: var(--transition-fast);
+}
+
+.viewCertBtn:hover {
+  background: #2affd4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(25, 230, 165, 0.4);
+}
+
+.lockedNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ── Modal Document ── */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 6, 15, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.modalContent {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.certDoc {
+  background: #080e1e;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.docBorder {
+  border: 2px solid rgba(0, 240, 210, 0.3);
+  padding: 36px 40px;
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 245, 200, 0.04) 0%, transparent 80%);
+}
+
+.docHeader {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.docOrg {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  color: var(--cyan-primary);
+  margin-bottom: 4px;
+}
+
+.docSeal {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.docTitle {
+  font-family: var(--font-head);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 2px;
+}
+
+.docBody {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.certifyText {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.operatorNameDisplay {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--cyan-primary);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.competencyText {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto 10px;
+}
+
+.accreditationTitle {
+  font-family: var(--font-head);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.caseNotice {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.docFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 20px;
+}
+
+.signCol {
+  text-align: center;
+}
+
+.signatureLine {
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.signLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.hashCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hashLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.hashVal {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cyan-primary);
+}
+
+.hashDate {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.modalControls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--cyan-primary);
+  color: #030814;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.closeModalBtn {
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+@media (max-width: 900px) {
+  .certsGrid {
+    grid-template-columns: 1fr;
+  }
+}

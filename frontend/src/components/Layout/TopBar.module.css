@@ -1,0 +1,216 @@
+/* TopBar.module.css — Professional Glassmorphic Cyber Header */
+
+.topbar {
+  height: 60px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: relative;
+  z-index: 90;
+  gap: 16px;
+}
+
+/* ── Left NexaRange Branding ── */
+.left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.brand:hover {
+  transform: scale(1.02);
+}
+
+.brandLogoWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 240, 210, 0.45);
+  box-shadow: 0 0 14px rgba(0, 245, 200, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.brandLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brandTitle {
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.brandNexa {
+  color: var(--text-primary);
+}
+
+.brandRange {
+  color: var(--cyan-primary);
+  text-shadow: 0 0 14px var(--cyan-glow);
+}
+
+/* ── Right Telemetry Area ── */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Operational Status */
+.statusPill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  background: rgba(25, 230, 165, 0.08);
+  border: 1px solid rgba(25, 230, 165, 0.25);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--status-success);
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--status-success);
+  box-shadow: 0 0 8px var(--status-success);
+  animation: pulse-subtle 2.5s infinite;
+}
+
+.statusText {
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+/* Threat Pill */
+.threatPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(255, 176, 32, 0.08);
+  border: 1px solid rgba(255, 176, 32, 0.25);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--status-warning);
+}
+
+.threatLabel {
+  color: var(--text-muted);
+}
+
+.threatVal {
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.threatActive {
+  background: rgba(255, 56, 100, 0.12);
+  border-color: rgba(255, 56, 100, 0.4);
+  color: var(--status-danger);
+}
+
+/* Clock */
+.clockBox {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  letter-spacing: 1.5px;
+  padding: 5px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.clockTime {
+  font-weight: 500;
+}
+
+/* Profile Button */
+.profileBtn {
+  margin-left: 2px;
+  padding: 2px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.profileBtn:hover {
+  transform: scale(1.06);
+}
+
+.profileBtn:focus-visible {
+  outline: 2px solid var(--cyan-primary);
+  outline-offset: 2px;
+}
+
+.profileAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan-primary), #0077ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #030814;
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid rgba(0, 245, 200, 0.4);
+  box-shadow: 0 0 8px var(--cyan-dim);
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 860px) {
+  .threatPill {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    padding: 0 14px;
+    height: 54px;
+  }
+
+  .statusPill {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .clockBox {
+    display: none;
+  }
+}

@@ -1,0 +1,436 @@
+/* Leaderboard.module.css — Professional Global Rankings */
+
+.wrap {
+  padding: 28px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-head);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  max-width: 650px;
+}
+
+/* ── User Milestone Card ── */
+.userMilestoneCard {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.userMilestoneLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.myRankPill {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--cyan-primary);
+  background: rgba(0, 245, 200, 0.1);
+  border: 1px solid rgba(0, 240, 210, 0.3);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.myName {
+  font-family: var(--font-head);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.myXp {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--cyan-primary);
+}
+
+.userMilestoneRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  border-left: 1px solid var(--border-subtle);
+  padding-left: 18px;
+}
+
+.nextTargetLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.nextTargetVal {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--status-warning);
+  font-weight: 600;
+}
+
+/* ── Metallic Podium ── */
+.podiumSection {
+  padding: 10px 0 20px;
+}
+
+.podiumGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: end;
+  max-width: 950px;
+  margin: 0 auto;
+}
+
+.podiumCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 22px 18px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.podiumCard:hover {
+  transform: translateY(-4px);
+}
+
+/* Metallic Distinct Themes */
+.silverCard {
+  border-color: rgba(192, 192, 192, 0.35);
+  background: linear-gradient(180deg, rgba(192, 192, 192, 0.08) 0%, var(--bg-card) 60%);
+}
+
+.goldCard {
+  border-color: rgba(255, 215, 0, 0.45);
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.12) 0%, var(--bg-card) 60%);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1);
+  transform: translateY(-10px);
+}
+
+.bronzeCard {
+  border-color: rgba(205, 127, 50, 0.35);
+  background: linear-gradient(180deg, rgba(205, 127, 50, 0.08) 0%, var(--bg-card) 60%);
+}
+
+.podiumCrown {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.goldCrown {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  color: #ffd700;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.avatarCircle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--bg-surface-2);
+  border: 2px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.goldAvatar {
+  border-color: #ffd700;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+}
+
+.podiumOperatorName {
+  font-family: var(--font-head);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.podiumTrack {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.podiumXP {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.goldXP {
+  color: #ffd700;
+  font-size: var(--text-base);
+}
+
+.podiumPedestal {
+  width: calc(100% + 36px);
+  background: rgba(255, 255, 255, 0.04);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+
+/* ── Filter Controls ── */
+.controlsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filterTabs {
+  display: flex;
+  background: var(--bg-card);
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  gap: 4px;
+}
+
+.tabBtn {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tabActive {
+  background: rgba(0, 245, 200, 0.1);
+  color: var(--cyan-primary);
+  border: 1px solid rgba(0, 240, 210, 0.25);
+  font-weight: 700;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  min-width: 240px;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+}
+
+/* ── Table Container ── */
+.tableContainer {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.tableHead {
+  display: grid;
+  grid-template-columns: 80px 2fr 1.5fr 1fr;
+  padding: 14px 24px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 80px 2fr 1.5fr 1fr;
+  padding: 16px 24px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: var(--transition-fast);
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tableRow:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.myRow {
+  background: rgba(0, 245, 200, 0.06);
+  border-left: 3px solid var(--cyan-primary);
+}
+
+.colRank {
+  display: flex;
+  align-items: center;
+}
+
+.rankBadge {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.topRankBadge {
+  color: var(--cyan-primary);
+  font-weight: 700;
+}
+
+.colOperator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.operatorAvatarSmall {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cyan-primary);
+}
+
+.operatorNameText {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.youPill {
+  font-size: 0.65rem;
+  background: var(--cyan-primary);
+  color: #030814;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+
+.colTrack {
+  display: flex;
+  align-items: center;
+}
+
+.trackPill {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.colXP {
+  display: flex;
+  align-items: center;
+}
+
+.xpValText {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--cyan-primary);
+}
+
+@media (max-width: 768px) {
+  .wrap {
+    padding: 16px;
+  }
+
+  .podiumGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .goldCard {
+    transform: none;
+  }
+
+  .tableHead,
+  .tableRow {
+    grid-template-columns: 60px 1.5fr 1fr;
+  }
+
+  .colTrack {
+    display: none;
+  }
+}

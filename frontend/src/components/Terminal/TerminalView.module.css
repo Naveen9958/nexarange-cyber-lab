@@ -1,0 +1,223 @@
+/* TerminalView.module.css — Realistic Cyber Security Terminal */
+
+.terminalContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--terminal-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin: 20px 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Window Chrome ── */
+.windowChrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--terminal-chrome);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.trafficLights {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.light {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+
+.lightRed    { background: #ff5f56; }
+.lightYellow { background: #ffbd2e; }
+.lightGreen  { background: #27c93f; }
+
+.chromeTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.chromeIcon {
+  color: var(--cyan-primary);
+}
+
+.enclaveStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--status-success);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-success);
+  box-shadow: 0 0 6px var(--status-success);
+}
+
+/* ── Quick Command Bar ── */
+.quickBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--terminal-bar);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.quickLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.quickChips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--cyan-primary);
+  background: rgba(0, 245, 200, 0.08);
+  border: 1px solid rgba(0, 240, 210, 0.25);
+  padding: 3px 10px;
+  border-radius: 4px;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.chip:hover:not(:disabled) {
+  background: rgba(0, 245, 200, 0.18);
+  border-color: var(--cyan-primary);
+}
+
+.chip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Terminal Body Buffer ── */
+.terminalBody {
+  flex: 1;
+  padding: 18px 22px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.line {
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin-bottom: 3px;
+  color: var(--text-primary);
+}
+
+.head {
+  color: var(--cyan-primary);
+  font-weight: 700;
+}
+
+.info {
+  color: #00d9ff;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.accent {
+  color: #19e6a5;
+}
+
+.warn {
+  color: #ffb020;
+}
+
+.err {
+  color: #ff3864;
+}
+
+.promptLine {
+  color: var(--cyan-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.executingLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 6px;
+}
+
+.executingSpinner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 245, 200, 0.2);
+  border-top-color: var(--cyan-primary);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Input Bar ── */
+.inputBar {
+  display: flex;
+  align-items: center;
+  padding: 12px 18px;
+  background: var(--terminal-chrome);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.prompt {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--cyan-primary);
+  flex-shrink: 0;
+}
+
+.commandInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  caret-color: var(--cyan-primary);
+}
+
+.commandInput::placeholder {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
