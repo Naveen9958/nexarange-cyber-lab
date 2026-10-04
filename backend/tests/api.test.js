@@ -151,7 +151,7 @@ describe('NexaRange Command Center Backend Comprehensive Test Suite', () => {
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
     assert.equal(res.body.data.user.email, 'alex.hunter@nexarange.internal');
-    assert.equal(res.body.data.user.level, 3);
+    assert.equal(res.body.data.user.level, 1);
   });
 
   test('Protected routes should reject requests without token', async () => {
@@ -499,7 +499,7 @@ describe('NexaRange Command Center Backend Comprehensive Test Suite', () => {
 
     const userCheck = await User.findById(operatorUser.id);
     assert.equal(userCheck.xp, 0);
-    assert.equal(userCheck.level, 3);
+    assert.equal(userCheck.level, 1);
   });
 
   // ── 16. Logout & Session Invalidation ──

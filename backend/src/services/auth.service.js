@@ -36,7 +36,7 @@ export const authService = {
       callsign: safeCallsign,
       passwordHash,
       role: 'user',
-      level: 3,
+      level: 1,
       xp: 0,
       themePreference: 'dark',
       lastLoginAt: new Date(),
@@ -46,7 +46,7 @@ export const authService = {
     await Progress.create({
       userId: user._id,
       totalXp: 0,
-      currentLevel: 3,
+      currentLevel: 1,
       missionsCompleted: {},
       labsCompleted: [],
       badges: [],

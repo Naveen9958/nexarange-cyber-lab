@@ -349,7 +349,7 @@ export const seedInitialData = async () => {
       callsign: '0xNAVEEN',
       passwordHash,
       role: 'user',
-      level: 3,
+      level: 1,
       xp: 0,
       themePreference: 'dark',
       avatar: 'N',
@@ -359,7 +359,7 @@ export const seedInitialData = async () => {
     await Progress.create({
       userId: defaultUser._id,
       totalXp: 0,
-      currentLevel: 3,
+      currentLevel: 1,
       missionsCompleted: {},
       labsCompleted: [],
       badges: [],

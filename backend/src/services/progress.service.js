@@ -30,7 +30,7 @@ export const progressService = {
     progress.labsCompleted = [];
     progress.totalXp = 0;
     progress.sessionXp = 0;
-    progress.currentLevel = 3;
+    progress.currentLevel = 1;
     progress.badges = [];
     progress.skillMatrix = {
       'AI Security': 0,
@@ -47,7 +47,7 @@ export const progressService = {
     // Reset User total XP and level
     await User.findByIdAndUpdate(userId, {
       xp: 0,
-      level: 3,
+      level: 1,
     });
 
     return {

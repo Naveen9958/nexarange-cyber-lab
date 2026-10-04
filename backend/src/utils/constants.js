@@ -17,7 +17,7 @@ export const SKILL_CATEGORIES = [
 
 // Centralized Level & Progression Formulas
 export const XP_PER_LEVEL = 350;
-export const BASE_LEVEL = 3; // Baseline rank tier
+export const BASE_LEVEL = 1; // Baseline rank tier (starts at Level 1 for new operators)
 
 export const calculateLevelInfo = (totalXp = 0) => {
   const xp = Math.max(0, Number(totalXp) || 0);

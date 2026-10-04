@@ -406,7 +406,7 @@ const useStore = create((set, get) => ({
 
   getLevel: () => {
     const s = get();
-    return 3 + Math.floor(s.totalXP / 350);
+    return 1 + Math.floor(s.totalXP / 350);
   },
 
   // ── Actions ──

@@ -412,22 +412,48 @@
   border-color: var(--cyan-primary);
 }
 
-/* ── Footer ── */
-.cardFooter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  font-family: var(--font-mono);
-  font-size: 0.55rem;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
-  text-align: center;
-  width: 100%;
-  margin-top: 2px;
+/* ── Theme Switcher on Login Page ── */
+.themeToggleWrap {
+  position: absolute;
+  top: clamp(12px, 2.5vh, 24px);
+  right: clamp(14px, 3vw, 28px);
+  z-index: 10;
 }
 
-.footerIcon {
-  color: var(--text-muted);
-  flex-shrink: 0;
+.themeToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: all var(--transition-fast);
+}
+
+.themeToggleBtn:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--cyan-primary);
+  color: var(--cyan-primary);
+  box-shadow: 0 4px 20px var(--cyan-dim);
+  transform: translateY(-1px);
+}
+
+.themeToggleBtn:active {
+  transform: translateY(0);
+}
+
+.themeToggleIcon {
+  color: var(--cyan-primary);
+  display: flex;
+  align-items: center;
 }

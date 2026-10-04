@@ -11,6 +11,8 @@ import {
   IconEyeOff,
   IconUserPlus,
   IconKey,
+  IconSun,
+  IconMoon,
 } from '../Common/Icons';
 import s from './LoginPage.module.css';
 
@@ -23,7 +25,7 @@ const ENCLAVE_ROLES = [
 ];
 
 export default function LoginPage() {
-  const { login, registerOperator, operator } = useStore();
+  const { login, registerOperator, operator, theme, toggleTheme } = useStore();
   
   // Auth Mode: 'signin' | 'register'
   const [authMode, setAuthMode] = useState('signin');
@@ -82,6 +84,22 @@ export default function LoginPage() {
       <div className={s.cyberGrid} />
       <div className={s.glowOrb} />
 
+      {/* Top Floating Theme Switcher */}
+      <div className={s.themeToggleWrap}>
+        <button
+          type="button"
+          className={s.themeToggleBtn}
+          onClick={toggleTheme}
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} theme`}
+          aria-label="Toggle Theme"
+        >
+          <span className={s.themeToggleIcon}>
+            {theme === 'dark' ? <IconSun size={15} /> : <IconMoon size={15} />}
+          </span>
+          <span>{theme === 'dark' ? 'LIGHT MODE' : 'DARK MODE'}</span>
+        </button>
+      </div>
+
       <div className={s.loginCard}>
         {/* Official NexaRange Logo Badge */}
         <div className={s.logoWrap}>
@@ -104,11 +122,6 @@ export default function LoginPage() {
         <h1 className={s.title}>
           {authMode === 'signin' ? 'COMMAND CENTER LOGIN' : 'OPERATOR REGISTRATION'}
         </h1>
-        <p className={s.subtitle}>
-          {authMode === 'signin'
-            ? 'Authenticate operator credentials to access enterprise simulation labs.'
-            : 'Enlist new operator profile with cryptographic credentials into the enclave.'}
-        </p>
 
         {/* Mode Switch Tabs */}
         <div className={s.tabGroup}>
@@ -326,12 +339,6 @@ export default function LoginPage() {
             </button>
           </form>
         )}
-
-        {/* Security Zero-Trust Notice */}
-        <div className={s.cardFooter}>
-          <IconShield size={12} className={s.footerIcon} />
-          <span>ZERO-TRUST ENCLAVE · OPERATOR IDENTITY VERIFIED VIA ENCLAVE DIRECTIVE</span>
-        </div>
       </div>
     </div>
   );
