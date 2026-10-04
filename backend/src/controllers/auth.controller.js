@@ -4,9 +4,10 @@ import { env } from '../config/env.js';
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, callsign, password, role } = req.body;
+    const { fullName, name, username, email, callsign, password, role } = req.body;
     const result = await authService.registerUser({
-      name,
+      fullName: fullName || name,
+      username,
       email,
       callsign,
       password,
@@ -29,11 +30,11 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { identifier, email, callsign, password } = req.body;
-    const loginIdent = identifier || email || callsign;
+    const { identifier, username, email, callsign, password } = req.body;
+    const loginIdent = identifier || username || email || callsign;
 
     if (!loginIdent || !password) {
-      return sendError(res, 'Operator identifier and password are required', 'MISSING_CREDENTIALS', 400);
+      return sendError(res, 'Operator username or email and password are required', 'MISSING_CREDENTIALS', 400);
     }
 
     const ipAddress = req.ip || req.connection?.remoteAddress || '127.0.0.1';

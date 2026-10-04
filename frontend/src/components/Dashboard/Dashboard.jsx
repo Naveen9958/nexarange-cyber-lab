@@ -25,7 +25,7 @@ export default function Dashboard() {
     getRank,
   } = useStore();
 
-  const allLabs = [LAB_DATA[1], LAB_DATA[2], LAB_DATA[3], LAB_DATA[4], LAB_DATA[5]].filter(Boolean);
+  const allLabs = [LAB_DATA[1], LAB_DATA[2]].filter(Boolean);
   const totalMissionsCount = allLabs.reduce((sum, l) => sum + l.missions.length, 0);
   const completedCount = Object.keys(completedMissions).length;
   const completionPct = Math.round((completedCount / totalMissionsCount) * 100);

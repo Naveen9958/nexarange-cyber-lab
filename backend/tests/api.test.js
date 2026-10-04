@@ -86,7 +86,120 @@ describe('NexaRange Command Center Backend Comprehensive Test Suite', () => {
 
     assert.equal(res.status, 400);
     assert.equal(res.body.success, false);
-    assert.equal(res.body.error.code, 'VALIDATION_ERROR');
+    assert.match(res.body.error.message, /valid email address/i);
+  });
+
+  // ── Authentication Scenario Requirements (Req 25) ──
+  test('POST /api/auth/register should allow multiple users with same display name (Naveen) but unique username/email', async () => {
+    // User 1: Naveen Kumar
+    const res1 = await request(app)
+      .post('/api/auth/register')
+      .send({
+        fullName: 'Naveen Kumar',
+        username: 'naveen01',
+        email: 'naveen01@gmail.com',
+        password: 'TestPassword123!',
+        role: 'Fresher / Trainee',
+      });
+
+    assert.equal(res1.status, 201);
+    assert.equal(res1.body.success, true);
+    assert.equal(res1.body.data.user.name, 'Naveen Kumar');
+    assert.equal(res1.body.data.user.username, 'naveen01');
+    assert.equal(res1.body.data.user.email, 'naveen01@gmail.com');
+    assert.equal(res1.body.data.user.avatar, 'NK');
+    assert.equal(res1.body.data.user.role, 'Fresher / Trainee');
+
+    // User 2: Naveen Sharma (same first name / similar display name — MUST SUCCEED)
+    const res2 = await request(app)
+      .post('/api/auth/register')
+      .send({
+        fullName: 'Naveen Sharma',
+        username: 'naveen02',
+        email: 'naveen02@gmail.com',
+        password: 'TestPassword123!',
+        role: 'Fresher / Trainee',
+      });
+
+    assert.equal(res2.status, 201);
+    assert.equal(res2.body.success, true);
+    assert.equal(res2.body.data.user.name, 'Naveen Sharma');
+    assert.equal(res2.body.data.user.username, 'naveen02');
+    assert.equal(res2.body.data.user.email, 'naveen02@gmail.com');
+    assert.equal(res2.body.data.user.avatar, 'NS');
+  });
+
+  test('POST /api/auth/register should reject duplicate username with precise error message', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        fullName: 'Another Person',
+        username: 'naveen01',
+        email: 'another@gmail.com',
+        password: 'TestPassword123!',
+      });
+
+    assert.equal(res.status, 409);
+    assert.equal(res.body.success, false);
+    assert.equal(res.body.error.message, 'Username already exists. Please choose another username.');
+  });
+
+  test('POST /api/auth/register should reject duplicate email with precise error message (case-insensitive)', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        fullName: 'Different Person',
+        username: 'anotheruser',
+        email: 'NAVEEN01@GMAIL.COM', // Uppercase should match lowercase in DB
+        password: 'TestPassword123!',
+      });
+
+    assert.equal(res.status, 409);
+    assert.equal(res.body.success, false);
+    assert.equal(res.body.error.message, 'An account with this email already exists.');
+  });
+
+  test('POST /api/auth/register should reject when both username and email already exist', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        fullName: 'Naveen Duplicate',
+        username: 'naveen01',
+        email: 'naveen01@gmail.com',
+        password: 'TestPassword123!',
+      });
+
+    assert.equal(res.status, 409);
+    assert.equal(res.body.success, false);
+    assert.equal(res.body.error.message, 'An account with this username and email already exists.');
+  });
+
+  test('POST /api/auth/login should authenticate by username', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({
+        identifier: 'naveen01',
+        password: 'TestPassword123!',
+      });
+
+    assert.equal(res.status, 200);
+    assert.equal(res.body.success, true);
+    assert.equal(res.body.data.user.username, 'naveen01');
+    assert.equal(res.body.data.user.name, 'Naveen Kumar');
+  });
+
+  test('POST /api/auth/login should authenticate by email', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({
+        identifier: 'naveen02@gmail.com',
+        password: 'TestPassword123!',
+      });
+
+    assert.equal(res.status, 200);
+    assert.equal(res.body.success, true);
+    assert.equal(res.body.data.user.username, 'naveen02');
+    assert.equal(res.body.data.user.name, 'Naveen Sharma');
   });
 
   // ── 3. Login ──
@@ -224,20 +337,20 @@ describe('NexaRange Command Center Backend Comprehensive Test Suite', () => {
     assert.equal(res.body.success, true);
     assert.equal(res.body.data.xp, 0);
     assert.equal(res.body.data.missionsCompleted, 0);
-    assert.equal(res.body.data.missionsTotal, 25);
+    assert.equal(res.body.data.missionsTotal, 10);
     assert.equal(res.body.data.securityPosture, 'DEFCON 4 · GUARDED');
     assert.ok(res.body.data.activeMission);
   });
 
   // ── 7. Missions & Idempotency / Duplicate XP Prevention ──
-  test('GET /api/missions should return all 25 operational missions', async () => {
+  test('GET /api/missions should return all 10 operational missions', async () => {
     const res = await request(app)
       .get('/api/missions')
       .set('Authorization', `Bearer ${operatorToken}`);
 
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
-    assert.equal(res.body.data.missions.length, 25);
+    assert.equal(res.body.data.missions.length, 10);
   });
 
   test('POST /api/missions/:id/start should initiate mission attempt', async () => {
@@ -279,14 +392,14 @@ describe('NexaRange Command Center Backend Comprehensive Test Suite', () => {
   });
 
   // ── 8. Labs ──
-  test('GET /api/labs should return all 5 labs', async () => {
+  test('GET /api/labs should return all 2 labs', async () => {
     const res = await request(app)
       .get('/api/labs')
       .set('Authorization', `Bearer ${operatorToken}`);
 
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
-    assert.equal(res.body.data.labs.length, 5);
+    assert.equal(res.body.data.labs.length, 2);
   });
 
   test('POST /api/labs/1/complete should fail if missions are not complete', async () => {

@@ -26,31 +26,15 @@ const applyThemeToDOM = (mode) => {
 };
 
 const getStoredOperator = () => {
-  if (typeof window === 'undefined') {
-    return {
-      name: 'Naveen',
-      callsign: '0xNAVEEN',
-      role: 'AI Security Analyst',
-      avatar: 'N',
-      baseRank: 247,
-      clearance: 'TS/SCI-AI',
-    };
-  }
+  if (typeof window === 'undefined') return null;
   try {
     const raw = localStorage.getItem('nexarange-operator');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.name) return parsed;
+      if (parsed && (parsed.name || parsed.username || parsed.callsign)) return parsed;
     }
   } catch (e) {}
-  return {
-    name: 'Naveen',
-    callsign: '0xNAVEEN',
-    role: 'AI Security Analyst',
-    avatar: 'N',
-    baseRank: 247,
-    clearance: 'TS/SCI-AI',
-  };
+  return null;
 };
 
 const useStore = create((set, get) => ({
@@ -107,8 +91,11 @@ const useStore = create((set, get) => ({
   badgeToast: null,
 
   // ── Authentication & Session State (Single Source of Truth) ──
+  isVerifyingSession: typeof window !== 'undefined'
+    ? Boolean(localStorage.getItem('nexarange-token') && localStorage.getItem('nexarange-auth') === 'true')
+    : false,
   isAuthenticated: typeof window !== 'undefined' 
-    ? Boolean(localStorage.getItem('nexarange-token') && localStorage.getItem('nexarange-auth') !== 'false')
+    ? Boolean(localStorage.getItem('nexarange-token') && localStorage.getItem('nexarange-auth') === 'true')
     : false,
   authToken: typeof window !== 'undefined' ? localStorage.getItem('nexarange-token') : null,
   sessionState: typeof window !== 'undefined' && localStorage.getItem('nexarange-auth') === 'false' ? 'TERMINATED' : 'ACTIVE',
@@ -139,16 +126,17 @@ const useStore = create((set, get) => ({
       localStorage.setItem('nexarange-auth', 'false');
       localStorage.removeItem('nexarange-token');
       localStorage.removeItem('nexarange-operator');
-      window.history.pushState(null, '', '/logout');
+      window.history.pushState(null, '', '/login');
     }
     set({
       isAuthenticated: false,
       authToken: null,
+      operator: null,
       sessionState: 'TERMINATED',
       logoutModalOpen: false,
       profileDropdownOpen: false,
       operatorModalOpen: false,
-      route: '/logout',
+      route: '/login',
       view: 'dashboard',
     });
     get().addToast({
@@ -158,59 +146,40 @@ const useStore = create((set, get) => ({
     });
   },
 
-  login: async (operatorInput = 'Naveen', extraData = {}) => {
+  login: async (credentials) => {
     try {
-      let identifier = 'naveen@nexarange.internal';
-      let passphrase = 'CyberAccess2026!';
-      let role = 'AI Security Analyst';
-      let name = 'Naveen';
+      let identifier = '';
+      let password = '';
 
-      if (typeof operatorInput === 'string') {
-        const trimmed = operatorInput.trim();
-        identifier = trimmed || 'naveen@nexarange.internal';
-        passphrase = extraData.passphrase || 'CyberAccess2026!';
-        name = trimmed.replace(/^0x/i, '') || 'Operator';
-        role = extraData.role || 'AI Security Analyst';
-      } else if (typeof operatorInput === 'object' && operatorInput !== null) {
-        identifier = operatorInput.email || operatorInput.callsign || operatorInput.name || 'naveen@nexarange.internal';
-        passphrase = operatorInput.passphrase || operatorInput.password || extraData.passphrase || 'CyberAccess2026!';
-        name = operatorInput.name || identifier.replace(/^0x/i, '') || 'Operator';
-        role = operatorInput.role || 'AI Security Analyst';
+      if (typeof credentials === 'string') {
+        identifier = credentials.trim();
+      } else if (typeof credentials === 'object' && credentials !== null) {
+        identifier = (credentials.identifier || credentials.username || credentials.email || credentials.callsign || '').trim();
+        password = credentials.password || credentials.passphrase || '';
       }
 
-      // 1. Call Backend API
-      let res;
-      try {
-        res = await api.auth.login(identifier, passphrase);
-      } catch (loginErr) {
-        // If login failed because user doesn't exist, auto-register for seamless onboarding
-        if (loginErr.status === 401 || loginErr.status === 404) {
-          const autoEmail = identifier.includes('@') ? identifier : `${name.toLowerCase().replace(/\s+/g, '')}@nexarange.internal`;
-          const autoCallsign = identifier.toUpperCase().startsWith('0X') ? identifier.toUpperCase() : `0x${name.toUpperCase().replace(/\s+/g, '')}`;
-          res = await api.auth.register({
-            name,
-            email: autoEmail,
-            callsign: autoCallsign,
-            password: passphrase,
-            role,
-          });
-        } else {
-          throw loginErr;
-        }
+      if (!identifier || !password) {
+        throw new Error('Please enter your username/email and password.');
+      }
+
+      const res = await api.auth.login(identifier, password);
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Authentication failed. Please verify credentials.');
       }
 
       const { user, token, sessionId } = res.data;
-      const cleanCallsign = user.callsign || (name.toUpperCase().startsWith('0X') ? name.toUpperCase() : `0x${name.toUpperCase()}`);
 
       const newOp = {
         id: user.id || user._id,
-        name: user.name || name,
-        callsign: cleanCallsign,
+        fullName: user.fullName || user.name,
+        name: user.name,
+        username: user.username,
+        callsign: user.callsign,
         email: user.email,
-        role: user.role || role,
-        avatar: user.avatar || (user.name || name).charAt(0).toUpperCase(),
+        role: user.role || 'Fresher / Trainee',
+        avatar: user.avatar,
         baseRank: 247,
-        clearance: extraData.clearance || 'TS/SCI-AI',
+        clearance: user.clearance || null,
       };
 
       if (typeof window !== 'undefined') {
@@ -259,129 +228,125 @@ const useStore = create((set, get) => ({
         text: `Secure session established for ${newOp.callsign} (${newOp.name}).`,
         type: 'success',
       });
-      return true;
+      return { success: true, user: newOp };
     } catch (err) {
+      const msg = err.message || 'Authentication failed. Please verify credentials.';
       get().addToast({
         title: 'ACCESS DENIED',
-        text: err.message || 'Authentication failed. Please verify credentials.',
+        text: msg,
         type: 'warning',
       });
-      return false;
+      return { success: false, error: msg };
     }
   },
 
   registerOperator: async (userData) => {
     try {
-      const name = userData.name?.trim() || 'Operator';
-      const cleanCallsign = userData.callsign?.trim()
-        ? (userData.callsign.trim().toUpperCase().startsWith('0X') ? userData.callsign.trim().toUpperCase() : `0x${userData.callsign.trim().toUpperCase()}`)
-        : `0x${name.toUpperCase().replace(/\s+/g, '')}`;
-      const email = userData.email?.trim() || `${name.toLowerCase().replace(/\s+/g, '')}@nexarange.internal`;
-      const password = userData.passphrase || userData.password || 'CyberAccess2026!';
-      const role = userData.role || 'AI Security Analyst';
+      const fullName = (userData.fullName || userData.name || '').trim();
+      const username = (userData.username || userData.callsign || '').trim();
+      const email = (userData.email || '').trim();
+      const password = userData.password || userData.passphrase || '';
+      const role = userData.role || 'Fresher / Trainee';
 
       const res = await api.auth.register({
-        name,
+        fullName,
+        username,
         email,
-        callsign: cleanCallsign,
         password,
         role,
       });
 
-      const { user, token, sessionId } = res.data;
-      const newOp = {
-        id: user.id || user._id,
-        name: user.name,
-        callsign: user.callsign,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
-        baseRank: 247,
-        clearance: 'TS/SCI-AI',
-      };
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('nexarange-auth', 'true');
-        localStorage.setItem('nexarange-token', token);
-        localStorage.setItem('nexarange-operator', JSON.stringify(newOp));
-        window.history.pushState(null, '', '/');
+      if (!res.success) {
+        throw new Error(res.message || 'Could not register operator account.');
       }
 
-      set({
-        operator: newOp,
-        isAuthenticated: true,
-        authToken: token,
-        sessionId: sessionId || 'NR-SES-882194',
-        sessionState: 'ACTIVE',
-        totalXP: 0,
-        route: '/',
-        view: 'dashboard',
-        logoutModalOpen: false,
-        profileDropdownOpen: false,
-      });
-
       get().addToast({
-        title: 'ENCLAVE REGISTRATION COMPLETE',
-        text: `Account initialized for ${newOp.callsign}. Welcome to NexaRange.`,
+        title: 'ACCOUNT CREATED',
+        text: 'Operator account created successfully. You can now sign in.',
         type: 'success',
       });
-      return true;
+
+      return { success: true, message: 'Operator account created successfully. You can now sign in.' };
     } catch (err) {
+      const msg = err.message || 'Could not register operator account.';
       get().addToast({
         title: 'REGISTRATION FAILED',
-        text: err.message || 'Could not register operator account.',
+        text: msg,
         type: 'warning',
       });
-      return false;
+      return { success: false, error: msg };
     }
   },
 
   // ── Sync session on initial load ──
   syncSession: async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('nexarange-token') : null;
-    if (!token) {
-      set({ isAuthenticated: false, authToken: null });
+    const isAuthStored = typeof window !== 'undefined' ? localStorage.getItem('nexarange-auth') === 'true' : false;
+
+    if (!token || !isAuthStored) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('nexarange-token');
+        localStorage.setItem('nexarange-auth', 'false');
+        localStorage.removeItem('nexarange-operator');
+      }
+      set({ isAuthenticated: false, authToken: null, operator: null, isVerifyingSession: false });
       return;
     }
+
     try {
       const meRes = await api.auth.getMe();
       if (meRes.success && meRes.data?.user) {
         const u = meRes.data.user;
         const op = {
           id: u.id || u._id,
+          fullName: u.fullName || u.name,
           name: u.name,
+          username: u.username,
           callsign: u.callsign,
           email: u.email,
-          role: u.role,
+          role: u.role || 'Fresher / Trainee',
           avatar: u.avatar,
           baseRank: 247,
-          clearance: 'TS/SCI-AI',
+          clearance: u.clearance || null,
         };
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('nexarange-operator', JSON.stringify(op));
+        }
+
         set({
           operator: op,
           isAuthenticated: true,
           authToken: token,
           totalXP: u.xp || 0,
+          isVerifyingSession: false,
         });
 
         // Load progress
-        const progRes = await api.progress.get();
-        if (progRes.success && progRes.data) {
-          const p = progRes.data.progress;
-          const completedMap = p?.missionsCompleted
-            ? (p.missionsCompleted instanceof Map ? Object.fromEntries(p.missionsCompleted) : p.missionsCompleted)
-            : {};
-          set({
-            completedMissions: completedMap,
-            totalXP: p?.totalXp || u.xp || 0,
-            badges: p?.badges || [],
-          });
-        }
+        try {
+          const progRes = await api.progress.get();
+          if (progRes.success && progRes.data) {
+            const p = progRes.data.progress;
+            const completedMap = p?.missionsCompleted
+              ? (p.missionsCompleted instanceof Map ? Object.fromEntries(p.missionsCompleted) : p.missionsCompleted)
+              : {};
+            set({
+              completedMissions: completedMap,
+              totalXP: p?.totalXp || u.xp || 0,
+              badges: p?.badges || [],
+            });
+          }
+        } catch (pErr) {}
+      } else {
+        throw new Error('Failed to verify session');
       }
     } catch (err) {
-      if (err.status === 401) {
-        set({ isAuthenticated: false, authToken: null });
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('nexarange-token');
+        localStorage.setItem('nexarange-auth', 'false');
+        localStorage.removeItem('nexarange-operator');
       }
+      set({ isAuthenticated: false, authToken: null, operator: null, isVerifyingSession: false });
     }
   },
 

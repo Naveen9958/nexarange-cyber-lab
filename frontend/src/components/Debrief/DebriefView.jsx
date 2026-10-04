@@ -5,7 +5,7 @@ import { IconAward, IconCheckCircle, IconZap, IconShield } from '../Common/Icons
 import s from './DebriefView.module.css';
 
 export default function DebriefView() {
-  const { currentLab, completedMissions, totalXP, badges, setView } = useStore();
+  const { currentLab, completedMissions, totalXP, badges, setView, operator } = useStore();
   const lab = LAB_DATA[currentLab || 1];
 
   const completedInLab = lab.missions.filter((m) => completedMissions[m.id]).length;
@@ -36,6 +36,30 @@ export default function DebriefView() {
           ))}
         </div>
       </div>
+
+      {/* ── Case Narrative Summary & Forensic Takeaways ── */}
+      {(lab.recap || lab.wrappingUp || lab.takeaway) && (
+        <div className={s.narrativeSection}>
+          {lab.recap && (
+            <div className={s.narrativeCard}>
+              <div className={s.narrativeTitle}>// FULL INCIDENT RECAP</div>
+              <p className={s.narrativeText}>{lab.recap}</p>
+            </div>
+          )}
+          {lab.wrappingUp && (
+            <div className={s.narrativeCard}>
+              <div className={s.narrativeTitle}>// CASE CLOSING & THREAT INTEL</div>
+              <p className={s.narrativeText}>{lab.wrappingUp}</p>
+            </div>
+          )}
+          {lab.takeaway && (
+            <div className={`${s.narrativeCard} ${s.takeawayCard}`}>
+              <div className={s.narrativeTitle}>// WHAT {(operator?.fullName || operator?.name || 'OPERATOR').toUpperCase()} TAKES AWAY FROM THIS</div>
+              <p className={s.narrativeText}>{lab.takeaway}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Metrics & Badges ── */}
       <div className={s.row}>

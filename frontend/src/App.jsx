@@ -42,7 +42,7 @@ function ViewRouter() {
 export default function App() {
   const [booted, setBooted] = useState(false);
   const handleBoot = useCallback(() => setBooted(true), []);
-  const { theme, isAuthenticated, route } = useStore();
+  const { theme, isAuthenticated, route, isVerifyingSession } = useStore();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme || 'dark');
@@ -68,6 +68,23 @@ export default function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Startup session verification screen (Requirement 20)
+  if (isVerifyingSession) {
+    return (
+      <div className="verifying-session-screen">
+        <div className="verifying-session-box">
+          <div className="verifying-logo-wrap">
+            <img src="/nexarange-logo.png" alt="NexaRange" className="verifying-logo" />
+            <div className="verifying-spinner" />
+          </div>
+          <div className="verifying-status-label">ZERO-TRUST ENCLAVE</div>
+          <div className="verifying-text">VERIFYING SECURE SESSION...</div>
+          <div className="verifying-subtext">Cryptographic handshake with NexaRange Command Center</div>
+        </div>
+      </div>
+    );
+  }
 
   // Unauthenticated users are strictly guarded against protected dashboard routes
   if (!isAuthenticated) {

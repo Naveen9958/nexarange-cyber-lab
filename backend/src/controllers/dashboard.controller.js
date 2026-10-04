@@ -44,7 +44,7 @@ export const getDashboardData = async (req, res, next) => {
       levelInfo,
       currentRank,
       missionsCompleted,
-      missionsTotal: missionsTotal || 25,
+      missionsTotal: missionsTotal || 10,
       completionRate: completionPct,
       securityPosture: 'DEFCON 4 · GUARDED',
       activeThreatChain: 'AGENT IDENTITY TAMPER',

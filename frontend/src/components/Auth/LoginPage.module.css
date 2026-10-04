@@ -331,23 +331,69 @@
   color: var(--text-primary);
 }
 
-.clearancePill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.roleDescBox {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.4;
   padding: 4px 8px;
-  background: rgba(124, 92, 255, 0.08);
-  border: 1px solid rgba(124, 92, 255, 0.25);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  color: var(--accent-purple);
-  letter-spacing: 0.5px;
+  background: rgba(0, 229, 255, 0.04);
+  border-left: 2px solid var(--cyan-primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-top: 2px;
 }
 
-.clearanceIcon {
-  color: var(--accent-purple);
-  flex-shrink: 0;
+.fieldError {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #ff5252;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.inputError {
+  border-color: rgba(255, 82, 82, 0.6) !important;
+  box-shadow: 0 0 8px rgba(255, 82, 82, 0.2) !important;
+}
+
+.successBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: rgba(0, 230, 118, 0.1);
+  border: 1px solid rgba(0, 230, 118, 0.4);
+  color: #00e676;
+  font-family: var(--font-mono);
+  font-size: 0.70rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  animation: fadeIn 0.25s ease;
+}
+
+.errorBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid rgba(255, 82, 82, 0.4);
+  color: #ff5252;
+  font-family: var(--font-mono);
+  font-size: 0.70rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  animation: fadeIn 0.25s ease;
 }
 
 .submitBtn {
@@ -356,19 +402,19 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 8px 14px;
+  padding: 9px 14px;
   border-radius: var(--radius);
   background: var(--cyan-primary);
   border: 1px solid var(--cyan-primary);
   color: #030814;
   font-family: var(--font-mono);
-  font-size: 0.70rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 1.1px;
   cursor: pointer;
   transition: var(--transition-fast);
   box-shadow: 0 3px 12px var(--cyan-dim);
-  margin-top: 1px;
+  margin-top: 4px;
 }
 
 .submitBtn:hover:not(:disabled) {
@@ -378,38 +424,9 @@
 }
 
 .submitBtn:disabled {
-  opacity: 0.7;
-  cursor: wait;
-}
-
-/* ── Demo Quick Access ── */
-.demoSection {
-  width: 100%;
-  margin-top: 2px;
-}
-
-.demoBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 6px 10px;
-  border-radius: var(--radius);
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  color: var(--cyan-primary);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 600;
-  letter-spacing: 0.6px;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.demoBtn:hover {
-  background: var(--cyan-dim);
-  border-color: var(--cyan-primary);
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ── Theme Switcher on Login Page ── */

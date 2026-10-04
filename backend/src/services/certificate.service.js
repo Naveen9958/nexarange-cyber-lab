@@ -6,32 +6,14 @@ const CERT_CONFIGS = {
   1: {
     title: 'Advanced AI Security Analyst (AISA)',
     code: 'NR-AISA-9941',
-    category: 'AI Security Operations',
-    level: 'Advanced',
+    category: 'Advanced AI Security Track',
+    level: 'Medium to Advanced',
   },
   2: {
     title: 'Cloud Forensics & Deepfake Incident Specialist (CFDIS)',
     code: 'NR-CFDIS-8402',
-    category: 'Cloud Infrastructure & Synthetic Media',
-    level: 'Advanced',
-  },
-  3: {
-    title: 'Advanced LLM Security & RAG Defense Specialist (ALSD)',
-    code: 'NR-ALSD-3071',
-    category: 'AI Red Teaming & LLM Defense',
-    level: 'Advanced',
-  },
-  4: {
-    title: 'Zero Trust Cloud & Threat Attribution Expert (ZTTA)',
-    code: 'NR-ZTTA-5519',
-    category: 'Zero Trust & Cloud Forensics',
-    level: 'Advanced',
-  },
-  5: {
-    title: 'Next-Gen Cybersecurity Architect & Mesh Defender (NCAM)',
-    code: 'NR-NCAM-7720',
-    category: 'Autonomous Systems & Post-Quantum Defense',
-    level: 'Master',
+    category: 'Cloud Infrastructure and AI Trust Track',
+    level: 'Medium to Advanced',
   },
 };
 

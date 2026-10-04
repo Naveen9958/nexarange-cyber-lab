@@ -113,16 +113,18 @@ export const terminalService = {
     if (lowerCmd === 'whoami') {
       const opName = operatorMeta.name || 'Operator';
       const opCallsign = operatorMeta.callsign || '0xOPERATOR';
-      const opRole = operatorMeta.role || 'AI Security Analyst';
-      const opClearance = operatorMeta.clearance || 'TS/SCI-AI';
-      responseText = `Operator: ${opCallsign} (${opName})\nRole: ${opRole}\nClearance: ${opClearance}\nEnvironment: nexarange-kali-sandbox (Simulated Enclave)`;
+      const opRole = operatorMeta.role || 'Fresher / Trainee';
+      const clearanceLine = operatorMeta.clearance ? `\nClearance: ${operatorMeta.clearance}` : '';
+      responseText = `Operator: ${opCallsign} (${opName})\nRole: ${opRole}${clearanceLine}\nEnvironment: nexarange-kali-sandbox (Simulated Enclave)`;
     } else if (lowerCmd === 'status') {
       const opName = operatorMeta.name || 'Operator';
       const opCallsign = operatorMeta.callsign || '0xOPERATOR';
+      const opRole = operatorMeta.role || 'Fresher / Trainee';
+      const clearanceStr = operatorMeta.clearance ? ` (Clearance: ${operatorMeta.clearance})` : '';
       responseText = `[ENCLAVE TELEMETRY STATUS]
   ● Security Enclave: LAB-01-SECURE
   ● Host: nexarange-kali (Linux 6.1.0-kali9-amd64)
-  ● Operator: ${opCallsign} (${opName}) (Clearance: TS/SCI-AI)
+  ● Operator: ${opCallsign} (${opName}) (Role: ${opRole})${clearanceStr}
   ● Tunnel: WireGuard mTLS / AES-256-GCM
   ● Threat Mitigation Engine: ARMED
   ● Active Defense Daemons: 4 running (auth-mon, mcp-audit, k8s-watch, net-sentry)`;

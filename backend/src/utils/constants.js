@@ -3,7 +3,12 @@
 export const THEMES = ['dark', 'light', 'system'];
 export const DEFAULT_THEME = 'dark';
 
-export const USER_ROLES = ['user'];
+export const USER_ROLES = [
+  'Fresher / Trainee',
+  'Junior Security Analyst',
+  'Security Analyst',
+  'user',
+];
 export const MISSION_DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced'];
 
 export const SKILL_CATEGORIES = [

@@ -20,7 +20,13 @@ export const errorHandler = (err, req, res, next) => {
     statusCode = 409;
     errorCode = 'DUPLICATE_KEY';
     const field = Object.keys(err.keyValue || {})[0] || 'field';
-    message = `An entry with this ${field} already exists.`;
+    if (field === 'username') {
+      message = 'Username already exists. Please choose another username.';
+    } else if (field === 'email') {
+      message = 'An account with this email already exists.';
+    } else {
+      message = `An entry with this ${field} already exists.`;
+    }
   }
 
   // Handle Mongoose Validation Error

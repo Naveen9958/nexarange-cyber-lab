@@ -68,7 +68,7 @@ export default function LogoutPage() {
           All authentication credentials associated with this session have been purged from browser memory.
         </p>
 
-        {/* Primary & Secondary Actions */}
+        {/* Primary Action */}
         <div className={s.actions}>
           <button
             type="button"
@@ -77,15 +77,6 @@ export default function LogoutPage() {
           >
             <span>RETURN TO LOGIN</span>
             <IconArrowRight size={16} />
-          </button>
-
-          <button
-            type="button"
-            className={s.secondaryBtn}
-            onClick={() => login('Naveen')}
-          >
-            <IconZap size={14} />
-            <span>QUICK RE-AUTHENTICATE</span>
           </button>
         </div>
 

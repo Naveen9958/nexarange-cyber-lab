@@ -80,7 +80,7 @@ export default function TopBar() {
           aria-expanded={profileDropdownOpen}
           aria-haspopup="dialog"
         >
-          <div className={s.profileAvatar}>{operator.avatar}</div>
+          <div className={s.profileAvatar}>{operator?.avatar || 'OP'}</div>
         </button>
       </div>
     </header>

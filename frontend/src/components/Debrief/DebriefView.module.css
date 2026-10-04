@@ -225,8 +225,42 @@
   border-color: var(--border);
 }
 
+.narrativeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.narrativeCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+}
+
+.takeawayCard {
+  border-left: 3px solid var(--cyan-primary);
+  background: linear-gradient(90deg, rgba(0, 245, 200, 0.05), var(--bg-card));
+}
+
+.narrativeTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--cyan-primary);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.narrativeText {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
 @media (max-width: 900px) {
   .row {
     grid-template-columns: 1fr;
   }
 }
+

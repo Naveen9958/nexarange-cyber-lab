@@ -50,3 +50,101 @@
     max-width: 100%;
   }
 }
+
+/* ── Session Verification Screen ── */
+.verifying-session-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-base, #07090e);
+  color: var(--text-primary, #f0f4f8);
+  font-family: var(--font-mono, monospace);
+  position: relative;
+  overflow: hidden;
+}
+
+.verifying-session-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.verifying-session-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px;
+  border-radius: 12px;
+  background: rgba(13, 17, 23, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  box-shadow: 0 0 40px rgba(0, 229, 255, 0.08);
+  backdrop-filter: blur(12px);
+  max-width: 440px;
+  width: 90%;
+  position: relative;
+  z-index: 2;
+}
+
+.verifying-logo-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verifying-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.verifying-spinner {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(0, 229, 255, 0.15);
+  border-top-color: #00e5ff;
+  border-radius: 50%;
+  animation: verifying-spin 1.2s linear infinite;
+}
+
+@keyframes verifying-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.verifying-status-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #00e5ff;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.verifying-text {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #f0f4f8;
+  margin-bottom: 8px;
+}
+
+.verifying-subtext {
+  font-size: 12px;
+  color: var(--text-muted, #7d8590);
+  line-height: 1.4;
+}

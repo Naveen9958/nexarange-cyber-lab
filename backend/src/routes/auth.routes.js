@@ -11,8 +11,12 @@ router.post(
   '/register',
   authLimiter,
   [
-    body('name').trim().notEmpty().withMessage('Operator name is required'),
-    body('email').trim().isEmail().withMessage('Valid email address is required'),
+    body().custom((val) => {
+      const name = (val.fullName || val.name || '').trim();
+      if (!name) throw new Error('Operator full name is required');
+      return true;
+    }),
+    body('email').trim().notEmpty().withMessage('Email is required').isEmail().withMessage('Enter a valid email address.'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
   ],
   validateRequest,

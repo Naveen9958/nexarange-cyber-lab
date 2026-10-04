@@ -12,7 +12,7 @@ const EXTENDED_RESPONSES = {
   status: `[ENCLAVE TELEMETRY STATUS]
   ● Security Enclave: LAB-01-SECURE
   ● Host: nexarange-kali (Linux 6.1.0-kali9-amd64)
-  ● Operator: NAVEEN (Clearance: TS/SCI-AI)
+  ● Operator: ACTIVE (Verified via Enclave Session)
   ● Tunnel: WireGuard mTLS / AES-256-GCM
   ● Threat Mitigation Engine: ARMED
   ● Active Defense Daemons: 4 running (auth-mon, mcp-audit, k8s-watch, net-sentry)`,
@@ -139,12 +139,14 @@ export default function TerminalView() {
       let resp = EXTENDED_RESPONSES[lower] || KALI_GLOBAL[c] || KALI_GLOBAL[lower];
 
       if (lower === 'whoami') {
-        resp = `Operator: ${opCallsign} (${opName})\nRole: ${operator?.role || 'AI Security Analyst'}\nClearance: ${operator?.clearance || 'TS/SCI-AI'}\nEnvironment: nexarange-kali-sandbox (Simulated Enclave)`;
+        const clearanceLine = operator?.clearance ? `\nClearance: ${operator.clearance}` : '';
+        resp = `Operator: ${opCallsign} (${opName})\nRole: ${operator?.role || 'Fresher / Trainee'}${clearanceLine}\nEnvironment: nexarange-kali-sandbox (Simulated Enclave)`;
       } else if (lower === 'status') {
+        const clearanceStr = operator?.clearance ? ` (Clearance: ${operator.clearance})` : '';
         resp = `[ENCLAVE TELEMETRY STATUS]
   ● Security Enclave: LAB-01-SECURE
   ● Host: nexarange-kali (Linux 6.1.0-kali9-amd64)
-  ● Operator: ${opCallsign} (${opName}) (Clearance: ${operator?.clearance || 'TS/SCI-AI'})
+  ● Operator: ${opCallsign} (${opName}) (Role: ${operator?.role || 'Fresher / Trainee'})${clearanceStr}
   ● Tunnel: WireGuard mTLS / AES-256-GCM
   ● Threat Mitigation Engine: ARMED
   ● Active Defense Daemons: 4 running (auth-mon, mcp-audit, k8s-watch, net-sentry)`;

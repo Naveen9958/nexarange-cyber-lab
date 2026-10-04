@@ -1,20 +1,76 @@
 import bcrypt from 'bcryptjs';
-import { User } from '../models/User.js';
+import { User, generateAvatarInitials } from '../models/User.js';
 import { Session } from '../models/Session.js';
 import { Progress } from '../models/Progress.js';
 import { generateToken } from '../utils/jwt.js';
 import { logger } from '../utils/logger.js';
 import { calculateLevelInfo } from '../utils/constants.js';
 
-export const authService = {
-  async registerUser({ name, email, callsign, password, role = 'user' }) {
-    const normalizedEmail = email.toLowerCase().trim();
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
-    // Check if email already in use
-    const existing = await User.findOne({ email: normalizedEmail });
-    if (existing) {
-      const err = new Error('An operator with this email address already exists.');
-      err.code = 11000;
+export const authService = {
+  async registerUser({ fullName, name, username, callsign, email, password, role = 'Fresher / Trainee' }) {
+    const realName = (fullName || name || '').trim();
+    if (!realName) {
+      const err = new Error('This field is required.');
+      err.field = 'fullName';
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // Determine username / callsign
+    const rawUsername = (username || (callsign ? callsign.replace(/^0x/i, '') : realName)).trim();
+    if (!rawUsername) {
+      const err = new Error('This field is required.');
+      err.field = 'username';
+      err.statusCode = 400;
+      throw err;
+    }
+    const normalizedUsername = rawUsername.toLowerCase();
+
+    // Validate email
+    const rawEmail = (email || '').trim();
+    if (!rawEmail) {
+      const err = new Error('This field is required.');
+      err.field = 'email';
+      err.statusCode = 400;
+      throw err;
+    }
+    const normalizedEmail = rawEmail.toLowerCase();
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      const err = new Error('Enter a valid email address.');
+      err.field = 'email';
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // Validate password
+    if (!password || password.length < 6) {
+      const err = new Error('Password must be at least 6 characters long.');
+      err.field = 'password';
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // Check duplicate username and email independently
+    const existingByUsername = await User.findOne({ username: normalizedUsername });
+    const existingByEmail = await User.findOne({ email: normalizedEmail });
+
+    if (existingByUsername && existingByEmail) {
+      const err = new Error('An account with this username and email already exists.');
+      err.code = 'DUPLICATE_KEY';
+      err.statusCode = 409;
+      throw err;
+    }
+    if (existingByUsername) {
+      const err = new Error('Username already exists. Please choose another username.');
+      err.code = 'DUPLICATE_KEY';
+      err.statusCode = 409;
+      throw err;
+    }
+    if (existingByEmail) {
+      const err = new Error('An account with this email already exists.');
+      err.code = 'DUPLICATE_KEY';
       err.statusCode = 409;
       throw err;
     }
@@ -23,19 +79,22 @@ export const authService = {
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    const cleanRaw = (callsign || '').trim();
-    let safeCallsign = `0x${name.toUpperCase().replace(/\s+/g, '')}`;
-    if (cleanRaw) {
-      const stripped = cleanRaw.replace(/^0x/i, '').toUpperCase();
-      safeCallsign = `0x${stripped}`;
-    }
+    // Compute callsign and avatar
+    const safeCallsign = callsign && callsign.trim()
+      ? `0x${callsign.trim().replace(/^0x/i, '').toUpperCase()}`
+      : `0x${normalizedUsername.toUpperCase()}`;
+    const avatar = generateAvatarInitials(realName);
+
+    const safeRole = role === 'user' ? 'Fresher / Trainee' : (role || 'Fresher / Trainee');
 
     const user = await User.create({
-      name: name.trim(),
+      name: realName,
+      username: normalizedUsername,
       email: normalizedEmail,
       callsign: safeCallsign,
       passwordHash,
-      role: 'user',
+      role: safeRole,
+      avatar,
       level: 1,
       xp: 0,
       themePreference: 'dark',
@@ -70,12 +129,14 @@ export const authService = {
       expiresAt,
     });
 
-    logger.info('Operator registered successfully', { userId: user._id, callsign: user.callsign });
+    logger.info('Operator registered successfully', { userId: user._id, username: user.username, callsign: user.callsign });
 
     return {
       user: {
         id: user._id,
+        fullName: user.name,
         name: user.name,
+        username: user.username,
         email: user.email,
         callsign: user.callsign,
         avatar: user.avatar,
@@ -91,14 +152,21 @@ export const authService = {
 
   async loginUser({ identifier, password, ipAddress = '127.0.0.1', userAgent = 'Unknown' }) {
     const cleanIdent = (identifier || '').trim();
+    if (!cleanIdent || !password) {
+      const err = new Error('Operator username or email and password are required.');
+      err.statusCode = 400;
+      throw err;
+    }
 
-    // Support login via email, callsign, or name (case-insensitive)
+    const lowerIdent = cleanIdent.toLowerCase();
     const escapedIdent = cleanIdent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Authenticate ONLY by email, username, or exact callsign — NEVER by display name / full name!
     const user = await User.findOne({
       $or: [
-        { email: cleanIdent.toLowerCase() },
+        { email: lowerIdent },
+        { username: lowerIdent },
         { callsign: new RegExp(`^${escapedIdent}$`, 'i') },
-        { name: new RegExp(`^${escapedIdent}$`, 'i') },
       ],
     }).select('+passwordHash');
 
@@ -133,12 +201,14 @@ export const authService = {
       expiresAt,
     });
 
-    logger.info('Operator logged in successfully', { userId: user._id, callsign: user.callsign });
+    logger.info('Operator logged in successfully', { userId: user._id, username: user.username, callsign: user.callsign });
 
     return {
       user: {
         id: user._id,
+        fullName: user.name,
         name: user.name,
+        username: user.username,
         email: user.email,
         callsign: user.callsign,
         avatar: user.avatar,
@@ -175,7 +245,9 @@ export const authService = {
 
     return {
       id: user._id,
+      fullName: user.name,
       name: user.name,
+      username: user.username,
       email: user.email,
       callsign: user.callsign,
       avatar: user.avatar,

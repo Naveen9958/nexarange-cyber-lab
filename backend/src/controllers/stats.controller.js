@@ -1,5 +1,6 @@
 import { Progress } from '../models/Progress.js';
 import { MissionAttempt } from '../models/MissionAttempt.js';
+import { Mission } from '../models/Mission.js';
 import { TerminalSession } from '../models/TerminalSession.js';
 import { calculateRank, calculateLevelInfo, SKILL_CATEGORIES } from '../utils/constants.js';
 import { sendSuccess } from '../utils/apiResponse.js';
@@ -9,12 +10,14 @@ export const getOverview = async (req, res, next) => {
     const userId = req.user._id;
     const progress = await Progress.findOne({ userId });
     const completedMissionsCount = await MissionAttempt.countDocuments({ userId, status: 'completed' });
+    const totalMissionsCount = (await Mission.countDocuments({ isActive: true })) || 10;
 
     const totalXp = progress?.totalXp || 0;
     const sessionXp = progress?.sessionXp || 0;
     const rank = calculateRank(totalXp);
     const levelInfo = calculateLevelInfo(totalXp);
     const badgesCount = progress?.badges?.length || 0;
+    const completionRate = totalMissionsCount > 0 ? Math.round((completedMissionsCount / totalMissionsCount) * 100) : 0;
 
     return sendSuccess(res, {
       totalXp,
@@ -23,8 +26,8 @@ export const getOverview = async (req, res, next) => {
       level: levelInfo.level,
       levelInfo,
       completedMissionsCount,
-      totalMissionsCount: 25,
-      completionRate: Math.round((completedMissionsCount / 25) * 100),
+      totalMissionsCount,
+      completionRate,
       badgesCount,
       threatLevel: 'GUARDED',
     });

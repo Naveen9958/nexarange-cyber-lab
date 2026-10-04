@@ -104,11 +104,11 @@ export default function ProfileDropdown() {
     >
       {/* User Header */}
       <div className={s.userHeader}>
-        <div className={s.avatar}>{operator.avatar}</div>
+        <div className={s.avatar}>{operator?.avatar || 'OP'}</div>
         <div className={s.userMeta}>
-          <div className={s.userName}>{operator.name.toUpperCase()}</div>
+          <div className={s.userName}>{(operator?.fullName || operator?.name || 'OPERATOR').toUpperCase()}</div>
           <div className={s.userRole}>
-            Analyst Level 0{level}
+            {operator?.role || 'Fresher / Trainee'}
           </div>
         </div>
       </div>

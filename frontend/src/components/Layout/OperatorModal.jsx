@@ -79,13 +79,13 @@ export default function OperatorModal() {
         {/* Pinned Modal Header */}
         <div className={s.header}>
           <div className={s.headerLeft}>
-            <div className={s.avatar}>{operator.avatar || 'O'}</div>
+            <div className={s.avatar}>{operator?.avatar || 'OP'}</div>
             <div>
               <div className={s.name} id="operator-modal-title">
-                {operator.name || 'Operator'}
+                {operator?.fullName || operator?.name || 'Operator'}
               </div>
               <div className={s.callsign}>
-                {operator.callsign || '0xOPERATOR'} · <span className={s.clearance}>{operator.clearance || 'TS/SCI-AI'}</span>
+                {operator?.callsign || '0xOPERATOR'} · <span className={s.clearance}>{operator?.clearance || operator?.role || 'Fresher / Trainee'}</span>
               </div>
             </div>
           </div>

@@ -6,76 +6,154 @@ import {
   IconShield,
   IconArrowRight,
   IconUser,
-  IconZap,
   IconEye,
   IconEyeOff,
   IconUserPlus,
   IconKey,
   IconSun,
   IconMoon,
+  IconCheckCircle,
 } from '../Common/Icons';
 import s from './LoginPage.module.css';
 
-const ENCLAVE_ROLES = [
-  'AI Security Analyst',
-  'SOC Operations Lead',
-  'Red Team Specialist',
-  'Cloud Defense Engineer',
-  'Threat Intelligence Hunter',
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+const OPERATOR_ROLES = [
+  {
+    role: 'Fresher / Trainee',
+    description: 'Entry-level operator learning the NexaRange security environment.',
+  },
+  {
+    role: 'Junior Security Analyst',
+    description: 'Entry-level analyst responsible for basic security monitoring and investigation.',
+  },
+  {
+    role: 'Security Analyst',
+    description: 'Operator responsible for security monitoring, analysis and incident response.',
+  },
 ];
 
 export default function LoginPage() {
-  const { login, registerOperator, operator, theme, toggleTheme } = useStore();
+  const { login, registerOperator, theme, toggleTheme } = useStore();
   
   // Auth Mode: 'signin' | 'register'
   const [authMode, setAuthMode] = useState('signin');
 
-  // Sign In State
-  const [callsign, setCallsign] = useState(() => {
-    return operator?.callsign || '0xNAVEEN';
-  });
-  const [passphrase, setPassphrase] = useState('');
-  const [showPassphrase, setShowPassphrase] = useState(false);
+  // Sign In State — Strictly empty by default (No hardcoded NAVEEN or 0xNAVEEN)
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Register State
-  const [regName, setRegName] = useState('');
-  const [regCallsign, setRegCallsign] = useState('');
-  const [regPassphrase, setRegPassphrase] = useState('');
-  const [regRole, setRegRole] = useState('AI Security Analyst');
-  const [showRegPassphrase, setShowRegPassphrase] = useState(false);
+  // Register State — Fully isolated per user
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [regRole, setRegRole] = useState('Fresher / Trainee');
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // UI State & Validation
   const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [regError, setRegError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [formErrors, setFormErrors] = useState({});
+
+  // Active role description
+  const activeRoleObj = OPERATOR_ROLES.find((r) => r.role === regRole) || OPERATOR_ROLES[0];
 
   // Handle Login Submission
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    setLoginError('');
+    setSuccessMessage('');
+
+    const cleanIdent = identifier.trim();
+    if (!cleanIdent) {
+      setLoginError('Operator username or email is required.');
+      return;
+    }
+    if (!password) {
+      setLoginError('Password is required.');
+      return;
+    }
+
     setLoading(true);
-    const targetCallsign = callsign.trim() || '0xNAVEEN';
-    await login({
-      callsign: targetCallsign,
-      name: targetCallsign.replace(/^0x/i, ''),
-      passphrase: passphrase || 'CyberAccess2026!',
-      role: operator?.role || 'AI Security Analyst',
+    const result = await login({
+      identifier: cleanIdent,
+      password,
     });
+
+    if (!result.success) {
+      setLoginError(result.error || 'Authentication failed. Please verify credentials.');
+    }
     setLoading(false);
   };
 
   // Handle Registration Submission
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    const name = regName.trim() || 'Cyber Operator';
-    const cleanCallsign = regCallsign.trim() 
-      ? (regCallsign.trim().toUpperCase().startsWith('0X') ? regCallsign.trim().toUpperCase() : `0x${regCallsign.trim().toUpperCase()}`)
-      : `0x${name.toUpperCase().replace(/\s+/g, '')}`;
+    setRegError('');
+    setSuccessMessage('');
 
-    await registerOperator({
-      name,
-      callsign: cleanCallsign,
+    const errors = {};
+    const cleanName = fullName.trim();
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanName) {
+      errors.fullName = 'This field is required.';
+    }
+    if (!cleanUsername) {
+      errors.username = 'This field is required.';
+    }
+    if (!cleanEmail) {
+      errors.email = 'This field is required.';
+    } else if (!EMAIL_REGEX.test(cleanEmail)) {
+      errors.email = 'Enter a valid email address.';
+    }
+    if (!regPassword) {
+      errors.regPassword = 'This field is required.';
+    } else if (regPassword.length < 6) {
+      errors.regPassword = 'Password must be at least 6 characters long.';
+    }
+    if (!confirmPassword) {
+      errors.confirmPassword = 'This field is required.';
+    } else if (regPassword !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+
+    setLoading(true);
+    const result = await registerOperator({
+      fullName: cleanName,
+      username: cleanUsername,
+      email: cleanEmail,
+      password: regPassword,
       role: regRole,
-      passphrase: regPassphrase || 'CyberAccess2026!',
-      clearance: 'TS/SCI-AI',
     });
+
+    if (result.success) {
+      setSuccessMessage('Operator account created successfully. You can now sign in.');
+      setIdentifier(cleanUsername); // Pre-fill login with newly registered username
+      setPassword('');
+      setRegPassword('');
+      setConfirmPassword('');
+      setFullName('');
+      setUsername('');
+      setEmail('');
+      setRegRole('Fresher / Trainee');
+      setAuthMode('signin');
+    } else {
+      setRegError(result.error || 'Could not register operator account.');
+    }
     setLoading(false);
   };
 
@@ -128,7 +206,11 @@ export default function LoginPage() {
           <button
             type="button"
             className={`${s.tabBtn} ${authMode === 'signin' ? s.tabActive : ''}`}
-            onClick={() => setAuthMode('signin')}
+            onClick={() => {
+              setAuthMode('signin');
+              setRegError('');
+              setFormErrors({});
+            }}
           >
             <IconKey size={13} />
             <span>SIGN IN</span>
@@ -136,203 +218,298 @@ export default function LoginPage() {
           <button
             type="button"
             className={`${s.tabBtn} ${authMode === 'register' ? s.tabActive : ''}`}
-            onClick={() => setAuthMode('register')}
+            onClick={() => {
+              setAuthMode('register');
+              setLoginError('');
+              setSuccessMessage('');
+            }}
           >
             <IconUserPlus size={13} />
             <span>REGISTER OPERATOR</span>
           </button>
         </div>
 
+        {/* Success Banner */}
+        {successMessage && (
+          <div className={s.successBanner} role="status">
+            <IconCheckCircle size={15} />
+            <span>{successMessage}</span>
+          </div>
+        )}
+
         {/* ── SIGN IN FORM ── */}
         {authMode === 'signin' ? (
-          <form onSubmit={handleLoginSubmit} className={s.form}>
+          <form onSubmit={handleLoginSubmit} className={s.form} noValidate>
+            {loginError && (
+              <div className={s.errorBanner} role="alert">
+                <span>{loginError}</span>
+              </div>
+            )}
+
             <div className={s.inputGroup}>
-              <label className={s.label}>OPERATOR CALLSIGN / USERNAME</label>
+              <label htmlFor="login-identifier" className={s.label}>OPERATOR USERNAME / EMAIL</label>
               <div className={s.inputWrap}>
                 <IconUser size={15} className={s.inputIcon} />
                 <input
+                  id="login-identifier"
                   type="text"
                   className={s.input}
-                  value={callsign}
-                  onChange={(e) => setCallsign(e.target.value)}
-                  placeholder="Enter callsign or name (e.g. 0xALEX, SHIVA)..."
+                  value={identifier}
+                  onChange={(e) => {
+                    setIdentifier(e.target.value);
+                    if (loginError) setLoginError('');
+                  }}
+                  placeholder="Enter username or email"
                   required
                   autoFocus
+                  autoComplete="username"
                 />
               </div>
             </div>
 
             <div className={s.inputGroup}>
               <div className={s.labelRow}>
-                <label className={s.label}>SECURITY PASSPHRASE</label>
+                <label htmlFor="login-password" className={s.label}>PASSWORD</label>
                 <span className={s.passStatusText}>
-                  {showPassphrase ? 'PLAINTEXT' : 'PROTECTED'}
+                  {showPassword ? 'SHOW' : 'HIDE'}
                 </span>
               </div>
               <div className={s.inputWrap}>
                 <IconLock size={15} className={s.inputIcon} />
                 <input
-                  type={showPassphrase ? 'text' : 'password'}
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
                   className={s.input}
-                  value={passphrase}
-                  onChange={(e) => setPassphrase(e.target.value)}
-                  placeholder="Enter any password (e.g. Cyber@2026)..."
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (loginError) setLoginError('');
+                  }}
+                  placeholder="Enter your password"
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  className={`${s.eyeToggleBtn} ${showPassphrase ? s.eyeActive : ''}`}
-                  onClick={() => setShowPassphrase(!showPassphrase)}
-                  title={showPassphrase ? 'Hide password' : 'Show password'}
-                  aria-label={showPassphrase ? 'Hide password' : 'Show password'}
+                  className={`${s.eyeToggleBtn} ${showPassword ? s.eyeActive : ''}`}
+                  onClick={() => setShowPassword(!showPassword)}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassphrase ? (
+                  {showPassword ? (
                     <IconEyeOff size={16} />
                   ) : (
                     <IconEye size={16} />
                   )}
-                  <span className={s.eyeText}>{showPassphrase ? 'Hide' : 'Show'}</span>
+                  <span className={s.eyeText}>{showPassword ? 'Hide' : 'Show'}</span>
                 </button>
               </div>
-            </div>
-
-            <div className={s.clearancePill}>
-              <IconShield size={12} className={s.clearanceIcon} />
-              <span>ROLE: {operator?.role?.toUpperCase() || 'AI SECURITY ANALYST'} · CLEARANCE: TS/SCI-AI</span>
             </div>
 
             <button
               type="submit"
               className={s.submitBtn}
               disabled={loading}
+              id="login-submit-btn"
             >
               {loading ? (
-                <span>VERIFYING CREDENTIALS...</span>
+                <span>AUTHENTICATING...</span>
               ) : (
                 <>
-                  <span>INITIATE SECURE SESSION</span>
-                  <IconArrowRight size={15} />
+                  <span>INITIATE SECURE SESSION →</span>
                 </>
               )}
             </button>
-
-            {/* Quick Demo Access Options */}
-            <div className={s.demoSection}>
-              <button
-                type="button"
-                className={s.demoBtn}
-                onClick={() => {
-                  login({
-                    name: 'Guest Operator',
-                    callsign: '0xGUEST',
-                    role: 'Security Analyst',
-                    passphrase: 'demo-password',
-                  });
-                }}
-              >
-                <IconZap size={13} />
-                <span>FAST ACCESS: GUEST OPERATOR (INSTANT DEMO)</span>
-              </button>
-            </div>
           </form>
         ) : (
           /* ── REGISTRATION FORM ── */
-          <form onSubmit={handleRegisterSubmit} className={s.form}>
+          <form onSubmit={handleRegisterSubmit} className={s.form} noValidate>
+            {regError && (
+              <div className={s.errorBanner} role="alert">
+                <span>{regError}</span>
+              </div>
+            )}
+
+            {/* FULL NAME */}
             <div className={s.inputGroup}>
-              <label className={s.label}>OPERATOR FULL NAME</label>
-              <div className={s.inputWrap}>
+              <label htmlFor="reg-fullname" className={s.label}>FULL NAME</label>
+              <div className={`${s.inputWrap} ${formErrors.fullName ? s.inputError : ''}`}>
                 <IconUser size={15} className={s.inputIcon} />
                 <input
+                  id="reg-fullname"
                   type="text"
                   className={s.input}
-                  value={regName}
+                  value={fullName}
                   onChange={(e) => {
-                    setRegName(e.target.value);
-                    if (!regCallsign || regCallsign.startsWith('0x')) {
-                      setRegCallsign(e.target.value ? `0x${e.target.value.replace(/\s+/g, '').toUpperCase()}` : '');
-                    }
+                    setFullName(e.target.value);
+                    if (formErrors.fullName) setFormErrors({ ...formErrors, fullName: '' });
                   }}
-                  placeholder="e.g. Shiva Kumar, Alex Vance..."
+                  placeholder="e.g. Shivam Agrawal"
                   required
                   autoFocus
+                  autoComplete="name"
                 />
               </div>
+              {formErrors.fullName && <span className={s.fieldError}>{formErrors.fullName}</span>}
             </div>
 
+            {/* USERNAME / CALLSIGN */}
             <div className={s.inputGroup}>
-              <label className={s.label}>OPERATOR CALLSIGN / ID</label>
-              <div className={s.inputWrap}>
+              <label htmlFor="reg-username" className={s.label}>USERNAME / CALLSIGN</label>
+              <div className={`${s.inputWrap} ${formErrors.username ? s.inputError : ''}`}>
                 <IconShield size={15} className={s.inputIcon} />
                 <input
+                  id="reg-username"
                   type="text"
                   className={s.input}
-                  value={regCallsign}
-                  onChange={(e) => setRegCallsign(e.target.value)}
-                  placeholder="e.g. 0xSHIVA, 0xAGENT..."
+                  value={username}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    if (formErrors.username) setFormErrors({ ...formErrors, username: '' });
+                  }}
+                  placeholder="e.g. shivam"
                   required
+                  autoComplete="username"
                 />
               </div>
+              {formErrors.username && <span className={s.fieldError}>{formErrors.username}</span>}
             </div>
 
+            {/* EMAIL */}
+            <div className={s.inputGroup}>
+              <label htmlFor="reg-email" className={s.label}>EMAIL</label>
+              <div className={`${s.inputWrap} ${formErrors.email ? s.inputError : ''}`}>
+                <IconUser size={15} className={s.inputIcon} />
+                <input
+                  id="reg-email"
+                  type="email"
+                  className={s.input}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (formErrors.email) setFormErrors({ ...formErrors, email: '' });
+                  }}
+                  placeholder="e.g. shivam@gmail.com"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+              {formErrors.email && <span className={s.fieldError}>{formErrors.email}</span>}
+            </div>
+
+            {/* PASSWORD */}
             <div className={s.inputGroup}>
               <div className={s.labelRow}>
-                <label className={s.label}>SET SECURITY PASSPHRASE</label>
+                <label htmlFor="reg-password" className={s.label}>PASSWORD</label>
                 <span className={s.passStatusText}>
-                  {showRegPassphrase ? 'PLAINTEXT' : 'PROTECTED'}
+                  {showRegPassword ? 'SHOW' : 'HIDE'}
                 </span>
               </div>
-              <div className={s.inputWrap}>
+              <div className={`${s.inputWrap} ${formErrors.regPassword ? s.inputError : ''}`}>
                 <IconLock size={15} className={s.inputIcon} />
                 <input
-                  type={showRegPassphrase ? 'text' : 'password'}
+                  id="reg-password"
+                  type={showRegPassword ? 'text' : 'password'}
                   className={s.input}
-                  value={regPassphrase}
-                  onChange={(e) => setRegPassphrase(e.target.value)}
-                  placeholder="Set any password of your choice..."
+                  value={regPassword}
+                  onChange={(e) => {
+                    setRegPassword(e.target.value);
+                    if (formErrors.regPassword) setFormErrors({ ...formErrors, regPassword: '' });
+                  }}
+                  placeholder="Enter password (min 6 characters)"
                   required
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
-                  className={`${s.eyeToggleBtn} ${showRegPassphrase ? s.eyeActive : ''}`}
-                  onClick={() => setShowRegPassphrase(!showRegPassphrase)}
-                  title={showRegPassphrase ? 'Hide password' : 'Show password'}
-                  aria-label={showRegPassphrase ? 'Hide password' : 'Show password'}
+                  className={`${s.eyeToggleBtn} ${showRegPassword ? s.eyeActive : ''}`}
+                  onClick={() => setShowRegPassword(!showRegPassword)}
+                  title={showRegPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showRegPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showRegPassphrase ? (
+                  {showRegPassword ? (
                     <IconEyeOff size={16} />
                   ) : (
                     <IconEye size={16} />
                   )}
-                  <span className={s.eyeText}>{showRegPassphrase ? 'Hide' : 'Show'}</span>
+                  <span className={s.eyeText}>{showRegPassword ? 'Hide' : 'Show'}</span>
                 </button>
               </div>
+              {formErrors.regPassword && <span className={s.fieldError}>{formErrors.regPassword}</span>}
             </div>
 
+            {/* CONFIRM PASSWORD */}
             <div className={s.inputGroup}>
-              <label className={s.label}>ASSIGNED OPERATIONAL ROLE</label>
+              <div className={s.labelRow}>
+                <label htmlFor="reg-confirm-password" className={s.label}>CONFIRM PASSWORD</label>
+                <span className={s.passStatusText}>
+                  {showConfirmPassword ? 'SHOW' : 'HIDE'}
+                </span>
+              </div>
+              <div className={`${s.inputWrap} ${formErrors.confirmPassword ? s.inputError : ''}`}>
+                <IconLock size={15} className={s.inputIcon} />
+                <input
+                  id="reg-confirm-password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  className={s.input}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (formErrors.confirmPassword) setFormErrors({ ...formErrors, confirmPassword: '' });
+                  }}
+                  placeholder="Confirm your password"
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  className={`${s.eyeToggleBtn} ${showConfirmPassword ? s.eyeActive : ''}`}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? (
+                    <IconEyeOff size={16} />
+                  ) : (
+                    <IconEye size={16} />
+                  )}
+                  <span className={s.eyeText}>{showConfirmPassword ? 'Hide' : 'Show'}</span>
+                </button>
+              </div>
+              {formErrors.confirmPassword && <span className={s.fieldError}>{formErrors.confirmPassword}</span>}
+            </div>
+
+            {/* ASSIGNED OPERATOR ROLE */}
+            <div className={s.inputGroup}>
+              <label htmlFor="reg-role" className={s.label}>ASSIGNED OPERATOR ROLE</label>
               <select
+                id="reg-role"
                 className={s.selectInput}
                 value={regRole}
                 onChange={(e) => setRegRole(e.target.value)}
               >
-                {ENCLAVE_ROLES.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
+                {OPERATOR_ROLES.map((r) => (
+                  <option key={r.role} value={r.role}>
+                    {r.role}
                   </option>
                 ))}
               </select>
+              <div className={s.roleDescBox}>
+                {activeRoleObj.description}
+              </div>
             </div>
 
             <button
               type="submit"
               className={s.submitBtn}
               disabled={loading}
+              id="register-submit-btn"
             >
               {loading ? (
-                <span>REGISTERING OPERATOR...</span>
+                <span>CREATING OPERATOR ACCOUNT...</span>
               ) : (
                 <>
-                  <span>REGISTER & ENTER LABS</span>
+                  <span>CREATE OPERATOR ACCOUNT</span>
                   <IconArrowRight size={15} />
                 </>
               )}
