@@ -33,6 +33,8 @@ router.post(
   authController.login
 );
 
+router.post('/guest', authLimiter, authController.loginAsGuest);
+
 router.post('/logout', requireAuth, authController.logout);
 router.get('/me', requireAuth, authController.getMe);
 router.post('/refresh', requireAuth, authController.refresh);

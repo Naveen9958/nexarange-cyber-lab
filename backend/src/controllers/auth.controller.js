@@ -97,3 +97,23 @@ export const refresh = async (req, res, next) => {
     next(error);
   }
 };
+
+export const loginAsGuest = async (req, res, next) => {
+  try {
+    const ipAddress = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+
+    const result = await authService.loginGuestUser({ ipAddress, userAgent });
+
+    res.cookie('token', result.token, {
+      httpOnly: true,
+      secure: env.COOKIE_SECURE,
+      sameSite: env.COOKIE_SAME_SITE,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    return sendSuccess(res, result, 'Guest operator session initialized successfully');
+  } catch (error) {
+    next(error);
+  }
+};

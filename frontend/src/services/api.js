@@ -75,6 +75,7 @@ export const api = {
       }),
     getMe: () => request('/auth/me'),
     refresh: () => request('/auth/refresh', { method: 'POST' }),
+    guest: () => request('/auth/guest', { method: 'POST' }),
   },
 
   // ── User Profile & Settings ──

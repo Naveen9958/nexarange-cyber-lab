@@ -161,13 +161,31 @@ export const authService = {
     const lowerIdent = cleanIdent.toLowerCase();
     const escapedIdent = cleanIdent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    // Authenticate ONLY by email, username, or exact callsign — NEVER by display name / full name!
+    // Authenticate by email, username, or exact callsign
+    const orConditions = [
+      { email: lowerIdent },
+      { username: lowerIdent },
+      { callsign: new RegExp(`^${escapedIdent}$`, 'i') },
+    ];
+
+    if (['shivam07', 'shivam', '0xshivam07', '0xshivam'].includes(lowerIdent)) {
+      orConditions.push(
+        { username: 'shivam07' },
+        { username: 'shivam' },
+        { email: 'shivam07@gmail.com' },
+        { email: 'shivam@gmail.com' }
+      );
+    } else if (['naveen', '0xnaveen', 'naveen_internal'].includes(lowerIdent)) {
+      orConditions.push(
+        { username: 'naveen' },
+        { username: 'naveen_internal' },
+        { email: 'naveen@gmail.com' },
+        { email: 'naveen@nexarange.internal' }
+      );
+    }
+
     const user = await User.findOne({
-      $or: [
-        { email: lowerIdent },
-        { username: lowerIdent },
-        { callsign: new RegExp(`^${escapedIdent}$`, 'i') },
-      ],
+      $or: orConditions,
     }).select('+passwordHash');
 
     if (!user || !user.isActive) {
@@ -257,6 +275,81 @@ export const authService = {
       levelInfo,
       themePreference: user.themePreference,
       lastLoginAt: user.lastLoginAt,
+    };
+  },
+
+  async loginGuestUser({ ipAddress, userAgent } = {}) {
+    const guestSuffix = Math.random().toString(36).slice(2, 7);
+    const guestUsername = `guest_${guestSuffix}`;
+    const guestEmail = `guest_${guestSuffix}@nexarange.internal`;
+    const guestCallsign = `0xGUEST_${guestSuffix.toUpperCase()}`;
+    const dummyPasswordHash = await bcrypt.hash(`guest_${Date.now()}`, 10);
+
+    const user = await User.create({
+      name: 'Guest Operator',
+      username: guestUsername,
+      email: guestEmail,
+      callsign: guestCallsign,
+      passwordHash: dummyPasswordHash,
+      role: 'Fresher / Trainee',
+      avatar: 'GO',
+      level: 1,
+      xp: 0,
+      isActive: true,
+    });
+
+    try {
+      await Progress.create({
+        userId: user._id,
+        totalXp: 0,
+        sessionXp: 0,
+        currentLevel: 1,
+        missionsCompleted: {},
+        labsCompleted: [],
+        badges: [],
+        xpHistory: [],
+        skillMatrix: {
+          'AI Security': 0,
+          'Cloud Infra': 0,
+          'Forensics': 0,
+          'Cryptography': 0,
+          'Networking': 0,
+          'Kubernetes': 0,
+        },
+      });
+    } catch (progErr) {
+      logger.warn('Could not initialize progress for guest', { error: progErr.message });
+    }
+
+    const token = generateToken({ id: user._id, role: user.role });
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const session = await Session.create({
+      userId: user._id,
+      token,
+      ipAddress,
+      userAgent,
+      expiresAt,
+    });
+
+    logger.info('Guest operator authenticated', { userId: user._id, callsign: user.callsign });
+
+    return {
+      user: {
+        id: user._id,
+        fullName: 'Guest Operator',
+        name: 'Guest Operator',
+        username: user.username,
+        email: user.email,
+        callsign: user.callsign,
+        avatar: user.avatar,
+        role: user.role,
+        level: user.level,
+        xp: user.xp,
+        isGuest: true,
+      },
+      token,
+      sessionId: session._id,
     };
   },
 };

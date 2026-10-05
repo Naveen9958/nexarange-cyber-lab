@@ -78,6 +78,21 @@ export default function TerminalView() {
   const [activeSessionId, setActiveSessionId] = useState(null);
   const bottomRef = useRef(null);
 
+  // Synchronize terminal greeting with current operator
+  useEffect(() => {
+    setOutput((prev) =>
+      prev.map((line, idx) => {
+        if (idx === 2) {
+          return {
+            ...line,
+            text: `  Operator: ${opCallsign.toUpperCase()} (${opName.toUpperCase()})  |  Session: SESS-SEC-994  |  Lab Connection: ACTIVE`,
+          };
+        }
+        return line;
+      })
+    );
+  }, [opName, opCallsign]);
+
   // Initialize terminal session with backend on mount
   useEffect(() => {
     let mounted = true;
@@ -103,7 +118,7 @@ export default function TerminalView() {
     setHistory(newHist);
     setHistIdx(-1);
 
-    const out = [...output, { text: `operator@nexarange:~$ ${c}`, cls: 'promptLine' }];
+    const out = [...output, { text: `${opName.toLowerCase()}@nexarange:~$ ${c}`, cls: 'promptLine' }];
 
     if (c === 'clear') {
       setOutput([]);

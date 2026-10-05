@@ -435,11 +435,17 @@
   color: #030814;
 }
 
+.doneBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .reviewBtn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   background: rgba(25, 230, 165, 0.08);
   border: 1px solid rgba(25, 230, 165, 0.3);
   border-radius: var(--radius);
@@ -452,6 +458,29 @@
 
 .reviewBtn:hover {
   background: rgba(25, 230, 165, 0.16);
+}
+
+.replayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(0, 245, 200, 0.08);
+  border: 1px solid rgba(0, 245, 200, 0.3);
+  border-radius: var(--radius);
+  color: var(--cyan-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.replayBtn:hover {
+  background: var(--cyan-primary);
+  color: #030814;
+  box-shadow: 0 0 12px rgba(0, 245, 200, 0.25);
 }
 
 .lockedPill {

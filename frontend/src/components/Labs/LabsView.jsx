@@ -187,16 +187,29 @@ export default function LabsView() {
                       {/* Action Button */}
                       <div className={s.missionAction}>
                         {done ? (
-                          <button
-                            className={s.reviewBtn}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openMission(lab.id, i);
-                            }}
-                          >
-                            <span>REVIEW</span>
-                            <IconArrowRight size={14} />
-                          </button>
+                          <div className={s.doneBtnGroup}>
+                            <button
+                              className={s.reviewBtn}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openMission(lab.id, i, false);
+                              }}
+                              title="Review archived mission findings"
+                            >
+                              <span>REVIEW</span>
+                              <IconArrowRight size={14} />
+                            </button>
+                            <button
+                              className={s.replayBtn}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openMission(lab.id, i, true);
+                              }}
+                              title="Replay this mission interactively"
+                            >
+                              <span>↻ REPLAY</span>
+                            </button>
+                          </div>
                         ) : locked ? (
                           <span className={s.lockedPill}>LOCKED</span>
                         ) : (

@@ -429,6 +429,214 @@
   transform: none;
 }
 
+/* ── Guest Access Elements ── */
+.orDivider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 6px 0 2px;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.dividerText {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.guestQuickBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(0, 245, 200, 0.05);
+  border: 1px solid rgba(0, 245, 200, 0.25);
+  border-radius: var(--radius);
+  color: var(--cyan-primary);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.guestQuickBtn:hover:not(:disabled) {
+  background: rgba(0, 245, 200, 0.12);
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 12px rgba(0, 245, 200, 0.25);
+  transform: translateY(-1px);
+}
+
+.guestQuickLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guestZapIcon {
+  color: var(--cyan-primary);
+  flex-shrink: 0;
+}
+
+.guestInstantTag {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #030814;
+  background: var(--cyan-primary);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* ── Dedicated Guest Card ── */
+.guestCard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeIn 0.25s ease;
+  margin-top: 4px;
+}
+
+.guestBriefing {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.guestPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--cyan-primary);
+  background: rgba(0, 245, 200, 0.08);
+  border: 1px solid rgba(0, 245, 200, 0.3);
+  padding: 3px 8px;
+  border-radius: 999px;
+  margin-bottom: 2px;
+}
+
+.guestDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan-primary);
+  box-shadow: 0 0 6px var(--cyan-primary);
+  animation: pulse-subtle 2s infinite;
+}
+
+.guestHeading {
+  font-family: var(--font-head);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.8px;
+  margin: 0;
+}
+
+.guestSubtext {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  margin: 0;
+  max-width: 320px;
+}
+
+.guestPillGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.guestPillItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.guestPillEmoji {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.guestPillText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.guestPillText strong {
+  font-size: 0.68rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.guestPillText span {
+  font-size: 0.58rem;
+  color: var(--text-muted);
+}
+
+.guestLaunchBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--cyan-primary);
+  border: 1px solid var(--cyan-primary);
+  color: #030814;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: 0 4px 16px var(--cyan-dim);
+  margin-top: 4px;
+}
+
+.guestLaunchBtn:hover:not(:disabled) {
+  background: #2affd4;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--cyan-glow);
+}
+
+.guestLaunchBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.guestNote {
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.3;
+  margin: 0;
+}
+
 /* ── Theme Switcher on Login Page ── */
 .themeToggleWrap {
   position: absolute;

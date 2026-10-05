@@ -31,8 +31,11 @@ export default function MissionView() {
     initMissionTasks,
     toggleTask,
     missionTasks,
+    resetMissionTasks,
     setView,
     setLab,
+    missionReplayMode,
+    setMissionReplayMode,
   } = useStore();
 
   const labId = currentLab || 1;
@@ -41,20 +44,22 @@ export default function MissionView() {
   const mission = lab?.missions?.[missionIdx] || lab?.missions?.[0];
 
   const [phase, setPhase] = useState(PHASE.BRIEFING);
+  const [replayMode, setReplayMode] = useState(Boolean(missionReplayMode));
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState(null); // 'correct' | 'wrong'
   const [answerOk, setAnswerOk] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [animKey, setAnimKey] = useState(0);
 
-  // Reset phase when mission changes
+  // Reset phase when mission changes or replayMode is toggled
   useEffect(() => {
     setPhase(PHASE.BRIEFING);
     setAnswer('');
     setFeedback(null);
     setAnswerOk(false);
     setAnimKey((k) => k + 1);
-  }, [mission?.id]);
+    setReplayMode(Boolean(missionReplayMode));
+  }, [mission?.id, missionReplayMode]);
 
   useEffect(() => {
     if (mission?.id && mission?.tasks?.length) {
@@ -74,6 +79,7 @@ export default function MissionView() {
   }
 
   const isDone = !!completedMissions[mission.id];
+  const isArchived = isDone && !replayMode;
   const prevEvidence = missionIdx > 0 && lab?.missions?.[missionIdx - 1]
     ? lab.missions[missionIdx - 1].evidence_out
     : null;
@@ -81,12 +87,29 @@ export default function MissionView() {
   const tasks = (mission?.id && missionTasks[mission.id]) || (mission?.tasks ? Array(mission.tasks.length).fill(false) : []);
   const completedTasksCount = tasks.filter(Boolean).length;
 
-  // ── Answer check ──
+  function triggerReplay() {
+    setReplayMode(true);
+    setMissionReplayMode(true);
+    if (resetMissionTasks && mission?.tasks?.length) {
+      resetMissionTasks(mission.id, mission.tasks.length);
+    }
+    setAnswer('');
+    setFeedback(null);
+    setAnswerOk(false);
+  }
+
+  // ── Answer check (Strict & precise validation with alias support) ──
   function handleSubmit() {
-    const clean = (v) => v.trim().toLowerCase().replace(/[\s-_]+/g, '');
+    const clean = (v) => (v || '').toString().trim().toLowerCase().replace(/[\s-_]+/g, '');
     const u = clean(answer);
     const c = clean(mission.answer);
-    if (u === c || u.includes(c.slice(0, 5)) || c.includes(u)) {
+
+    const validAnswers = [c];
+    if (mission.aliases && Array.isArray(mission.aliases)) {
+      mission.aliases.forEach((a) => validAnswers.push(clean(a)));
+    }
+
+    if (u && validAnswers.includes(u)) {
       setFeedback('correct');
       setAnswerOk(true);
     } else {
@@ -99,8 +122,9 @@ export default function MissionView() {
 
   // ── Complete mission & advance ──
   function handleComplete() {
-    if (isDone) return;
-    completeMission(mission.id, mission.xp, mission.badge);
+    if (!isDone) {
+      completeMission(mission.id, mission.xp, mission.badge);
+    }
     setPhase(PHASE.COMPLETE);
     const nextIdx = missionIdx + 1;
     setTimeout(() => {
@@ -109,7 +133,7 @@ export default function MissionView() {
       } else {
         useStore.getState().showDebrief(labId);
       }
-    }, 3000);
+    }, 2800);
   }
 
   // ── Tool block map (rendered on demand with safe fallbacks) ──
@@ -123,7 +147,7 @@ export default function MissionView() {
       case 'burp':
         return <BurpBlock requests={mission.burpRequests || []} />;
       case 'tickets':
-        return <TicketBlock tickets={mission.tickets || []} onSelect={(id) => setAnswer(id)} />;
+        return <TicketBlock tickets={mission.tickets || []} />;
       case 'policy':
         return <PolicyBlock policies={mission.policies || []} />;
       case 'agent':
@@ -250,13 +274,38 @@ export default function MissionView() {
 
         {/* Enter Lab Workspace Button */}
         <div className={s.enterActionRow}>
-          <button
-            className={s.enterWorkspaceBtn}
-            onClick={() => setPhase(PHASE.WORKSPACE)}
-          >
-            <span>ENTER INVESTIGATION WORKSPACE</span>
-            <IconArrowRight size={18} />
-          </button>
+          {isDone ? (
+            <div className={s.briefingButtonGroup}>
+              <button
+                className={s.enterWorkspaceBtnSecondary}
+                onClick={() => {
+                  setReplayMode(false);
+                  setPhase(PHASE.WORKSPACE);
+                }}
+              >
+                <span>REVIEW ARCHIVE (READ-ONLY)</span>
+                <IconArrowRight size={16} />
+              </button>
+              <button
+                className={s.enterWorkspaceBtn}
+                onClick={() => {
+                  triggerReplay();
+                  setPhase(PHASE.WORKSPACE);
+                }}
+              >
+                <span>↻ REPLAY OPERATION</span>
+                <IconArrowRight size={18} />
+              </button>
+            </div>
+          ) : (
+            <button
+              className={s.enterWorkspaceBtn}
+              onClick={() => setPhase(PHASE.WORKSPACE)}
+            >
+              <span>ENTER INVESTIGATION WORKSPACE</span>
+              <IconArrowRight size={18} />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -277,6 +326,15 @@ export default function MissionView() {
             <div className={s.workspaceTitleGroup}>
               <span className={s.wsLabPill}>OP 0{lab.id}</span>
               <h2 className={s.wsTitle}>{mission.title}</h2>
+              {isDone && replayMode && (
+                <span className={s.replayModeBadge}>
+                  <span className={s.replayPulse} />
+                  REPLAY ACTIVE
+                </span>
+              )}
+              {isArchived && (
+                <span className={s.archivedBadge}>ARCHIVED RECORD</span>
+              )}
             </div>
           </div>
 
@@ -309,9 +367,20 @@ export default function MissionView() {
             <div className={s.checklistCard}>
               <div className={s.checklistHeader}>
                 <span className={s.checklistTitle}>INVESTIGATION TASKS</span>
-                <span className={s.checklistProgress}>
-                  {completedTasksCount}/{mission.tasks.length}
-                </span>
+                <div className={s.checklistHeaderRight}>
+                  <span className={s.checklistProgress}>
+                    {completedTasksCount}/{mission.tasks.length}
+                  </span>
+                  {completedTasksCount > 0 && (
+                    <button
+                      className={s.checklistResetBtn}
+                      onClick={() => resetMissionTasks && resetMissionTasks(mission.id, mission.tasks.length)}
+                      title="Reset checklist items"
+                    >
+                      RESET
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className={s.checkItems}>
@@ -347,13 +416,34 @@ export default function MissionView() {
 
           {/* Right Column: Challenge Tool Area & Answer Form */}
           <main className={s.challengeCol}>
+            {isDone && replayMode && (
+              <div className={s.replayModeBanner}>
+                <div className={s.replayBannerLeft}>
+                  <span className={s.replayBannerIcon}>↻</span>
+                  <div>
+                    <div className={s.replayBannerTitle}>OPERATIONAL REPLAY & PRACTICE MODE</div>
+                    <div className={s.replayBannerDesc}>
+                      You are re-executing this operation. Re-test investigation tasks and verify threat indicators.
+                    </div>
+                  </div>
+                </div>
+                <button
+                  className={s.viewArchiveBtn}
+                  onClick={() => setReplayMode(false)}
+                  title="Switch to read-only archive"
+                >
+                  View Archived Record
+                </button>
+              </div>
+            )}
+
             {/* Tool Interactive Block */}
             <div className={s.toolContainer}>
               {renderToolBlock()}
             </div>
 
             {/* Submission Section */}
-            {!isDone ? (
+            {!isArchived ? (
               <div className={s.submissionBox}>
                 <div className={s.submitHeader}>
                   <span className={s.submitTag}>VERIFICATION GATE</span>
@@ -377,7 +467,11 @@ export default function MissionView() {
                 {feedback === 'correct' && (
                   <div className={s.feedbackSuccess}>
                     <IconCheckCircle size={16} />
-                    <span>CORRECT! Threat indicator confirmed. Click "Complete Mission" below to log finding.</span>
+                    <span>
+                      {isDone
+                        ? 'CORRECT! Threat indicator re-verified during operational replay.'
+                        : 'CORRECT! Threat indicator confirmed. Click "Complete Mission" below to log finding.'}
+                    </span>
                   </div>
                 )}
 
@@ -390,21 +484,60 @@ export default function MissionView() {
               </div>
             ) : (
               <div className={s.alreadyCompletedBox}>
-                <IconCheckCircle size={20} />
-                <span>MISSION SECURED — {mission.xp} XP credited to operator dossier.</span>
+                <div className={s.alreadyCompletedLeft}>
+                  <IconCheckCircle size={20} />
+                  <span>MISSION SECURED — {mission.xp} XP credited to operator dossier.</span>
+                </div>
+                <button
+                  className={s.replayTriggerBtn}
+                  onClick={triggerReplay}
+                  title="Re-open verification gate and replay this mission"
+                >
+                  ↻ REPLAY OPERATION
+                </button>
               </div>
             )}
 
             {/* Complete Mission & Advance Button */}
             <div className={s.completeActionWrap}>
-              <button
-                className={s.completeFinalBtn}
-                disabled={isDone || !answerOk}
-                onClick={handleComplete}
-              >
-                <span>{isDone ? 'OPERATION ARCHIVED' : 'COMPLETE MISSION & ADVANCE'}</span>
-                <IconArrowRight size={18} />
-              </button>
+              {isArchived ? (
+                <>
+                  <button
+                    className={s.replayTriggerBtnBig}
+                    onClick={triggerReplay}
+                    title="Re-run interactive operational simulation"
+                  >
+                    <span>↻ REPLAY OPERATION</span>
+                  </button>
+
+                  {missionIdx + 1 < lab.missions.length ? (
+                    <button
+                      className={s.advanceNextBtn}
+                      onClick={() => useStore.getState().openMission(labId, missionIdx + 1)}
+                    >
+                      <span>NEXT OPERATION (0{missionIdx + 2})</span>
+                      <IconArrowRight size={18} />
+                    </button>
+                  ) : (
+                    <button
+                      className={s.advanceNextBtn}
+                      onClick={() => useStore.getState().showDebrief(labId)}
+                    >
+                      <span>VIEW LAB DEBRIEF</span>
+                      <IconArrowRight size={18} />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <button
+                  className={s.completeFinalBtn}
+                  disabled={!answerOk}
+                  onClick={handleComplete}
+                >
+                  <span>{isDone ? 'COMPLETE REPLAY & ADVANCE' : 'COMPLETE MISSION & ADVANCE'}</span>
+                  <IconArrowRight size={18} />
+                </button>
+              )}
             </div>
           </main>
         </div>
@@ -431,15 +564,17 @@ export default function MissionView() {
           <IconCheckCircle size={56} />
         </div>
 
-        <span className={s.completePill}>OPERATION SUCCEEDED</span>
+        <span className={s.completePill}>{isDone ? 'REPLAY SUCCEEDED' : 'OPERATION SUCCEEDED'}</span>
         <h2 className={s.completeTitle}>{mission.title}</h2>
         <p className={s.completeSub}>
-          Threat vector neutralized and forensic trace added to incident debrief report.
+          {isDone
+            ? 'Operational objectives successfully re-tested and validated in replay mode.'
+            : 'Threat vector neutralized and forensic trace added to incident debrief report.'}
         </p>
 
         <div className={s.completeXPBox}>
-          <IconZap size={22} />
-          <span>+{mission.xp} XP AWARDED</span>
+          {isDone ? <IconCheckCircle size={22} /> : <IconZap size={22} />}
+          <span>{isDone ? 'OBJECTIVE RE-CONFIRMED' : `+${mission.xp} XP AWARDED`}</span>
         </div>
 
         <div className={s.badgeUnlockedRow}>

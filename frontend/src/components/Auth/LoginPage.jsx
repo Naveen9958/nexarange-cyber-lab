@@ -13,6 +13,7 @@ import {
   IconSun,
   IconMoon,
   IconCheckCircle,
+  IconZap,
 } from '../Common/Icons';
 import s from './LoginPage.module.css';
 
@@ -34,9 +35,9 @@ const OPERATOR_ROLES = [
 ];
 
 export default function LoginPage() {
-  const { login, registerOperator, theme, toggleTheme } = useStore();
+  const { login, registerOperator, loginAsGuest, theme, toggleTheme } = useStore();
   
-  // Auth Mode: 'signin' | 'register'
+  // Auth Mode: 'signin' | 'register' | 'guest'
   const [authMode, setAuthMode] = useState('signin');
 
   // Sign In State — Strictly empty by default (No hardcoded NAVEEN or 0xNAVEEN)
@@ -63,6 +64,19 @@ export default function LoginPage() {
 
   // Active role description
   const activeRoleObj = OPERATOR_ROLES.find((r) => r.role === regRole) || OPERATOR_ROLES[0];
+
+  // Handle Guest Login
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    setLoginError('');
+    setRegError('');
+    setSuccessMessage('');
+    const result = await loginAsGuest();
+    if (!result.success) {
+      setLoginError(result.error || 'Failed to start guest session.');
+      setLoading(false);
+    }
+  };
 
   // Handle Login Submission
   const handleLoginSubmit = async (e) => {
@@ -198,7 +212,11 @@ export default function LoginPage() {
         </div>
 
         <h1 className={s.title}>
-          {authMode === 'signin' ? 'COMMAND CENTER LOGIN' : 'OPERATOR REGISTRATION'}
+          {authMode === 'signin'
+            ? 'COMMAND CENTER LOGIN'
+            : authMode === 'register'
+            ? 'OPERATOR REGISTRATION'
+            : 'GUEST SANDBOX ACCESS'}
         </h1>
 
         {/* Mode Switch Tabs */}
@@ -225,7 +243,20 @@ export default function LoginPage() {
             }}
           >
             <IconUserPlus size={13} />
-            <span>REGISTER OPERATOR</span>
+            <span>REGISTER</span>
+          </button>
+          <button
+            type="button"
+            className={`${s.tabBtn} ${authMode === 'guest' ? s.tabActive : ''}`}
+            onClick={() => {
+              setAuthMode('guest');
+              setLoginError('');
+              setRegError('');
+              setSuccessMessage('');
+            }}
+          >
+            <IconZap size={13} />
+            <span>GUEST</span>
           </button>
         </div>
 
@@ -320,8 +351,30 @@ export default function LoginPage() {
                 </>
               )}
             </button>
+
+            {/* Quick Guest Access Divider & Button */}
+            <div className={s.orDivider}>
+              <span className={s.dividerLine} />
+              <span className={s.dividerText}>OR EXPLORE DIRECTLY</span>
+              <span className={s.dividerLine} />
+            </div>
+
+            <button
+              type="button"
+              className={s.guestQuickBtn}
+              onClick={handleGuestLogin}
+              disabled={loading}
+              id="guest-login-quick-btn"
+              title="Instant access without username or password"
+            >
+              <div className={s.guestQuickLeft}>
+                <IconZap size={14} className={s.guestZapIcon} />
+                <span>CONTINUE AS GUEST OPERATOR</span>
+              </div>
+              <span className={s.guestInstantTag}>INSTANT</span>
+            </button>
           </form>
-        ) : (
+        ) : authMode === 'register' ? (
           /* ── REGISTRATION FORM ── */
           <form onSubmit={handleRegisterSubmit} className={s.form} noValidate>
             {regError && (
@@ -344,7 +397,7 @@ export default function LoginPage() {
                     setFullName(e.target.value);
                     if (formErrors.fullName) setFormErrors({ ...formErrors, fullName: '' });
                   }}
-                  placeholder="e.g. Shivam Agrawal"
+                  placeholder="e.g. Naveen Kumar"
                   required
                   autoFocus
                   autoComplete="name"
@@ -367,7 +420,7 @@ export default function LoginPage() {
                     setUsername(e.target.value);
                     if (formErrors.username) setFormErrors({ ...formErrors, username: '' });
                   }}
-                  placeholder="e.g. shivam"
+                  placeholder="e.g. naveen"
                   required
                   autoComplete="username"
                 />
@@ -389,7 +442,7 @@ export default function LoginPage() {
                     setEmail(e.target.value);
                     if (formErrors.email) setFormErrors({ ...formErrors, email: '' });
                   }}
-                  placeholder="e.g. shivam@gmail.com"
+                  placeholder="e.g. naveen@gmail.com"
                   required
                   autoComplete="email"
                 />
@@ -514,7 +567,101 @@ export default function LoginPage() {
                 </>
               )}
             </button>
+
+            {/* Quick Guest Access Divider & Button on Register Tab */}
+            <div className={s.orDivider}>
+              <span className={s.dividerLine} />
+              <span className={s.dividerText}>OR EXPLORE DIRECTLY</span>
+              <span className={s.dividerLine} />
+            </div>
+
+            <button
+              type="button"
+              className={s.guestQuickBtn}
+              onClick={handleGuestLogin}
+              disabled={loading}
+              id="guest-register-quick-btn"
+              title="Instant access without username or password"
+            >
+              <div className={s.guestQuickLeft}>
+                <IconZap size={14} className={s.guestZapIcon} />
+                <span>CONTINUE AS GUEST OPERATOR</span>
+              </div>
+              <span className={s.guestInstantTag}>INSTANT</span>
+            </button>
           </form>
+        ) : (
+          /* ── GUEST SANDBOX SCREEN ── */
+          <div className={s.guestCard}>
+            {loginError && (
+              <div className={s.errorBanner} role="alert">
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            <div className={s.guestBriefing}>
+              <div className={s.guestPill}>
+                <span className={s.guestDot} />
+                <span>SANDBOX RECONNAISSANCE</span>
+              </div>
+              <h3 className={s.guestHeading}>INSTANT GUEST ACCESS</h3>
+              <p className={s.guestSubtext}>
+                Explore the complete cyber range simulation enclave without registration or permanent credentials.
+              </p>
+            </div>
+
+            <div className={s.guestPillGrid}>
+              <div className={s.guestPillItem}>
+                <span className={s.guestPillEmoji}>🛡️</span>
+                <div className={s.guestPillText}>
+                  <strong>5 Scenario Labs</strong>
+                  <span>Interactive threat vectors</span>
+                </div>
+              </div>
+              <div className={s.guestPillItem}>
+                <span className={s.guestPillEmoji}>⚡</span>
+                <div className={s.guestPillText}>
+                  <strong>Zero Setup</strong>
+                  <span>1-click instant session</span>
+                </div>
+              </div>
+              <div className={s.guestPillItem}>
+                <span className={s.guestPillEmoji}>💻</span>
+                <div className={s.guestPillText}>
+                  <strong>CLI Terminal</strong>
+                  <span>Live forensics & logs</span>
+                </div>
+              </div>
+              <div className={s.guestPillItem}>
+                <span className={s.guestPillEmoji}>🎖️</span>
+                <div className={s.guestPillText}>
+                  <strong>Dossier 0xGUEST</strong>
+                  <span>Sandbox trainee clearance</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className={s.guestLaunchBtn}
+              onClick={handleGuestLogin}
+              disabled={loading}
+              id="launch-guest-btn"
+            >
+              {loading ? (
+                <span>INITIALIZING GUEST SESSION...</span>
+              ) : (
+                <>
+                  <IconZap size={16} />
+                  <span>LAUNCH GUEST SESSION →</span>
+                </>
+              )}
+            </button>
+
+            <p className={s.guestNote}>
+              * Guest sessions are temporary sandbox sessions. You can register an official operator callsign anytime.
+            </p>
+          </div>
         )}
       </div>
     </div>

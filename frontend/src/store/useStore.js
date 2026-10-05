@@ -240,6 +240,99 @@ const useStore = create((set, get) => ({
     }
   },
 
+  loginAsGuest: async () => {
+    try {
+      let guestUser = null;
+      let token = null;
+      let sessionId = null;
+
+      try {
+        const res = await api.auth.guest();
+        if (res && res.success && res.data) {
+          guestUser = res.data.user;
+          token = res.data.token;
+          sessionId = res.data.sessionId;
+        }
+      } catch (backendErr) {
+        // Fallback to local guest session if backend guest endpoint is unavailable
+      }
+
+      if (!guestUser) {
+        const guestRand = Math.random().toString(36).slice(2, 7);
+        const guestId = `guest_${guestRand}`;
+        guestUser = {
+          id: guestId,
+          fullName: 'Guest Operator',
+          name: 'Guest Operator',
+          username: guestId,
+          callsign: `0xGUEST_${guestRand.toUpperCase()}`,
+          email: `${guestId}@nexarange.internal`,
+          role: 'Fresher / Trainee',
+          avatar: 'GO',
+          level: 1,
+          xp: 0,
+          themePreference: 'dark',
+          isGuest: true,
+        };
+        token = `guest_token_${Date.now()}`;
+        sessionId = `NR-SES-GUEST-${guestRand.toUpperCase()}`;
+      }
+
+      const newOp = {
+        id: guestUser.id || guestUser._id,
+        fullName: guestUser.fullName || guestUser.name || 'Guest Operator',
+        name: guestUser.name || 'Guest Operator',
+        username: guestUser.username,
+        callsign: guestUser.callsign || '0xGUEST',
+        email: guestUser.email,
+        role: guestUser.role || 'Fresher / Trainee',
+        avatar: guestUser.avatar || 'GO',
+        baseRank: 999,
+        clearance: 'GUEST-SANDBOX',
+        isGuest: true,
+      };
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('nexarange-auth', 'true');
+        localStorage.setItem('nexarange-token', token);
+        localStorage.setItem('nexarange-operator', JSON.stringify(newOp));
+        localStorage.setItem('nexarange-is-guest', 'true');
+        window.history.pushState(null, '', '/');
+      }
+
+      set({
+        operator: newOp,
+        isAuthenticated: true,
+        authToken: token,
+        sessionId: sessionId || 'NR-SES-GUEST',
+        sessionState: 'ACTIVE',
+        totalXP: guestUser.xp || 0,
+        completedMissions: {},
+        badges: [],
+        route: '/',
+        view: 'dashboard',
+        logoutModalOpen: false,
+        profileDropdownOpen: false,
+      });
+
+      get().addToast({
+        title: 'GUEST SANDBOX ACTIVATED',
+        text: 'Temporary guest session established. Welcome to NexaRange!',
+        type: 'info',
+      });
+
+      return { success: true, user: newOp };
+    } catch (err) {
+      const msg = err.message || 'Could not start guest session.';
+      get().addToast({
+        title: 'GUEST ACCESS FAILED',
+        text: msg,
+        type: 'warning',
+      });
+      return { success: false, error: msg };
+    }
+  },
+
   registerOperator: async (userData) => {
     try {
       const fullName = (userData.fullName || userData.name || '').trim();
@@ -386,9 +479,17 @@ const useStore = create((set, get) => ({
       profileDropdownAnchor: anchor,
     })),
   setThreatLevel: (threatLevel) => set({ threatLevel }),
+  missionReplayMode: false,
+  setMissionReplayMode: (missionReplayMode) => set({ missionReplayMode }),
 
-  openMission: (labId, missionIdx) =>
-    set({ currentLab: labId, currentMission: missionIdx, view: 'mission', threatLevel: 'ELEVATED' }),
+  openMission: (labId, missionIdx, replay = false) =>
+    set({
+      currentLab: labId,
+      currentMission: missionIdx,
+      view: 'mission',
+      threatLevel: 'ELEVATED',
+      missionReplayMode: Boolean(replay),
+    }),
 
   initMissionTasks: (missionId, count) =>
     set((s) => ({
@@ -403,6 +504,11 @@ const useStore = create((set, get) => ({
       tasks[idx] = !tasks[idx];
       return { missionTasks: { ...s.missionTasks, [missionId]: tasks } };
     }),
+
+  resetMissionTasks: (missionId, count) =>
+    set((s) => ({
+      missionTasks: { ...s.missionTasks, [missionId]: Array(count).fill(false) },
+    })),
 
   completeMission: async (missionId, xp, badge) => {
     const s = get();
