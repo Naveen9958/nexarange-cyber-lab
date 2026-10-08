@@ -665,7 +665,7 @@ const useStore = create((set, get) => ({
 
   openLabQuiz: (labId) => set({ view: 'quiz', currentLab: labId, profileDropdownOpen: false }),
 
-  submitLabQuiz: (labId, answers, score, xpEarned = 0) => {
+  submitLabQuiz: (labId, answers, score, xpEarned = 0, operatorBrief = '') => {
     const s = get();
     const existing = s.labQuizzes[labId];
     const isNewBonus = !existing?.completed && xpEarned > 0;
@@ -675,6 +675,7 @@ const useStore = create((set, get) => ({
         completed: true,
         score,
         answers,
+        operatorBrief: operatorBrief || existing?.operatorBrief || '',
         xpEarned: (existing?.xpEarned || 0) + (isNewBonus ? xpEarned : 0),
         lastAttempt: new Date().toISOString(),
       },

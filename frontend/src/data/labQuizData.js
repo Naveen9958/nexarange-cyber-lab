@@ -97,7 +97,24 @@ export const LAB_QUIZ_DATA = {
         correctIndex: 0,
         explanation: 'Modern agentic compromises rarely rely on a single catastrophic vulnerability. Stale identity enables initial access, permissive tool scopes offer capability, prompt injection hijacks decision-making, and weak zero-trust policies permit lateral movement. Red teaming must validate the compounding impact across the entire chain.'
       }
-    ]
+    ],
+    synthesisQuestion: {
+      id: 's1_brief',
+      title: 'Operation 01 Executive Incident Brief & Synthesis',
+      badge: '📝',
+      bonusXP: 100,
+      prompt: 'In your own words, write a concise technical debrief of what you understood across the 5 missions of Operation 01 (Ghost in the Machine). Explain how ARIA was compromised step-by-step and how each vector contributed to the full breach.',
+      guidingPoints: [
+        'Mission 1: Deactivated identity (Kabir/svc_agent_047) token validation flaw bypassing account status.',
+        'Mission 2: Over-permissioned MCP server connector (conn_012) granting wildcard execution to all agents.',
+        'Mission 3: Indirect prompt injection payload hidden inside customer ticket (TKT-4403).',
+        'Mission 4: Flawed Zero Trust policy (ZT-009) creating an uninspected bypass for internal AI traffic.',
+        'Mission 5: Automated AI Red-Team defense mesh testing the compound multi-vector attack chain.'
+      ],
+      placeholder: 'Example: In Operation 01, I learned that ARIA was compromised because Kabir\'s deactivated account still minted valid session tokens due to a validator flaw. The attacker used this session (sess_a7x9k2) to access an over-privileged MCP connector (conn_012) with wildcard approval rights. Next, an indirect prompt injection payload in ticket TKT-4403 coerced the LLM into executing the wire transfer. This lateral movement went undetected due to Zero Trust policy ZT-009 exempting AI agents. Finally, we deployed an automated red-team agent testing all 4 vectors to prevent recurrence...',
+      minChars: 40,
+      keyConcepts: ['identity', 'token', 'mcp', 'connector', 'prompt', 'injection', 'zero trust', 'red team', 'aria', 'kabir']
+    }
   },
   2: {
     labId: 2,
@@ -194,6 +211,23 @@ export const LAB_QUIZ_DATA = {
         correctIndex: 1,
         explanation: 'Peter Shor discovered a quantum algorithm that finds prime factors and computes discrete logarithms in polynomial time. Because classical public-key cryptography (RSA, ECC, Diffie-Hellman) relies on the hardness of these specific mathematical problems, a Cryptanalytically Relevant Quantum Computer (CRQC) will break them completely, necessitating lattice-based algorithms like ML-KEM and ML-DSA.'
       }
-    ]
+    ],
+    synthesisQuestion: {
+      id: 's2_brief',
+      title: 'Operation 02 Executive Incident Brief & Synthesis',
+      badge: '📝',
+      bonusXP: 100,
+      prompt: 'In your own words, write a concise technical debrief of what you understood across the 5 missions of Operation 02 (The Deepfake Deal). Explain how the supply chain poisoning enabled credential theft, rogue pod deployment, deepfake execution, and why quantum-safe cryptography is mandatory.',
+      guidingPoints: [
+        'Mission 1: Typosquatted malicious Python package (vortex-ai-utils) exfiltrating cluster credentials (K8S_TOKEN).',
+        'Mission 2: Infostealer credentials brokered on Genesis Market, spawning rogue container (vxc-media-renderer-7x).',
+        'Mission 3: Kubernetes pod targeting executive identity (CFO_VORTEX) with 2x A100 GPUs for media synthesis.',
+        'Mission 4: 5 biometric anomalies verifying GAN deepfake (corneal lighting, lip sync, blink rate, skin texture, timestamp).',
+        'Mission 5: Quantum vulnerability of RSA/ECC under Shor\'s algorithm, necessitating migration to NIST PQC standards (ML-KEM, ML-DSA).'
+      ],
+      placeholder: 'Example: In Operation 02, I investigated a deepfake financial fraud incident. It began with an AI software supply chain attack where a typosquatted package (vortex-ai-utils) stole cluster tokens. These tokens were sold on Genesis Market, allowing the attacker to launch a rogue GPU pod (vxc-media-renderer-7x) targeting CFO_VORTEX to intercept media streams. Through multi-modal forensic analysis, we proved the executive call was synthetic by identifying 5 biometric anomalies. Finally, we addressed the cryptographic root cause by migrating 3 quantum-vulnerable classical algorithms to NIST post-quantum standards...',
+      minChars: 40,
+      keyConcepts: ['supply chain', 'typosquat', 'pypi', 'marketplace', 'kubernetes', 'pod', 'deepfake', 'biometric', 'quantum', 'cryptography', 'cfo']
+    }
   }
 };

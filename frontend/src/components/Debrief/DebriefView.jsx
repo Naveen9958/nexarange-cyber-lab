@@ -63,29 +63,42 @@ export default function DebriefView() {
         </div>
       )}
 
-      {/* ── Post-Lab Knowledge Assessment (5 MCQs) ── */}
+      {/* ── Post-Lab Knowledge Assessment & Capstone Brief ── */}
       <div className={s.quizCard}>
         <div className={s.quizInfo}>
           <div className={s.quizTag}>
             <IconZap size={14} />
-            <span>INCIDENT KNOWLEDGE VERIFICATION // 5 MISSION MCQS</span>
+            <span>INCIDENT KNOWLEDGE VERIFICATION // 5 MCQS + WRITTEN BRIEF</span>
           </div>
-          <div className={s.quizTitle}>POST-LAB KNOWLEDGE ASSESSMENT</div>
+          <div className={s.quizTitle}>POST-LAB ASSESSMENT & MISSION SYNTHESIS</div>
           <p className={s.quizDesc}>
-            Validate your forensic retention with 5 scenario-based questions tied to the 5 neutralized mission vectors.
+            Validate forensic retention with 5 scenario-based MCQs followed by your Operator Written Synthesis Brief summarizing the 5 neutralization phases.
           </p>
           {quizResult?.completed && (
             <div className={s.quizScoreBadge}>
               <IconCheckCircle size={14} />
-              <span>Assessment Completed: {quizResult.score}/5 Correct (+{quizResult.score * 50} XP)</span>
+              <span>Assessment Completed: {quizResult.score}/5 MCQs Correct (+{quizResult.xpEarned || quizResult.score * 50} XP)</span>
             </div>
           )}
         </div>
         <button className={s.quizLaunchBtn} onClick={() => openLabQuiz(labId)}>
           <IconShield size={16} />
-          <span>{quizResult?.completed ? 'REVIEW / RETAKE 5 MCQS' : 'START 5-QUESTION POST-LAB MCQ QUIZ'}</span>
+          <span>{quizResult?.completed ? 'REVIEW / RETAKE 5 MCQS & BRIEF' : 'START 5 MCQS + WRITTEN BRIEF'}</span>
         </button>
       </div>
+
+      {/* ── Operator's Filed Synthesis Brief ── */}
+      {quizResult?.operatorBrief && (
+        <div className={s.briefSection}>
+          <div className={s.briefCard}>
+            <div className={s.briefHeader}>
+              <div className={s.briefTag}>// OPERATOR FILED INCIDENT SYNTHESIS BRIEF</div>
+              <span className={s.briefTimestamp}>RECORDED IN FORENSIC DOSSIER</span>
+            </div>
+            <div className={s.briefContent}>{quizResult.operatorBrief}</div>
+          </div>
+        </div>
+      )}
 
       {/* ── Metrics & Badges ── */}
       <div className={s.row}>

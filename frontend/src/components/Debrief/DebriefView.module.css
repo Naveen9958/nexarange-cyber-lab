@@ -343,4 +343,58 @@
   }
 }
 
+.briefSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.briefCard {
+  background: linear-gradient(135deg, rgba(0, 245, 200, 0.05), rgba(10, 19, 36, 0.8));
+  border: 1px solid rgba(0, 245, 200, 0.35);
+  border-left: 4px solid var(--cyan-primary);
+  border-radius: var(--radius-lg);
+  padding: 22px 26px;
+  position: relative;
+  overflow: hidden;
+}
+
+.briefHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.briefTag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  color: var(--cyan-primary);
+  font-weight: 700;
+}
+
+.briefTimestamp {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #00f5c8;
+  background: rgba(0, 245, 200, 0.12);
+  border: 1px solid rgba(0, 245, 200, 0.3);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.briefContent {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: #e6f1ff;
+  white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-subtle);
+}
+
+
 

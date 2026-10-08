@@ -575,6 +575,177 @@
   margin-top: 10px;
 }
 
+/* ── Operator Written Synthesis Styles ── */
+.briefContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.guidingBox {
+  background: rgba(0, 245, 200, 0.04);
+  border: 1px solid rgba(0, 245, 200, 0.18);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guidingHeader {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--cyan-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guidingList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guidingItem {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.guidingBullet {
+  color: var(--cyan-primary);
+  font-weight: 700;
+}
+
+.briefTextarea {
+  width: 100%;
+  min-height: 180px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.briefTextarea:focus {
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 16px rgba(0, 245, 200, 0.2);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.briefMetaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.charCount {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.charCountValid {
+  color: #00f5c8;
+}
+
+.conceptsTracked {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.conceptTag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.conceptActive {
+  background: rgba(0, 245, 200, 0.15);
+  color: #00f5c8;
+  border: 1px solid rgba(0, 245, 200, 0.4);
+}
+
+.conceptInactive {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Submitted Brief Card in Results */
+.submittedBriefCard {
+  background: linear-gradient(135deg, rgba(0, 245, 200, 0.05), rgba(0, 217, 255, 0.02));
+  border: 1px solid rgba(0, 245, 200, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.submittedBriefHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.submittedBriefTag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--cyan-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verifiedStamp {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #00f5c8;
+  border: 1px solid #00f5c8;
+  padding: 3px 10px;
+  border-radius: 4px;
+  letter-spacing: 1.5px;
+  background: rgba(0, 245, 200, 0.08);
+}
+
+.submittedBriefBody {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--cyan-primary);
+  white-space: pre-wrap;
+}
+
 @media (max-width: 768px) {
   .wrap {
     padding: 16px;
@@ -591,3 +762,4 @@
     padding: 24px 16px;
   }
 }
+

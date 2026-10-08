@@ -1,4 +1,4 @@
-// src/components/Quiz/LabQuizView.jsx — Post-Lab 5-Question Incident Assessment & Knowledge Verification
+// src/components/Quiz/LabQuizView.jsx — Post-Lab 5-Question Incident Assessment & Capstone Written Synthesis
 import React, { useState, useEffect } from 'react';
 import useStore from '../../store/useStore';
 import { LAB_QUIZ_DATA } from '../../data/labQuizData';
@@ -9,51 +9,63 @@ import {
   IconAward,
   IconZap,
   IconShield,
-  IconFlask,
-  IconTrophy,
 } from '../Common/Icons';
 import s from './LabQuizView.module.css';
 
 export default function LabQuizView() {
-  const { currentLab, labQuizzes, submitLabQuiz, showDebrief, setView } = useStore();
+  const { currentLab, labQuizzes, submitLabQuiz, showDebrief, setView, operator } = useStore();
   const labId = currentLab || 1;
   const quiz = LAB_QUIZ_DATA[labId] || LAB_QUIZ_DATA[1];
   const labInfo = LAB_DATA[labId] || LAB_DATA[1];
 
   const existingResult = labQuizzes[labId];
 
-  // Current question index (0 to 4)
+  // Questions and Synthesis Brief
+  const mcqQuestions = quiz.questions || [];
+  const synthesisQ = quiz.synthesisQuestion;
+  const totalQuestions = mcqQuestions.length + (synthesisQ ? 1 : 0);
+
+  // Current index (0..4 for MCQs, 5 for Synthesis Brief)
   const [currentIdx, setCurrentIdx] = useState(0);
-  // User's selections: { [questionIdx]: selectedOptionIdx }
+
+  // User's MCQ selections: { [questionIdx]: selectedOptionIdx }
   const [selectedAnswers, setSelectedAnswers] = useState(
     existingResult?.answers || {}
   );
-  // Has the user clicked "Submit Answer" on the current question to see feedback?
+
+  // Operator Written Synthesis Brief text
+  const [operatorBrief, setOperatorBrief] = useState(
+    existingResult?.operatorBrief || ''
+  );
+
+  // Revealed feedback for MCQs
   const [revealed, setRevealed] = useState({});
-  // Is the quiz complete and viewing the results screen?
+
+  // Is completed
   const [isCompleted, setIsCompleted] = useState(Boolean(existingResult?.completed));
 
   // Reset or initialize when switching lab
   useEffect(() => {
     if (existingResult?.completed) {
       setSelectedAnswers(existingResult.answers || {});
+      setOperatorBrief(existingResult.operatorBrief || '');
       setIsCompleted(true);
     } else {
       setSelectedAnswers({});
+      setOperatorBrief('');
       setRevealed({});
       setIsCompleted(false);
       setCurrentIdx(0);
     }
   }, [labId, existingResult?.completed]);
 
-  const questions = quiz.questions;
-  const currentQ = questions[currentIdx];
-  const totalQuestions = questions.length;
+  const isBriefStep = synthesisQ && currentIdx === mcqQuestions.length;
+  const currentQ = !isBriefStep ? mcqQuestions[currentIdx] : null;
 
   const currentSelection = selectedAnswers[currentIdx];
   const isCurrentRevealed = revealed[currentIdx] || isCompleted;
 
-  // Handle selecting an option
+  // Handle selecting an MCQ option
   const handleSelectOption = (optIdx) => {
     if (isCurrentRevealed && !isCompleted) return;
     if (isCompleted) return;
@@ -63,31 +75,44 @@ export default function LabQuizView() {
     }));
   };
 
-  // Confirm current answer and reveal explanation
+  // Confirm current MCQ answer and reveal explanation
   const handleConfirmAnswer = () => {
     if (currentSelection === undefined) return;
     setRevealed((prev) => ({ ...prev, [currentIdx]: true }));
   };
 
-  // Move to next question or complete quiz
+  // Calculate score for display
+  const calculateScore = () => {
+    let correct = 0;
+    mcqQuestions.forEach((q, idx) => {
+      if (selectedAnswers[idx] === q.correctIndex) {
+        correct++;
+      }
+    });
+    return correct;
+  };
+
+  // Finalize assessment
+  const handleFinalize = () => {
+    const correctCount = calculateScore();
+    const mcqXP = correctCount * 50;
+    const briefBonus = operatorBrief.trim().length >= (synthesisQ?.minChars || 30) ? (synthesisQ?.bonusXP || 100) : 0;
+    const totalXPBonus = mcqXP + briefBonus;
+
+    submitLabQuiz(labId, selectedAnswers, correctCount, totalXPBonus, operatorBrief.trim());
+    setIsCompleted(true);
+  };
+
+  // Next step
   const handleNext = () => {
     if (currentIdx < totalQuestions - 1) {
       setCurrentIdx((prev) => prev + 1);
     } else {
-      // Calculate final score
-      let correctCount = 0;
-      questions.forEach((q, idx) => {
-        if (selectedAnswers[idx] === q.correctIndex) {
-          correctCount++;
-        }
-      });
-
-      const xpEarned = correctCount * 50; // 50 XP per question
-      submitLabQuiz(labId, selectedAnswers, correctCount, xpEarned);
-      setIsCompleted(true);
+      handleFinalize();
     }
   };
 
+  // Prev step
   const handlePrev = () => {
     if (currentIdx > 0) {
       setCurrentIdx((prev) => prev - 1);
@@ -101,22 +126,21 @@ export default function LabQuizView() {
     setCurrentIdx(0);
   };
 
-  // Calculate score for display
-  const calculateScore = () => {
-    let correct = 0;
-    questions.forEach((q, idx) => {
-      if (selectedAnswers[idx] === q.correctIndex) {
-        correct++;
-      }
-    });
-    return correct;
-  };
-
   const score = isCompleted ? (existingResult?.score ?? calculateScore()) : calculateScore();
-  const accuracyPct = Math.round((score / totalQuestions) * 100);
+  const accuracyPct = Math.round((score / mcqQuestions.length) * 100);
+  const finalBrief = isCompleted ? (existingResult?.operatorBrief || operatorBrief) : operatorBrief;
+
+  // Track keywords in operator brief
+  const trackedConcepts = (synthesisQ?.keyConcepts || []).map((term) => ({
+    term,
+    found: operatorBrief.toLowerCase().includes(term.toLowerCase()),
+  }));
 
   // ── Results Summary View ──
   if (isCompleted) {
+    const briefXPGranted = finalBrief.trim().length >= (synthesisQ?.minChars || 30);
+    const totalEarned = (score * 50) + (briefXPGranted ? (synthesisQ?.bonusXP || 100) : 0);
+
     return (
       <div className={s.wrap}>
         {/* Top Banner */}
@@ -124,19 +148,19 @@ export default function LabQuizView() {
           <div>
             <div className={s.bannerTag}>
               <span className={s.pulseDot} />
-              OPERATION 0{labId} // FORENSIC KNOWLEDGE VERIFICATION
+              OPERATION 0{labId} // INCIDENT RESOLUTION VERIFIED
             </div>
-            <h1 className={s.bannerTitle}>{quiz.title} // POST-LAB MCQ EVALUATION</h1>
+            <h1 className={s.bannerTitle}>{quiz.title} // EVALUATION ARCHIVE</h1>
             <p className={s.bannerSub}>{quiz.subtitle} — Case {labInfo.caseId}</p>
           </div>
           <div className={s.bannerStats}>
             <div className={s.statPill}>
-              <div className={s.statPillLabel}>Score</div>
-              <div className={s.statPillVal}>{score} / {totalQuestions}</div>
+              <div className={s.statPillLabel}>MCQ Accuracy</div>
+              <div className={s.statPillVal}>{score} / {mcqQuestions.length}</div>
             </div>
             <div className={s.statPill}>
-              <div className={s.statPillLabel}>Assessment Bonus</div>
-              <div className={s.statPillVal}>+{score * 50} XP</div>
+              <div className={s.statPillLabel}>Total Bonus XP</div>
+              <div className={s.statPillVal}>+{totalEarned} XP</div>
             </div>
           </div>
         </div>
@@ -146,12 +170,12 @@ export default function LabQuizView() {
           <div className={s.resultHero}>
             <div className={s.scoreBadgeCircle}>
               <span className={s.scoreNumerator}>{score}</span>
-              <span className={s.scoreDenominator}>/ {totalQuestions}</span>
+              <span className={s.scoreDenominator}>/ {mcqQuestions.length}</span>
             </div>
 
             <div className={s.xpBadgeGain}>
               <IconZap size={16} />
-              <span>+{score * 50} XP CREDITED TO ENCLAVE PROFILE</span>
+              <span>+{totalEarned} XP CREDITED TO ENCLAVE PROFILE</span>
             </div>
 
             <h2 className={s.resultTitle}>
@@ -163,15 +187,33 @@ export default function LabQuizView() {
             </h2>
             <p className={s.resultSub}>
               {accuracyPct >= 80
-                ? `Outstanding execution, Operator. You have demonstrated a thorough forensic understanding of all 5 mission attack vectors in Operation 0${labId}.`
-                : `You have completed the 5-question forensic review. Review the correct takeaways below to solidify your technical incident response readiness.`}
+                ? `Outstanding execution, Operator. You have demonstrated a thorough forensic understanding of all 5 mission attack vectors and synthesized a verified incident brief.`
+                : `You have completed the forensic evaluation and reflection brief. Review the takeaways below to solidify your technical incident response readiness.`}
             </p>
           </div>
 
+          {/* Operator Submitted Written Synthesis Brief Showcase */}
+          {finalBrief && (
+            <div className={s.submittedBriefCard}>
+              <div className={s.submittedBriefHeader}>
+                <div className={s.submittedBriefTag}>
+                  <IconShield size={16} />
+                  <span>
+                    OPERATOR INCIDENT SYNTHESIS BRIEF // {(operator?.fullName || operator?.name || operator?.callsign || 'OPERATOR').toUpperCase()}
+                  </span>
+                </div>
+                <span className={s.verifiedStamp}>✓ ENCLAVE VERIFIED (+100 XP)</span>
+              </div>
+              <div className={s.submittedBriefBody}>
+                {finalBrief}
+              </div>
+            </div>
+          )}
+
           {/* Question Breakdown List */}
           <div className={s.reviewSection}>
-            <div className={s.reviewHeading}>// DETAILED FORENSIC BREAKDOWN (5 QUESTIONS)</div>
-            {questions.map((q, idx) => {
+            <div className={s.reviewHeading}>// DETAILED FORENSIC MCQ BREAKDOWN (5 QUESTIONS)</div>
+            {mcqQuestions.map((q, idx) => {
               const userAns = selectedAnswers[idx];
               const isCorrect = userAns === q.correctIndex;
 
@@ -248,17 +290,17 @@ export default function LabQuizView() {
           </div>
           <h1 className={s.bannerTitle}>{quiz.title}</h1>
           <p className={s.bannerSub}>
-            5 Incident Questions directly derived from Missions 01–05 // Case {labInfo.caseId}
+            5 Tactical Mission Questions + Capstone Written Synthesis Brief // Case {labInfo.caseId}
           </p>
         </div>
         <div className={s.bannerStats}>
           <div className={s.statPill}>
-            <div className={s.statPillLabel}>Current Question</div>
+            <div className={s.statPillLabel}>Current Step</div>
             <div className={s.statPillVal}>0{currentIdx + 1} / 0{totalQuestions}</div>
           </div>
           <div className={s.statPill}>
             <div className={s.statPillLabel}>Potential Bonus</div>
-            <div className={s.statPillVal}>+250 XP</div>
+            <div className={s.statPillVal}>+350 XP</div>
           </div>
         </div>
       </div>
@@ -268,7 +310,7 @@ export default function LabQuizView() {
         <div className={s.progressHeader}>
           <span className={s.progressTitle}>// ASSESSMENT TRAJECTORY</span>
           <span className={s.progressRatio}>
-            QUESTION {currentIdx + 1} OF {totalQuestions}
+            STEP {currentIdx + 1} OF {totalQuestions} {isBriefStep ? '(WRITTEN SYNTHESIS)' : '(TACTICAL MCQ)'}
           </span>
         </div>
         <div className={s.progressBarBg}>
@@ -278,8 +320,8 @@ export default function LabQuizView() {
           />
         </div>
         <div className={s.stepDots}>
-          {questions.map((q, idx) => {
-            const hasAns = selectedAnswers[idx] !== undefined;
+          {/* MCQs Steps */}
+          {mcqQuestions.map((q, idx) => {
             const isRevealedStep = revealed[idx];
             const isCorrect = isRevealedStep && selectedAnswers[idx] === q.correctIndex;
             const isWrong = isRevealedStep && selectedAnswers[idx] !== q.correctIndex;
@@ -303,132 +345,248 @@ export default function LabQuizView() {
               </button>
             );
           })}
+
+          {/* Step 6: Written Brief */}
+          {synthesisQ && (
+            <button
+              className={s.stepDotItem}
+              onClick={() => setCurrentIdx(mcqQuestions.length)}
+              type="button"
+            >
+              <div
+                className={`${s.stepDotPill} ${
+                  currentIdx === mcqQuestions.length
+                    ? s.dotActive
+                    : operatorBrief.trim().length >= 40
+                    ? s.dotCorrect
+                    : ''
+                }`}
+              />
+              <span
+                className={`${s.stepDotLabel} ${
+                  currentIdx === mcqQuestions.length ? s.stepDotActiveLabel : ''
+                }`}
+              >
+                BRIEF
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Question Card */}
-      <div className={s.questionCard}>
-        <div className={s.missionBadgeRow}>
-          <div className={s.missionTag}>
-            <span>{currentQ.badge}</span>
-            <span>RELATED TO MISSION 0{currentQ.missionNum}: {currentQ.missionTitle.toUpperCase()}</span>
+      {/* Main Card */}
+      {isBriefStep ? (
+        /* ── STEP 06: WRITTEN SYNTHESIS BRIEF ── */
+        <div className={s.questionCard}>
+          <div className={s.missionBadgeRow}>
+            <div className={s.missionTag}>
+              <span>{synthesisQ.badge}</span>
+              <span>CAPSTONE STEP // EXECUTIVE INCIDENT SYNTHESIS</span>
+            </div>
+            <div className={s.topicTag}>
+              <span>BONUS: +{synthesisQ.bonusXP} XP</span>
+            </div>
           </div>
-          <div className={s.topicTag}>
-            <span>VECTOR: {currentQ.topic}</span>
+
+          <div className={s.questionText}>
+            {synthesisQ.title}
+          </div>
+
+          <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
+            {synthesisQ.prompt}
+          </p>
+
+          {/* Guiding Checklist for the 5 Missions */}
+          <div className={s.guidingBox}>
+            <div className={s.guidingHeader}>
+              <IconShield size={14} />
+              <span>KEY INCIDENT VECTORS TO COVER IN YOUR BRIEF:</span>
+            </div>
+            <ul className={s.guidingList}>
+              {synthesisQ.guidingPoints.map((pt, pIdx) => (
+                <li key={pIdx} className={s.guidingItem}>
+                  <span className={s.guidingBullet}>▹</span>
+                  <span>{pt}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Written Textarea */}
+          <div className={s.briefContainer}>
+            <textarea
+              className={s.briefTextarea}
+              placeholder={synthesisQ.placeholder}
+              value={operatorBrief}
+              onChange={(e) => setOperatorBrief(e.target.value)}
+            />
+
+            <div className={s.briefMetaRow}>
+              <div className={`${s.charCount} ${operatorBrief.trim().length >= synthesisQ.minChars ? s.charCountValid : ''}`}>
+                {operatorBrief.trim().length} characters {operatorBrief.trim().length >= synthesisQ.minChars ? '(✓ Ready to submit)' : `(Min ${synthesisQ.minChars} chars recommended)`}
+              </div>
+
+              {/* Concept Keywords Illuminated */}
+              <div className={s.conceptsTracked}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)' }}>Concepts Detected:</span>
+                {trackedConcepts.map((c, cIdx) => (
+                  <span
+                    key={cIdx}
+                    className={`${s.conceptTag} ${c.found ? s.conceptActive : s.conceptInactive}`}
+                  >
+                    {c.found ? `✓ ${c.term}` : c.term}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Action Bar for Brief */}
+          <div className={s.actionBar}>
+            <button
+              type="button"
+              className={s.secondaryBtn}
+              onClick={handlePrev}
+            >
+              ← PREVIOUS QUESTION
+            </button>
+
+            <button
+              type="button"
+              className={s.primaryBtn}
+              onClick={handleFinalize}
+              disabled={operatorBrief.trim().length < 20}
+            >
+              <span>SUBMIT BRIEF & FINALIZE ASSESSMENT</span>
+              <IconCheckCircle size={16} />
+            </button>
           </div>
         </div>
+      ) : (
+        /* ── STEPS 01 TO 05: TACTICAL MCQS ── */
+        <div className={s.questionCard}>
+          <div className={s.missionBadgeRow}>
+            <div className={s.missionTag}>
+              <span>{currentQ.badge}</span>
+              <span>RELATED TO MISSION 0{currentQ.missionNum}: {currentQ.missionTitle.toUpperCase()}</span>
+            </div>
+            <div className={s.topicTag}>
+              <span>VECTOR: {currentQ.topic}</span>
+            </div>
+          </div>
 
-        <div className={s.questionText}>
-          {currentQ.question}
-        </div>
+          <div className={s.questionText}>
+            {currentQ.question}
+          </div>
 
-        {/* Options */}
-        <div className={s.optionsList}>
-          {currentQ.options.map((option, optIdx) => {
-            const isSelected = currentSelection === optIdx;
-            const isCorrect = isCurrentRevealed && optIdx === currentQ.correctIndex;
-            const isWrong = isCurrentRevealed && isSelected && optIdx !== currentQ.correctIndex;
+          {/* Options */}
+          <div className={s.optionsList}>
+            {currentQ.options.map((option, optIdx) => {
+              const isSelected = currentSelection === optIdx;
+              const isCorrect = isCurrentRevealed && optIdx === currentQ.correctIndex;
+              const isWrong = isCurrentRevealed && isSelected && optIdx !== currentQ.correctIndex;
 
-            let itemClass = s.optionItem;
-            let keyClass = s.optionKey;
+              let itemClass = s.optionItem;
+              let keyClass = s.optionKey;
 
-            if (isSelected) {
-              itemClass += ` ${s.optionSelected}`;
-              keyClass += ` ${s.keySelected}`;
-            }
-            if (isCorrect) {
-              itemClass += ` ${s.optionCorrect}`;
-              keyClass += ` ${s.keyCorrect}`;
-            }
-            if (isWrong) {
-              itemClass += ` ${s.optionWrong}`;
-              keyClass += ` ${s.keyWrong}`;
-            }
+              if (isSelected) {
+                itemClass += ` ${s.optionSelected}`;
+                keyClass += ` ${s.keySelected}`;
+              }
+              if (isCorrect) {
+                itemClass += ` ${s.optionCorrect}`;
+                keyClass += ` ${s.keyCorrect}`;
+              }
+              if (isWrong) {
+                itemClass += ` ${s.optionWrong}`;
+                keyClass += ` ${s.keyWrong}`;
+              }
 
-            const letter = String.fromCharCode(65 + optIdx);
+              const letter = String.fromCharCode(65 + optIdx);
 
-            return (
-              <button
-                key={optIdx}
-                type="button"
-                className={itemClass}
-                onClick={() => handleSelectOption(optIdx)}
-                disabled={isCurrentRevealed}
-              >
-                <div className={keyClass}>
-                  {isCorrect ? '✓' : isWrong ? '✗' : letter}
-                </div>
-                <div className={s.optionText}>{option}</div>
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <button
+                  key={optIdx}
+                  type="button"
+                  className={itemClass}
+                  onClick={() => handleSelectOption(optIdx)}
+                  disabled={isCurrentRevealed}
+                >
+                  <div className={keyClass}>
+                    {isCorrect ? '✓' : isWrong ? '✗' : letter}
+                  </div>
+                  <div className={s.optionText}>{option}</div>
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Revealed Explanation */}
-        {isCurrentRevealed && (
-          <div
-            className={`${s.explanationBox} ${
-              currentSelection !== currentQ.correctIndex ? s.explanationWrong : ''
-            }`}
-          >
+          {/* Revealed Explanation */}
+          {isCurrentRevealed && (
             <div
-              className={`${s.explanationTag} ${
-                currentSelection === currentQ.correctIndex
-                  ? s.explanationTagSuccess
-                  : s.explanationTagFail
+              className={`${s.explanationBox} ${
+                currentSelection !== currentQ.correctIndex ? s.explanationWrong : ''
               }`}
             >
-              <IconShield size={16} />
-              <span>
-                {currentSelection === currentQ.correctIndex
-                  ? 'VERIFIED CORRECT // FORENSIC TAKEAWAY'
-                  : 'INCORRECT EVALUATION // CORRECT RATIONALE'}
-              </span>
-            </div>
-            <p className={s.explanationText}>{currentQ.explanation}</p>
-          </div>
-        )}
-
-        {/* Action Bar */}
-        <div className={s.actionBar}>
-          <button
-            type="button"
-            className={s.secondaryBtn}
-            onClick={handlePrev}
-            disabled={currentIdx === 0}
-            style={{ visibility: currentIdx === 0 ? 'hidden' : 'visible' }}
-          >
-            ← PREVIOUS
-          </button>
-
-          <div style={{ display: 'flex', gap: '12px' }}>
-            {!isCurrentRevealed ? (
-              <button
-                type="button"
-                className={s.primaryBtn}
-                onClick={handleConfirmAnswer}
-                disabled={currentSelection === undefined}
+              <div
+                className={`${s.explanationTag} ${
+                  currentSelection === currentQ.correctIndex
+                    ? s.explanationTagSuccess
+                    : s.explanationTagFail
+                }`}
               >
-                <span>CONFIRM ANSWER</span>
-                <IconCheckCircle size={16} />
-              </button>
-            ) : (
-              <button
-                type="button"
-                className={s.primaryBtn}
-                onClick={handleNext}
-              >
+                <IconShield size={16} />
                 <span>
-                  {currentIdx < totalQuestions - 1
-                    ? 'NEXT QUESTION'
-                    : 'FINALIZE & VIEW SCORE'}
+                  {currentSelection === currentQ.correctIndex
+                    ? 'VERIFIED CORRECT // FORENSIC TAKEAWAY'
+                    : 'INCORRECT EVALUATION // CORRECT RATIONALE'}
                 </span>
-                <IconArrowRight size={16} />
-              </button>
-            )}
+              </div>
+              <p className={s.explanationText}>{currentQ.explanation}</p>
+            </div>
+          )}
+
+          {/* Action Bar */}
+          <div className={s.actionBar}>
+            <button
+              type="button"
+              className={s.secondaryBtn}
+              onClick={handlePrev}
+              disabled={currentIdx === 0}
+              style={{ visibility: currentIdx === 0 ? 'hidden' : 'visible' }}
+            >
+              ← PREVIOUS
+            </button>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {!isCurrentRevealed ? (
+                <button
+                  type="button"
+                  className={s.primaryBtn}
+                  onClick={handleConfirmAnswer}
+                  disabled={currentSelection === undefined}
+                >
+                  <span>CONFIRM ANSWER</span>
+                  <IconCheckCircle size={16} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={s.primaryBtn}
+                  onClick={handleNext}
+                >
+                  <span>
+                    {currentIdx < mcqQuestions.length - 1
+                      ? 'NEXT QUESTION'
+                      : 'PROCEED TO WRITTEN SYNTHESIS'}
+                  </span>
+                  <IconArrowRight size={16} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
