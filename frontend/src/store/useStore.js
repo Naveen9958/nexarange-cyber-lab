@@ -37,9 +37,19 @@ const getStoredOperator = () => {
   return null;
 };
 
+const getStoredLabQuizzes = () => {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem('nexarange-lab-quizzes');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
 const useStore = create((set, get) => ({
   // ── View Navigation ──
-  view: 'dashboard',         // 'dashboard' | 'labs' | 'terminal' | 'leaderboard' | 'friends' | 'analytics' | 'certificates' | 'mission' | 'debrief'
+  view: 'dashboard',         // 'dashboard' | 'labs' | 'terminal' | 'leaderboard' | 'friends' | 'analytics' | 'certificates' | 'mission' | 'debrief' | 'quiz'
   currentLab: null,          // 1 | 2 | 3 | 4 | 5
   currentMission: null,      // 0-4 index
   
@@ -84,6 +94,7 @@ const useStore = create((set, get) => ({
   completedMissions: {},     // { missionId: true }
   missionTasks: {},          // { missionId: [bool] }
   hintPenalties: {},         // { missionId: totalPenalty }
+  labQuizzes: getStoredLabQuizzes(), // { [labId]: { completed: bool, score: num, answers: {}, xpEarned: num } }
 
   // ── Toasts ──
   toasts: [],
@@ -652,16 +663,66 @@ const useStore = create((set, get) => ({
 
   showDebrief: (labId) => set({ view: 'debrief', currentLab: labId }),
 
+  openLabQuiz: (labId) => set({ view: 'quiz', currentLab: labId, profileDropdownOpen: false }),
+
+  submitLabQuiz: (labId, answers, score, xpEarned = 0) => {
+    const s = get();
+    const existing = s.labQuizzes[labId];
+    const isNewBonus = !existing?.completed && xpEarned > 0;
+    const updatedQuizzes = {
+      ...s.labQuizzes,
+      [labId]: {
+        completed: true,
+        score,
+        answers,
+        xpEarned: (existing?.xpEarned || 0) + (isNewBonus ? xpEarned : 0),
+        lastAttempt: new Date().toISOString(),
+      },
+    };
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('nexarange-lab-quizzes', JSON.stringify(updatedQuizzes));
+      } catch {}
+    }
+
+    set((state) => ({
+      labQuizzes: updatedQuizzes,
+      totalXP: isNewBonus ? state.totalXP + xpEarned : state.totalXP,
+      sessionXP: isNewBonus ? state.sessionXP + xpEarned : state.sessionXP,
+    }));
+
+    if (isNewBonus) {
+      get().addToast({
+        title: 'ASSESSMENT BONUS CREDITED',
+        text: `+${xpEarned} XP Awarded for Post-Lab MCQ Evaluation! (Score: ${score}/5)`,
+        type: 'success',
+      });
+    } else {
+      get().addToast({
+        title: 'EVALUATION RECORDED',
+        text: `Post-Lab assessment saved with score: ${score}/5.`,
+        type: 'info',
+      });
+    }
+  },
+
   resetProgress: async () => {
     try {
       await api.progress.reset();
     } catch (e) {}
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('nexarange-lab-quizzes');
+      } catch {}
+    }
     set({
       totalXP: 0,
       sessionXP: 0,
       badges: [],
       completedMissions: {},
       missionTasks: {},
+      labQuizzes: {},
       threatLevel: 'GUARDED',
     });
     get().addToast({

@@ -19,6 +19,7 @@ import AnalyticsView from './components/Analytics/AnalyticsView';
 import CertificatesView from './components/Certificates/CertificatesView';
 import MissionView from './components/Mission/MissionView';
 import DebriefView from './components/Debrief/DebriefView';
+import LabQuizView from './components/Quiz/LabQuizView';
 import ToastSystem from './components/Toast/ToastSystem';
 
 import './App.css';
@@ -35,6 +36,7 @@ function ViewRouter() {
     certificates: <CertificatesView />,
     mission:      <MissionView />,
     debrief:      <DebriefView />,
+    quiz:         <LabQuizView />,
   };
   return map[view] || <Dashboard />;
 }

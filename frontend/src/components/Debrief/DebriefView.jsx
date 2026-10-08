@@ -5,8 +5,10 @@ import { IconAward, IconCheckCircle, IconZap, IconShield } from '../Common/Icons
 import s from './DebriefView.module.css';
 
 export default function DebriefView() {
-  const { currentLab, completedMissions, totalXP, badges, setView, operator } = useStore();
+  const { currentLab, completedMissions, totalXP, badges, setView, operator, openLabQuiz, labQuizzes } = useStore();
   const lab = LAB_DATA[currentLab || 1];
+  const labId = currentLab || 1;
+  const quizResult = labQuizzes?.[labId];
 
   const completedInLab = lab.missions.filter((m) => completedMissions[m.id]).length;
   const labXP = lab.missions.reduce(
@@ -60,6 +62,30 @@ export default function DebriefView() {
           )}
         </div>
       )}
+
+      {/* ── Post-Lab Knowledge Assessment (5 MCQs) ── */}
+      <div className={s.quizCard}>
+        <div className={s.quizInfo}>
+          <div className={s.quizTag}>
+            <IconZap size={14} />
+            <span>INCIDENT KNOWLEDGE VERIFICATION // 5 MISSION MCQS</span>
+          </div>
+          <div className={s.quizTitle}>POST-LAB KNOWLEDGE ASSESSMENT</div>
+          <p className={s.quizDesc}>
+            Validate your forensic retention with 5 scenario-based questions tied to the 5 neutralized mission vectors.
+          </p>
+          {quizResult?.completed && (
+            <div className={s.quizScoreBadge}>
+              <IconCheckCircle size={14} />
+              <span>Assessment Completed: {quizResult.score}/5 Correct (+{quizResult.score * 50} XP)</span>
+            </div>
+          )}
+        </div>
+        <button className={s.quizLaunchBtn} onClick={() => openLabQuiz(labId)}>
+          <IconShield size={16} />
+          <span>{quizResult?.completed ? 'REVIEW / RETAKE 5 MCQS' : 'START 5-QUESTION POST-LAB MCQ QUIZ'}</span>
+        </button>
+      </div>
 
       {/* ── Metrics & Badges ── */}
       <div className={s.row}>

@@ -8,13 +8,19 @@ import {
   IconCheckCircle,
   IconArrowRight,
   IconSearch,
+  IconShield,
 } from '../Common/Icons';
 import s from './LabsView.module.css';
 
 export default function LabsView() {
-  const { openMission, completedMissions } = useStore();
+  const { openMission, completedMissions, openLabQuiz, showDebrief, labQuizzes } = useStore();
   const [trackFilter, setTrackFilter] = useState('all'); // 'all' | 'ai' | 'cloud'
   const [search, setSearch] = useState('');
+  const [expandedStorylines, setExpandedStorylines] = useState({ 1: true, 2: true });
+
+  const toggleStoryline = (id) => {
+    setExpandedStorylines((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const labList = [LAB_DATA[1], LAB_DATA[2]].filter(Boolean);
 
@@ -123,14 +129,109 @@ export default function LabsView() {
                 </div>
               </div>
 
-              {/* Lab Chain Description */}
+              {/* Lab Storyline & Executive Summary */}
               <div className={s.labDescBox}>
+                <div className={s.storylineHeader}>
+                  <div>
+                    <div className={s.storylineTag}>
+                      <IconShield size={14} />
+                      <span>CASE DOSSIER // STORYLINE & INCIDENT CONTEXT</span>
+                    </div>
+                    <h3 className={s.storylineHeadline}>
+                      {lab.storyline?.headline || lab.title}
+                    </h3>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={s.storylineToggleBtn}
+                    onClick={() => toggleStoryline(lab.id)}
+                  >
+                    <span>
+                      {expandedStorylines[lab.id]
+                        ? 'COLLAPSE MISSION BLUEPRINT ▴'
+                        : 'EXPAND MISSION BLUEPRINT ▾'}
+                    </span>
+                  </button>
+                </div>
+
                 <p className={s.labDescription}>
-                  {lab.id === 1
-                    ? 'An autonomous threat agent breached NexaCorp core infrastructure. Trace token validation flaws, examine Burp Suite traffic to rogue MCP servers, isolate prompt injections, and fix zero-trust access.'
-                    : 'A synthesized deepfake executive call triggered a high-value wire compromise. Unpack poisoned Python ML packages, audit rogue Kubernetes pods, and migrate quantum-vulnerable cryptography.'}
+                  {lab.storyline?.summary || lab.overview}
                 </p>
+
+                {expandedStorylines[lab.id] && lab.storyline?.whatToDo && (
+                  <div className={s.blueprintContainer}>
+                    <div className={s.blueprintTitleRow}>
+                      <span className={s.blueprintTitle}>
+                        // OPERATION BLUEPRINT: WHAT YOU HAVE TO DO (5 PHASES)
+                      </span>
+                    </div>
+
+                    <div className={s.blueprintGrid}>
+                      {lab.storyline.whatToDo.map((step, idx) => (
+                        <div key={idx} className={s.phaseCard}>
+                          <div className={s.phaseCardHeader}>
+                            <span className={s.phaseBadge}>
+                              PHASE 0{step.missionNum || idx + 1}
+                            </span>
+                            <span className={s.phaseTitle}>{step.missionTitle}</span>
+                          </div>
+                          <p className={s.phaseGoal}>{step.goal}</p>
+                          <div className={s.phaseAction}>
+                            <span>⚡ <strong>TACTICAL ACTION:</strong> {step.action}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {lab.storyline?.keyTakeaways && (
+                      <div className={s.takeawaysList}>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--cyan-primary)', letterSpacing: '1px' }}>
+                          // CORE ZERO-TRUST PRINCIPLES ENFORCED
+                        </div>
+                        {lab.storyline.keyTakeaways.map((takeaway, tIdx) => (
+                          <div key={tIdx} className={s.takeawayItem}>
+                            <span className={s.takeawayDot}>▹</span>
+                            <span>{takeaway}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+
+              {/* Completed Lab Assessment Banner */}
+              {progressPct === 100 && (
+                <div className={s.labCompletedCallout}>
+                  <div className={s.labCompletedLeft}>
+                    <span className={s.labCompletedTag}>
+                      <IconCheckCircle size={14} /> OPERATION 0{lab.id} FULLY SECURED
+                    </span>
+                    <span className={s.labCompletedHeading}>
+                      {labQuizzes?.[lab.id]?.completed
+                        ? `Knowledge Evaluation: ${labQuizzes[lab.id].score}/5 Correct (+${labQuizzes[lab.id].score * 50} XP Secured)`
+                        : 'Post-Lab 5-Question Incident Assessment Ready (+250 XP Available)'}
+                    </span>
+                  </div>
+                  <div className={s.labCompletedActions}>
+                    <button
+                      className={s.quizActionBtn}
+                      onClick={() => openLabQuiz(lab.id)}
+                    >
+                      <IconZap size={14} />
+                      <span>{labQuizzes?.[lab.id]?.completed ? 'REVIEW / RETAKE 5 MCQS' : 'TAKE 5-QUESTION LAB MCQS'}</span>
+                    </button>
+                    <button
+                      className={s.debriefActionBtn}
+                      onClick={() => showDebrief(lab.id)}
+                    >
+                      <span>CASE DEBRIEF</span>
+                      <IconArrowRight size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Missions Progression Chain */}
               <div className={s.chainHeader}>

@@ -4,10 +4,11 @@
   "private": true,
   "description": "NexaRange Cyber Simulation Labs & Command Center",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "preview": "npm --prefix frontend run preview",
+    "backend": "npm --prefix backend run dev"
   },
   "dependencies": {
     "react": "^19.2.8",

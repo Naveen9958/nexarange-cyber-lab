@@ -14,6 +14,53 @@ export const LAB_DATA = {
     color: 'green',
     totalXP: 1000,
     overview: `NexaCorp automated day-to-day operations through ARIA — an autonomous AI agent sending emails, approving requests, and talking to internal tools. At 11:42 PM, Incident Response Lead Rhea received an alert: ARIA approved a large wire transfer requested by Kabir, an employee who left two months ago whose access was supposed to have been revoked. Leadership demands answers: how does a disabled account get ARIA to approve a transfer nobody requested?`,
+    storyline: {
+      headline: 'Autonomous AI Agent Hijacking & Systemic Lateral Escalation',
+      summary: 'At 11:42 PM, NexaCorp automated infrastructure approved a fraudulent wire transfer. The approval was executed by ARIA, the company autonomous agentic AI model, under the credentials of Kabir — an engineer terminated two months prior whose access should have been revoked. As AI Security Analyst Naveen, you must dissect the 5-stage attack killchain, isolate the architectural flaws that allowed an obsolete identity to weaponize ARIA, and deploy automated defenses to secure the enclave.',
+      whatToDo: [
+        {
+          phase: 'Phase 1: Identity & Authentication Bypass',
+          missionNum: 1,
+          missionTitle: 'Agentic AI Identity Attack',
+          goal: 'Investigate the central auth validator logs. Kabir account was disabled, yet a 24-hour token was issued. Determine why ARIA validator accepted a stale token and uncover the rogue session ID (sess_a7x9k2) used to dispatch probe calls.',
+          action: 'Audit authentication logs, trace token lifecycle checks, and extract the rogue session identifier.'
+        },
+        {
+          phase: 'Phase 2: MCP Server Privilege Escalation',
+          missionNum: 2,
+          missionTitle: 'MCP Server Security Exploitation',
+          goal: 'Trace the rogue session connection into the Model Context Protocol (MCP) server on port 8443. The attacker climbed from read-only telemetry to financial wire approval. Inspect HTTP traffic and find the over-privileged connector ID.',
+          action: 'Examine Burp Suite traffic, audit the connector catalog scopes, and submit the exploited connector ID (conn_012).'
+        },
+        {
+          phase: 'Phase 3: Indirect Prompt Injection Interception',
+          missionNum: 3,
+          missionTitle: 'Prompt Injection Chains',
+          goal: 'Discover how untrusted input hijacked ARIA decision-making. The attacker submitted a weaponized customer support ticket containing hidden delimiter tags that instructed the LLM to ignore prior safety boundaries.',
+          action: 'Inspect pending customer tickets, detect the indirect prompt injection payload, and isolate ticket ID (TKT-4403).'
+        },
+        {
+          phase: 'Phase 4: Zero Trust Policy Bypass Analysis',
+          missionNum: 4,
+          missionTitle: 'Zero Trust Policy Bypass',
+          goal: 'Investigate why network perimeter firewalls and east-west enclave monitors failed to alert on unauthorized lateral communications. Pinpoint the flawed Zero Trust policy rule that created a blind spot for AI agents.',
+          action: 'Audit zero-trust policy rules, locate the AI agent exception allowing uninspected network movement, and submit policy ID (ZT-009).'
+        },
+        {
+          phase: 'Phase 5: Automated Red-Team Defense Mesh Deployment',
+          missionNum: 5,
+          missionTitle: 'Build-Your-Own Red-Team Agent',
+          goal: 'Consolidate the multi-stage attack killchain. Build and deploy an automated AI Red-Teaming agent configured with the 4 verified incident attack patterns to harden NexaCorp defense mesh against future agentic breaches.',
+          action: 'Select the 4 verified detection patterns, filter out noise rules, and deploy the red-team agent into production.'
+        }
+      ],
+      keyTakeaways: [
+        'Stale identities without active IAM revocation checks create stealthy ingress vectors.',
+        'Wildcard connector scopes in MCP servers destroy the Principle of Least Privilege.',
+        'Autonomous agents consuming unstructured data require strict prompt delimiters and tool gating.',
+        'Zero-trust policies must never exempt AI microservices from deep packet inspection.'
+      ]
+    },
     debriefChain: [
       'Agentic AI Identity Attack',
       'MCP Server Exploitation',
@@ -282,6 +329,54 @@ export const LAB_DATA = {
     color: 'cyan',
     totalXP: 1000,
     overview: `Aman, CFO of fast-growing startup Vortex Cloud, jumped on an urgent call with who he believed was the CEO and approved an immediate high-value payment to a new vendor. An hour later, the actual CEO contacted him about something completely unrelated, with zero memory of any call. The payment had already cleared. Naveen is assigned as Infrastructure Security Engineer: the real question isn't just who made the fake call — it's how someone made it convincing enough that a CFO didn't think twice.`,
+    storyline: {
+      headline: 'Supply Chain Poisoning, Kubernetes Intrusion & Biometric Deepfake Fraud',
+      summary: 'Aman, CFO of cloud provider Vortex Cloud, joined an urgent video call with who appeared to be the CEO and authorized an immediate emergency wire transfer to an unknown vendor. An hour later, the real CEO contacted Aman with zero knowledge of any conversation. The payment had cleared, and the funds were siphoned into an untraceable account. Assigned as Infrastructure Security Engineer Naveen, you must unmask the complex multi-vector intrusion: how a poisoned PyPI dependency enabled dark-web credential theft, compromised production Kubernetes pods, and generated an indistinguishable deepfake executive.',
+      whatToDo: [
+        {
+          phase: 'Phase 1: AI Software Supply Chain Audit',
+          missionNum: 1,
+          missionTitle: 'AI Supply Chain Poisoning',
+          goal: 'Inspect the Python build pipeline logs on Kali Linux. A routine ML training dependency was quietly substituted with a typosquatted malicious package that ran an exfiltration script during setup to steal cluster credentials.',
+          action: 'Analyze pip install build logs, trace the hidden subprocess exfiltration call, and identify the malicious package name (vortex-ai-utils).'
+        },
+        {
+          phase: 'Phase 2: Dark-Web Marketplace & Credential Recon',
+          missionNum: 2,
+          missionTitle: 'Infostealer & Marketplace Analysis',
+          goal: 'Investigate how the exfiltrated cluster credentials were traded on dark-web access markets (Genesis Marketplace) and locate the rogue Kubernetes container pod spawned by the adversary within the production cluster.',
+          action: 'Audit threat intelligence marketplace listings, cross-reference pod telemetry, and submit the rogue pod name (vxc-media-renderer-7x).'
+        },
+        {
+          phase: 'Phase 3: Kubernetes Container & Enclave Security Sweep',
+          missionNum: 3,
+          missionTitle: 'Kubernetes Security Sweep',
+          goal: 'Execute kubectl inspection commands in the terminal against the rogue pod. Discover what high-value corporate identity was configured as the interception target to harvest executive biometrics.',
+          action: 'Query container environment variables and configuration files to identify the target executive identity (CFO_VORTEX).'
+        },
+        {
+          phase: 'Phase 4: Adversarial Deepfake & Biometric Forensics',
+          missionNum: 4,
+          missionTitle: 'Deepfake & Adversarial AI Detection',
+          goal: 'Perform multi-modal forensic analysis on the recorded video call stream. Measure corneal light reflections, face boundary warping, audio phoneme desynchronization, and irregular blink patterns to mathematically prove the video was synthetic.',
+          action: 'Inspect the video stream telemetry and report the exact number of anomalous biometric indicators confirming the deepfake (5).'
+        },
+        {
+          phase: 'Phase 5: Post-Quantum Cryptography (PQC) Migration',
+          missionNum: 5,
+          missionTitle: 'Quantum-Safe Cryptography Migration',
+          goal: 'Assess Vortex Cloud cryptographic foundation against future quantum threats. Identify classical asymmetric algorithms vulnerable to Shor algorithm on quantum computers and calculate the required migration path to NIST PQC standards.',
+          action: 'Audit the organization cryptographic inventory and submit the count of quantum-vulnerable algorithms requiring migration (3).'
+        }
+      ],
+      keyTakeaways: [
+        'Automated CI/CD build pipelines must enforce package checksum verification and private registry scopes.',
+        'Infostealers and illicit credential marketplaces represent primary vectors for cloud cluster initial access.',
+        'Kubernetes pod security standards (PSS) and strict RBAC are critical to prevent unauthorized media interception.',
+        'Executive authorization workflows require cryptographic multi-party authentication resistant to generative deepfakes.',
+        'Organizations must proactively transition public-key cryptography to quantum-resistant lattice standards.'
+      ]
+    },
     debriefChain: [
       'AI Supply Chain Poisoning',
       'Infostealer & Marketplace Analysis',

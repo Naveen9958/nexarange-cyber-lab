@@ -240,14 +240,191 @@
 }
 
 .labDescBox {
-  padding: 16px 30px;
+  padding: 24px 30px;
   border-bottom: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.storylineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.storylineTag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  color: var(--cyan-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.storylineHeadline {
+  font-family: var(--font-head);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+}
+
+.storylineToggleBtn {
+  background: rgba(0, 245, 200, 0.08);
+  border: 1px solid rgba(0, 245, 200, 0.25);
+  color: var(--cyan-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.storylineToggleBtn:hover {
+  background: rgba(0, 245, 200, 0.16);
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 12px rgba(0, 245, 200, 0.2);
 }
 
 .labDescription {
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.7;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid var(--cyan-primary);
+  padding: 14px 18px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* Blueprint Phases */
+.blueprintContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+  animation: fadeIn 0.3s ease;
+}
+
+.blueprintTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.blueprintTitle {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  color: var(--cyan-primary);
+  font-weight: 700;
+}
+
+.blueprintGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.phaseCard {
+  background: rgba(10, 16, 26, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.phaseCard:hover {
+  border-color: rgba(0, 245, 200, 0.3);
+  background: rgba(10, 16, 26, 0.95);
+  transform: translateY(-2px);
+}
+
+.phaseCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.phaseBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--cyan-primary);
+  background: rgba(0, 245, 200, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.phaseTitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.phaseGoal {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.phaseAction {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #00f5c8;
+  background: rgba(0, 245, 200, 0.05);
+  border: 1px dashed rgba(0, 245, 200, 0.2);
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.phaseAction strong {
+  color: var(--cyan-primary);
+}
+
+.takeawaysList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  background: rgba(0, 245, 200, 0.03);
+  border: 1px solid rgba(0, 245, 200, 0.12);
+  border-radius: var(--radius-sm);
+  margin-top: 6px;
+}
+
+.takeawayItem {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.takeawayDot {
+  color: var(--cyan-primary);
+  font-weight: 700;
 }
 
 /* ── Chain Section ── */
@@ -490,6 +667,92 @@
   border: 1px solid var(--border-subtle);
   padding: 6px 14px;
   border-radius: var(--radius-sm);
+}
+
+.labCompletedCallout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, rgba(0, 245, 200, 0.08), rgba(0, 217, 255, 0.04));
+  border-top: 1px solid rgba(0, 245, 200, 0.25);
+  border-bottom: 1px solid rgba(0, 245, 200, 0.25);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.labCompletedLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.labCompletedTag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  color: #00f5c8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.labCompletedHeading {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.labCompletedActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.quizActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--cyan-primary);
+  color: #020912;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quizActionBtn:hover {
+  background: #2affd4;
+  box-shadow: 0 0 14px rgba(0, 245, 200, 0.4);
+  transform: translateY(-1px);
+}
+
+.debriefActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.debriefActionBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

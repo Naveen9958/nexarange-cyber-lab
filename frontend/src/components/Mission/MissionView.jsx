@@ -131,7 +131,8 @@ export default function MissionView() {
       if (nextIdx < lab.missions.length) {
         useStore.getState().openMission(labId, nextIdx);
       } else {
-        useStore.getState().showDebrief(labId);
+        // All lab missions neutralized: Trigger Post-Lab 5-Question Incident Evaluation
+        useStore.getState().openLabQuiz(labId);
       }
     }, 2800);
   }
