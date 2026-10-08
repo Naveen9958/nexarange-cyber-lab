@@ -70,7 +70,24 @@ if (env.NODE_ENV !== 'test') {
 // 5. Global API Rate Limiting
 app.use('/api', apiLimiter);
 
-// 6. Health Check Endpoint (Rule 50)
+// 6. Root & Health Check Endpoints
+app.get('/', (req, res) => {
+  return res.json({
+    service: 'NexaRange Cyber Security Command Center API',
+    status: 'ONLINE',
+    environment: env.NODE_ENV,
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth/login',
+      labs: '/api/labs',
+      missions: '/api/missions',
+      dashboard: '/api/dashboard',
+    },
+    clientAppUrl: env.CLIENT_URL || 'http://localhost:5177',
+    message: 'Backend API is operational. Access the graphical lab interface at the clientAppUrl.',
+  });
+});
+
 app.get('/api/health', (req, res) => {
   return sendSuccess(res, { status: 'ok', timestamp: new Date().toISOString() });
 });
