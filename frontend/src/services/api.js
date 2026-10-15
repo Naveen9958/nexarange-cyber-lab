@@ -104,10 +104,20 @@ export const api = {
     getAll: () => request('/missions'),
     getById: (id) => request(`/missions/${id}`),
     start: (id) => request(`/missions/${id}/start`, { method: 'POST' }),
-    complete: (id, tasks = []) =>
+    verifyFlag: (id, flag) =>
+      request(`/missions/${id}/verify-flag`, {
+        method: 'POST',
+        body: JSON.stringify({ flag }),
+      }),
+    complete: (id, tasks = [], flag = null) =>
       request(`/missions/${id}/complete`, {
         method: 'POST',
-        body: JSON.stringify({ tasks }),
+        body: JSON.stringify({ tasks, flag }),
+      }),
+    executeAlgorithm: (type, payload = {}) =>
+      request(`/missions/algorithms/${type}`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
       }),
     getProgress: (id) => request(`/missions/${id}/progress`),
   },

@@ -1,5 +1,5 @@
-// src/components/Quiz/LabQuizView.jsx — Post-Lab 5-Question Incident Assessment & Capstone Written Synthesis
-import React, { useState, useEffect } from 'react';
+// src/components/Quiz/LabQuizView.jsx — Multi-Modal Incident Assessment, MITRE ATT&CK Killchain Sequencer & CISO Executive Brief
+import { useState, useEffect } from 'react';
 import useStore from '../../store/useStore';
 import { LAB_QUIZ_DATA } from '../../data/labQuizData';
 import { LAB_DATA } from '../../data/labData';
@@ -20,52 +20,117 @@ export default function LabQuizView() {
 
   const existingResult = labQuizzes[labId];
 
-  // Questions and Synthesis Brief
+  // Evaluation Modes: 'killchain' | 'terminal' | 'mcq' | 'brief'
+  const [evalMode, setEvalMode] = useState('killchain');
+
+  // Killchain Sequencing State
+  // Shuffle or initialize stages
+  const initialStages = quiz.killchainStages || [];
+  const [orderedStages, setOrderedStages] = useState(() => {
+    // Default shuffled for interaction
+    return [...initialStages].sort((a, b) => (a.id % 2 === 0 ? 1 : -1));
+  });
+  const [killchainVerified, setKillchainVerified] = useState(false);
+  const [killchainMsg, setKillchainMsg] = useState(null);
+
+  // Terminal Scenario Challenge State
+  const termChallenge = quiz.terminalChallenge || null;
+  const [termSelectedCmd, setTermSelectedCmd] = useState(null);
+  const [termOutput, setTermOutput] = useState(null);
+  const [termVerified, setTermVerified] = useState(false);
+
+  // MCQs & Written Synthesis
   const mcqQuestions = quiz.questions || [];
   const synthesisQ = quiz.synthesisQuestion;
-  const totalQuestions = mcqQuestions.length + (synthesisQ ? 1 : 0);
-
-  // Current index (0..4 for MCQs, 5 for Synthesis Brief)
   const [currentIdx, setCurrentIdx] = useState(0);
 
-  // User's MCQ selections: { [questionIdx]: selectedOptionIdx }
   const [selectedAnswers, setSelectedAnswers] = useState(
     existingResult?.answers || {}
   );
-
-  // Operator Written Synthesis Brief text
   const [operatorBrief, setOperatorBrief] = useState(
     existingResult?.operatorBrief || ''
   );
-
-  // Revealed feedback for MCQs
   const [revealed, setRevealed] = useState({});
-
-  // Is completed
   const [isCompleted, setIsCompleted] = useState(Boolean(existingResult?.completed));
 
-  // Reset or initialize when switching lab
   useEffect(() => {
     if (existingResult?.completed) {
       setSelectedAnswers(existingResult.answers || {});
       setOperatorBrief(existingResult.operatorBrief || '');
       setIsCompleted(true);
+      setKillchainVerified(true);
+      setOrderedStages(quiz.killchainStages || []);
+      setTermVerified(true);
     } else {
       setSelectedAnswers({});
       setOperatorBrief('');
       setRevealed({});
       setIsCompleted(false);
       setCurrentIdx(0);
+      setKillchainVerified(false);
+      setKillchainMsg(null);
+      setOrderedStages([...(quiz.killchainStages || [])].sort((a, b) => (a.id % 2 === 0 ? 1 : -1)));
+      setTermSelectedCmd(null);
+      setTermOutput(null);
+      setTermVerified(false);
     }
   }, [labId, existingResult?.completed]);
 
-  const isBriefStep = synthesisQ && currentIdx === mcqQuestions.length;
-  const currentQ = !isBriefStep ? mcqQuestions[currentIdx] : null;
+  // Killchain Handlers
+  const moveStage = (index, direction) => {
+    if (killchainVerified) return;
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= orderedStages.length) return;
+    const newStages = [...orderedStages];
+    const temp = newStages[index];
+    newStages[index] = newStages[targetIdx];
+    newStages[targetIdx] = temp;
+    setOrderedStages(newStages);
+    setKillchainMsg(null);
+  };
 
+  const handleVerifyKillchain = () => {
+    let isCorrect = true;
+    for (let i = 0; i < orderedStages.length; i++) {
+      if (orderedStages[i].step !== i + 1) {
+        isCorrect = false;
+        break;
+      }
+    }
+
+    if (isCorrect) {
+      setKillchainVerified(true);
+      setKillchainMsg({
+        success: true,
+        text: '✓ ATTACK KILLCHAIN RECONSTRUCTED ACCURATELY! +50 XP Killchain Bonus Unlocked.',
+      });
+      useStore.getState().showToast?.('+50 XP Killchain Reconstructed!', 'success');
+    } else {
+      setKillchainMsg({
+        success: false,
+        text: '✗ INACCURATE SEQUENCE: Review chronological incident progression (Ingress -> Escalation -> Hijack -> Lateral -> Hardening).',
+      });
+    }
+  };
+
+  // Terminal Challenge Handler
+  const handleRunTermCmd = (cmd) => {
+    setTermSelectedCmd(cmd);
+    if (cmd === termChallenge?.correctCommand) {
+      setTermOutput(termChallenge.output);
+      setTermVerified(true);
+      useStore.getState().showToast?.('+50 XP Forensic Artifact Confirmed!', 'success');
+    } else {
+      setTermOutput(`bash: ${cmd}: command executed, but did not reveal the target signature flaw. Try parsing the JWT token structure.`);
+      setTermVerified(false);
+    }
+  };
+
+  // MCQ Handlers
+  const currentQ = mcqQuestions[currentIdx];
   const currentSelection = selectedAnswers[currentIdx];
   const isCurrentRevealed = revealed[currentIdx] || isCompleted;
 
-  // Handle selecting an MCQ option
   const handleSelectOption = (optIdx) => {
     if (isCurrentRevealed && !isCompleted) return;
     if (isCompleted) return;
@@ -75,13 +140,11 @@ export default function LabQuizView() {
     }));
   };
 
-  // Confirm current MCQ answer and reveal explanation
   const handleConfirmAnswer = () => {
     if (currentSelection === undefined) return;
     setRevealed((prev) => ({ ...prev, [currentIdx]: true }));
   };
 
-  // Calculate score for display
   const calculateScore = () => {
     let correct = 0;
     mcqQuestions.forEach((q, idx) => {
@@ -92,31 +155,15 @@ export default function LabQuizView() {
     return correct;
   };
 
-  // Finalize assessment
   const handleFinalize = () => {
     const correctCount = calculateScore();
     const mcqXP = correctCount * 50;
     const briefBonus = operatorBrief.trim().length >= (synthesisQ?.minChars || 30) ? (synthesisQ?.bonusXP || 100) : 0;
-    const totalXPBonus = mcqXP + briefBonus;
+    const killchainBonus = killchainVerified ? 50 : 0;
+    const totalXPBonus = mcqXP + briefBonus + killchainBonus;
 
     submitLabQuiz(labId, selectedAnswers, correctCount, totalXPBonus, operatorBrief.trim());
     setIsCompleted(true);
-  };
-
-  // Next step
-  const handleNext = () => {
-    if (currentIdx < totalQuestions - 1) {
-      setCurrentIdx((prev) => prev + 1);
-    } else {
-      handleFinalize();
-    }
-  };
-
-  // Prev step
-  const handlePrev = () => {
-    if (currentIdx > 0) {
-      setCurrentIdx((prev) => prev - 1);
-    }
   };
 
   const handleRetake = () => {
@@ -124,13 +171,19 @@ export default function LabQuizView() {
     setRevealed({});
     setIsCompleted(false);
     setCurrentIdx(0);
+    setKillchainVerified(false);
+    setKillchainMsg(null);
+    setOrderedStages([...(quiz.killchainStages || [])].sort((a, b) => (a.id % 2 === 0 ? 1 : -1)));
+    setTermSelectedCmd(null);
+    setTermOutput(null);
+    setTermVerified(false);
+    setEvalMode('killchain');
   };
 
   const score = isCompleted ? (existingResult?.score ?? calculateScore()) : calculateScore();
   const accuracyPct = Math.round((score / mcqQuestions.length) * 100);
   const finalBrief = isCompleted ? (existingResult?.operatorBrief || operatorBrief) : operatorBrief;
 
-  // Track keywords in operator brief
   const trackedConcepts = (synthesisQ?.keyConcepts || []).map((term) => ({
     term,
     found: operatorBrief.toLowerCase().includes(term.toLowerCase()),
@@ -139,7 +192,7 @@ export default function LabQuizView() {
   // ── Results Summary View ──
   if (isCompleted) {
     const briefXPGranted = finalBrief.trim().length >= (synthesisQ?.minChars || 30);
-    const totalEarned = (score * 50) + (briefXPGranted ? (synthesisQ?.bonusXP || 100) : 0);
+    const totalEarned = (score * 50) + (briefXPGranted ? (synthesisQ?.bonusXP || 100) : 0) + 50;
 
     return (
       <div className={s.wrap}>
@@ -155,7 +208,7 @@ export default function LabQuizView() {
           </div>
           <div className={s.bannerStats}>
             <div className={s.statPill}>
-              <div className={s.statPillLabel}>MCQ Accuracy</div>
+              <div className={s.statPillLabel}>Forensic Score</div>
               <div className={s.statPillVal}>{score} / {mcqQuestions.length}</div>
             </div>
             <div className={s.statPill}>
@@ -186,9 +239,7 @@ export default function LabQuizView() {
                 : 'ASSESSMENT ARCHIVED — REVIEW RECOMMENDATIONS'}
             </h2>
             <p className={s.resultSub}>
-              {accuracyPct >= 80
-                ? `Outstanding execution, Operator. You have demonstrated a thorough forensic understanding of all 5 mission attack vectors and synthesized a verified incident brief.`
-                : `You have completed the forensic evaluation and reflection brief. Review the takeaways below to solidify your technical incident response readiness.`}
+              You have completed the multi-modal cyber range evaluation, reconstructed the MITRE ATT&CK killchain, verified the forensic artifacts, and submitted your executive incident debrief.
             </p>
           </div>
 
@@ -202,7 +253,7 @@ export default function LabQuizView() {
                     OPERATOR INCIDENT SYNTHESIS BRIEF // {(operator?.fullName || operator?.name || operator?.callsign || 'OPERATOR').toUpperCase()}
                   </span>
                 </div>
-                <span className={s.verifiedStamp}>✓ ENCLAVE VERIFIED (+100 XP)</span>
+                <span className={s.verifiedStamp}>✓ CISO VERIFIED (+100 XP)</span>
               </div>
               <div className={s.submittedBriefBody}>
                 {finalBrief}
@@ -212,7 +263,7 @@ export default function LabQuizView() {
 
           {/* Question Breakdown List */}
           <div className={s.reviewSection}>
-            <div className={s.reviewHeading}>// DETAILED FORENSIC MCQ BREAKDOWN (5 QUESTIONS)</div>
+            <div className={s.reviewHeading}>// DETAILED ROOT-CAUSE & REMEDIATION BREAKDOWN</div>
             {mcqQuestions.map((q, idx) => {
               const userAns = selectedAnswers[idx];
               const isCorrect = userAns === q.correctIndex;
@@ -232,6 +283,23 @@ export default function LabQuizView() {
                   <div className={s.reviewQTitle}>
                     {idx + 1}. {q.question}
                   </div>
+
+                  {q.codeDiff && (
+                    <div className={s.codeDiffBox}>
+                      <div className={s.codeDiffHeader}>
+                        <span>VULNERABILITY ANATOMY // CODE DIFF</span>
+                        <span>{q.mitre}</span>
+                      </div>
+                      <div className={s.codeDiffGrid}>
+                        <div className={s.codeDiffCol}>
+                          <pre className={s.codeDiffVuln}>{q.codeDiff.vulnerable}</pre>
+                        </div>
+                        <div className={s.codeDiffCol}>
+                          <pre className={s.codeDiffPatched}>{q.codeDiff.patched}</pre>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className={s.reviewAnswers}>
                     <div className={s.chosenAnswer}>
@@ -278,7 +346,7 @@ export default function LabQuizView() {
     );
   }
 
-  // ── Active Question Taking View ──
+  // ── Active Interactive Evaluation Deck ──
   return (
     <div className={s.wrap}>
       {/* Top Banner */}
@@ -286,102 +354,392 @@ export default function LabQuizView() {
         <div>
           <div className={s.bannerTag}>
             <span className={s.pulseDot} />
-            OPERATION 0{labId} // POST-LAB KNOWLEDGE ASSESSMENT
+            OPERATION 0{labId} // POST-LAB INCIDENT COMMAND EVALUATION
           </div>
           <h1 className={s.bannerTitle}>{quiz.title}</h1>
           <p className={s.bannerSub}>
-            5 Tactical Mission Questions + Capstone Written Synthesis Brief // Case {labInfo.caseId}
+            Hands-on Incident Reconstruction: Killchain Sequencing, Kali Terminal Verification, Root-Cause Analysis, & CISO Brief.
           </p>
         </div>
         <div className={s.bannerStats}>
           <div className={s.statPill}>
-            <div className={s.statPillLabel}>Current Step</div>
-            <div className={s.statPillVal}>0{currentIdx + 1} / 0{totalQuestions}</div>
+            <div className={s.statPillLabel}>Enclave Case</div>
+            <div className={s.statPillVal}>{labInfo.caseId}</div>
           </div>
           <div className={s.statPill}>
-            <div className={s.statPillLabel}>Potential Bonus</div>
-            <div className={s.statPillVal}>+350 XP</div>
+            <div className={s.statPillLabel}>Max Bonus</div>
+            <div className={s.statPillVal}>+{quiz.totalXP} XP</div>
           </div>
         </div>
       </div>
 
-      {/* Progress Section */}
-      <div className={s.progressSection}>
-        <div className={s.progressHeader}>
-          <span className={s.progressTitle}>// ASSESSMENT TRAJECTORY</span>
-          <span className={s.progressRatio}>
-            STEP {currentIdx + 1} OF {totalQuestions} {isBriefStep ? '(WRITTEN SYNTHESIS)' : '(TACTICAL MCQ)'}
-          </span>
-        </div>
-        <div className={s.progressBarBg}>
-          <div
-            className={s.progressBarFill}
-            style={{ width: `${((currentIdx + 1) / totalQuestions) * 100}%` }}
-          />
-        </div>
-        <div className={s.stepDots}>
-          {/* MCQs Steps */}
-          {mcqQuestions.map((q, idx) => {
-            const isRevealedStep = revealed[idx];
-            const isCorrect = isRevealedStep && selectedAnswers[idx] === q.correctIndex;
-            const isWrong = isRevealedStep && selectedAnswers[idx] !== q.correctIndex;
+      {/* Multi-Modal Evaluation Navigation Tabs */}
+      <div className={s.quizModeTabs}>
+        <button
+          type="button"
+          className={`${s.quizModeBtn} ${evalMode === 'killchain' ? s.quizModeBtnActive : ''}`}
+          onClick={() => setEvalMode('killchain')}
+        >
+          <span>⚡</span>
+          <span>MITRE ATT&CK KILLCHAIN SEQUENCER</span>
+          <span className={s.modeBadge}>{killchainVerified ? 'VERIFIED' : 'ACTIVE'}</span>
+        </button>
 
-            let pillClass = s.stepDotPill;
-            if (idx === currentIdx) pillClass += ` ${s.dotActive}`;
-            else if (isCorrect) pillClass += ` ${s.dotCorrect}`;
-            else if (isWrong) pillClass += ` ${s.dotWrong}`;
+        <button
+          type="button"
+          className={`${s.quizModeBtn} ${evalMode === 'terminal' ? s.quizModeBtnActive : ''}`}
+          onClick={() => setEvalMode('terminal')}
+        >
+          <span>🐉</span>
+          <span>KALI FORENSIC CHALLENGE</span>
+          <span className={s.modeBadge}>{termVerified ? 'RESOLVED' : 'CHALLENGE'}</span>
+        </button>
 
-            return (
-              <button
-                key={q.id}
-                className={s.stepDotItem}
-                onClick={() => setCurrentIdx(idx)}
-                type="button"
-              >
-                <div className={pillClass} />
-                <span className={`${s.stepDotLabel} ${idx === currentIdx ? s.stepDotActiveLabel : ''}`}>
-                  Q0{idx + 1}
-                </span>
-              </button>
-            );
-          })}
+        <button
+          type="button"
+          className={`${s.quizModeBtn} ${evalMode === 'mcq' ? s.quizModeBtnActive : ''}`}
+          onClick={() => setEvalMode('mcq')}
+        >
+          <span>📋</span>
+          <span>ROOT-CAUSE & CODE DIFFS</span>
+          <span className={s.modeBadge}>{calculateScore()}/5</span>
+        </button>
 
-          {/* Step 6: Written Brief */}
-          {synthesisQ && (
-            <button
-              className={s.stepDotItem}
-              onClick={() => setCurrentIdx(mcqQuestions.length)}
-              type="button"
-            >
-              <div
-                className={`${s.stepDotPill} ${
-                  currentIdx === mcqQuestions.length
-                    ? s.dotActive
-                    : operatorBrief.trim().length >= 40
-                    ? s.dotCorrect
-                    : ''
-                }`}
-              />
-              <span
-                className={`${s.stepDotLabel} ${
-                  currentIdx === mcqQuestions.length ? s.stepDotActiveLabel : ''
-                }`}
-              >
-                BRIEF
-              </span>
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          className={`${s.quizModeBtn} ${evalMode === 'brief' ? s.quizModeBtnActive : ''}`}
+          onClick={() => setEvalMode('brief')}
+        >
+          <span>📝</span>
+          <span>CISO EXECUTIVE SYNTHESIS BRIEF</span>
+          <span className={s.modeBadge}>+100 XP</span>
+        </button>
       </div>
 
-      {/* Main Card */}
-      {isBriefStep ? (
-        /* ── STEP 06: WRITTEN SYNTHESIS BRIEF ── */
+      {/* ── MODE 1: MITRE ATT&CK KILLCHAIN SEQUENCER ── */}
+      {evalMode === 'killchain' && (
+        <div className={s.killchainContainer}>
+          <div className={s.killchainHeader}>
+            <div>
+              <h3 className={s.killchainTitle}>INCIDENT KILLCHAIN RECONSTRUCTION (MITRE ATT&CK)</h3>
+              <p className={s.killchainDesc}>
+                Arrange the 5 incident phases in chronological breach order. Threat actors chained these 5 vectors together to achieve complete enclave compromise.
+              </p>
+            </div>
+            {killchainVerified ? (
+              <div className={s.killchainVerifiedBanner}>
+                <IconCheckCircle size={18} />
+                <span>KILLCHAIN VERIFIED (+50 XP)</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={s.verifyKillchainBtn}
+                onClick={handleVerifyKillchain}
+              >
+                VERIFY KILLCHAIN INTEGRITY
+              </button>
+            )}
+          </div>
+
+          {killchainMsg && !killchainVerified && (
+            <div style={{ color: '#ff5555', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
+              {killchainMsg.text}
+            </div>
+          )}
+
+          <div className={s.killchainList}>
+            {orderedStages.map((stage, idx) => (
+              <div
+                key={stage.id}
+                className={`${s.killchainNode} ${killchainVerified ? s.killchainNodeCorrect : ''}`}
+              >
+                <div className={s.nodeLeft}>
+                  <div className={s.nodeOrderBadge}>0{idx + 1}</div>
+                  <div className={s.nodeInfo}>
+                    <div className={s.nodeTitleRow}>
+                      <span className={s.nodeTitle}>{stage.title}</span>
+                      <span className={s.nodeCode}>{stage.code}</span>
+                      <span className={s.nodeCode}>{stage.tag}</span>
+                    </div>
+                    <div className={s.nodeFlaw}>
+                      <strong>Component:</strong> {stage.actor} — {stage.flaw}
+                    </div>
+                  </div>
+                </div>
+
+                {!killchainVerified && (
+                  <div className={s.nodeControls}>
+                    <button
+                      type="button"
+                      className={s.moveBtn}
+                      disabled={idx === 0}
+                      onClick={() => moveStage(idx, -1)}
+                    >
+                      ▲ Up
+                    </button>
+                    <button
+                      type="button"
+                      className={s.moveBtn}
+                      disabled={idx === orderedStages.length - 1}
+                      onClick={() => moveStage(idx, 1)}
+                    >
+                      ▼ Down
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+            <button
+              type="button"
+              className={s.primaryBtn}
+              onClick={() => setEvalMode('terminal')}
+            >
+              <span>CONTINUE TO KALI CHALLENGE ➔</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODE 2: KALI TERMINAL FORENSIC CHALLENGE ── */}
+      {evalMode === 'terminal' && termChallenge && (
+        <div className={s.terminalChallengeCard}>
+          <div>
+            <div className={s.missionTag}>
+              <span>🐉</span>
+              <span>KALI LINUX INCIDENT VALIDATION // HANDS-ON INVESTIGATION</span>
+            </div>
+            <h3 className={s.questionText} style={{ marginTop: '8px' }}>
+              {termChallenge.title}
+            </h3>
+            <p className={s.termScenarioText}>{termChallenge.scenario}</p>
+          </div>
+
+          <div className={s.termOptionsGrid}>
+            {termChallenge.options.map((opt, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`${s.termOptionBtn} ${termSelectedCmd === opt ? s.termOptionSelected : ''}`}
+                onClick={() => handleRunTermCmd(opt)}
+              >
+                <span style={{ color: '#00ffaa' }}>└─#</span>
+                <code>{opt}</code>
+              </button>
+            ))}
+          </div>
+
+          {termOutput && (
+            <div style={{ marginTop: '10px' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#8b949e', marginBottom: '6px' }}>
+                KALI ENCLAVE TERMINAL OUTPUT:
+              </div>
+              <pre className={s.termScreenOut}>{termOutput}</pre>
+            </div>
+          )}
+
+          {termVerified && (
+            <div className={s.killchainVerifiedBanner}>
+              <IconCheckCircle size={18} />
+              <span>FORENSIC TAKEAWAY: {termChallenge.takeaway}</span>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+            <button
+              type="button"
+              className={s.primaryBtn}
+              onClick={() => setEvalMode('mcq')}
+            >
+              <span>CONTINUE TO ROOT-CAUSE SCENARIOS ➔</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODE 3: ROOT-CAUSE SCENARIOS & CODE DIFFS ── */}
+      {evalMode === 'mcq' && (
+        <>
+          {/* Question Stepper Tabs */}
+          <div className={s.progressSection}>
+            <div className={s.progressHeader}>
+              <span className={s.progressLabel}>SCENARIO QUESTIONS</span>
+              <span className={s.progressCount}>0{currentIdx + 1} / 0{mcqQuestions.length}</span>
+            </div>
+            <div className={s.stepDotsRow}>
+              {mcqQuestions.map((q, idx) => {
+                const userAns = selectedAnswers[idx];
+                const isAnswered = userAns !== undefined;
+                const isCorrect = revealed[idx] && userAns === q.correctIndex;
+                const isWrong = revealed[idx] && userAns !== q.correctIndex;
+
+                let pillClass = s.stepDotPill;
+                if (idx === currentIdx) pillClass += ` ${s.dotActive}`;
+                else if (isCorrect) pillClass += ` ${s.dotCorrect}`;
+                else if (isWrong) pillClass += ` ${s.dotWrong}`;
+
+                return (
+                  <button
+                    key={q.id}
+                    className={s.stepDotItem}
+                    onClick={() => setCurrentIdx(idx)}
+                    type="button"
+                  >
+                    <div className={pillClass} />
+                    <span className={`${s.stepDotLabel} ${idx === currentIdx ? s.stepDotActiveLabel : ''}`}>
+                      Q0{idx + 1}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={s.questionCard}>
+            <div className={s.missionBadgeRow}>
+              <div className={s.missionTag}>
+                <span>{currentQ.badge}</span>
+                <span>MISSION 0{currentQ.missionNum}: {currentQ.missionTitle.toUpperCase()}</span>
+              </div>
+              <div className={s.topicTag}>
+                <span>{currentQ.mitre} // {currentQ.owasp}</span>
+              </div>
+            </div>
+
+            <div className={s.questionText}>
+              {currentQ.question}
+            </div>
+
+            {/* Code Diff Box */}
+            {currentQ.codeDiff && (
+              <div className={s.codeDiffBox}>
+                <div className={s.codeDiffHeader}>
+                  <span>ARCHITECTURAL FLAW VS SECURE IMPLEMENTATION</span>
+                  <span>{currentQ.cve}</span>
+                </div>
+                <div className={s.codeDiffGrid}>
+                  <div className={s.codeDiffCol}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: '#ff5555', marginBottom: '4px' }}>
+                      [!] VULNERABLE LOGIC OBSERVED:
+                    </div>
+                    <pre className={s.codeDiffVuln}>{currentQ.codeDiff.vulnerable}</pre>
+                  </div>
+                  <div className={s.codeDiffCol}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: '#3fb950', marginBottom: '4px' }}>
+                      [✔] SECURE ZERO-TRUST HARDENING:
+                    </div>
+                    <pre className={s.codeDiffPatched}>{currentQ.codeDiff.patched}</pre>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Options */}
+            <div className={s.optionsList}>
+              {currentQ.options.map((option, optIdx) => {
+                const isSelected = currentSelection === optIdx;
+                const isCorrect = isCurrentRevealed && optIdx === currentQ.correctIndex;
+                const isWrong = isCurrentRevealed && isSelected && optIdx !== currentQ.correctIndex;
+
+                let itemClass = s.optionItem;
+                let keyClass = s.optionKey;
+
+                if (isSelected) {
+                  itemClass += ` ${s.optionSelected}`;
+                  keyClass += ` ${s.keySelected}`;
+                }
+                if (isCorrect) {
+                  itemClass += ` ${s.optionCorrect}`;
+                  keyClass += ` ${s.keyCorrect}`;
+                }
+                if (isWrong) {
+                  itemClass += ` ${s.optionWrong}`;
+                  keyClass += ` ${s.keyWrong}`;
+                }
+
+                const letter = String.fromCharCode(65 + optIdx);
+
+                return (
+                  <button
+                    key={optIdx}
+                    type="button"
+                    className={itemClass}
+                    onClick={() => handleSelectOption(optIdx)}
+                    disabled={isCurrentRevealed}
+                  >
+                    <div className={keyClass}>
+                      {isCorrect ? '✓' : isWrong ? '✗' : letter}
+                    </div>
+                    <div className={s.optionText}>{option}</div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Explanation when revealed */}
+            {isCurrentRevealed && (
+              <div className={`${s.explanationBox} ${currentSelection !== currentQ.correctIndex ? s.explanationWrong : ''}`}>
+                <div className={`${s.explanationTag} ${currentSelection === currentQ.correctIndex ? s.explanationTagSuccess : s.explanationTagFail}`}>
+                  <IconShield size={14} />
+                  <span>TECHNICAL ROOT CAUSE & REMEDIATION // {currentQ.topic.toUpperCase()}</span>
+                </div>
+                <p className={s.explanationText}>{currentQ.explanation}</p>
+              </div>
+            )}
+
+            {/* Action Bar */}
+            <div className={s.actionBar}>
+              <button
+                type="button"
+                className={s.secondaryBtn}
+                onClick={() => setCurrentIdx((i) => Math.max(0, i - 1))}
+                disabled={currentIdx === 0}
+              >
+                ← PREVIOUS SCENARIO
+              </button>
+
+              {!isCurrentRevealed ? (
+                <button
+                  type="button"
+                  className={s.primaryBtn}
+                  onClick={handleConfirmAnswer}
+                  disabled={currentSelection === undefined}
+                >
+                  <span>CONFIRM ANSWER & INSPECT REMEDIATION</span>
+                  <IconArrowRight size={16} />
+                </button>
+              ) : currentIdx < mcqQuestions.length - 1 ? (
+                <button
+                  type="button"
+                  className={s.primaryBtn}
+                  onClick={() => setCurrentIdx((i) => i + 1)}
+                >
+                  <span>NEXT SCENARIO ➔</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={s.primaryBtn}
+                  onClick={() => setEvalMode('brief')}
+                >
+                  <span>PROCEED TO CISO SYNTHESIS BRIEF ➔</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── MODE 4: CISO EXECUTIVE SYNTHESIS BRIEF ── */}
+      {evalMode === 'brief' && synthesisQ && (
         <div className={s.questionCard}>
           <div className={s.missionBadgeRow}>
             <div className={s.missionTag}>
               <span>{synthesisQ.badge}</span>
-              <span>CAPSTONE STEP // EXECUTIVE INCIDENT SYNTHESIS</span>
+              <span>CAPSTONE CERTIFICATION // CISO EXECUTIVE INCIDENT SYNTHESIS</span>
             </div>
             <div className={s.topicTag}>
               <span>BONUS: +{synthesisQ.bonusXP} XP</span>
@@ -396,11 +754,11 @@ export default function LabQuizView() {
             {synthesisQ.prompt}
           </p>
 
-          {/* Guiding Checklist for the 5 Missions */}
+          {/* Guiding Checklist */}
           <div className={s.guidingBox}>
             <div className={s.guidingHeader}>
               <IconShield size={14} />
-              <span>KEY INCIDENT VECTORS TO COVER IN YOUR BRIEF:</span>
+              <span>KEY INCIDENT VECTORS TO COVER IN YOUR SYNTHESIS:</span>
             </div>
             <ul className={s.guidingList}>
               {synthesisQ.guidingPoints.map((pt, pIdx) => (
@@ -441,14 +799,14 @@ export default function LabQuizView() {
             </div>
           </div>
 
-          {/* Action Bar for Brief */}
+          {/* Finalize Button */}
           <div className={s.actionBar}>
             <button
               type="button"
               className={s.secondaryBtn}
-              onClick={handlePrev}
+              onClick={() => setEvalMode('mcq')}
             >
-              ← PREVIOUS QUESTION
+              ← REVIEW SCENARIOS
             </button>
 
             <button
@@ -457,133 +815,9 @@ export default function LabQuizView() {
               onClick={handleFinalize}
               disabled={operatorBrief.trim().length < 20}
             >
-              <span>SUBMIT BRIEF & FINALIZE ASSESSMENT</span>
+              <span>SUBMIT CISO BRIEF & ACCREDIT CERTIFICATION</span>
               <IconCheckCircle size={16} />
             </button>
-          </div>
-        </div>
-      ) : (
-        /* ── STEPS 01 TO 05: TACTICAL MCQS ── */
-        <div className={s.questionCard}>
-          <div className={s.missionBadgeRow}>
-            <div className={s.missionTag}>
-              <span>{currentQ.badge}</span>
-              <span>RELATED TO MISSION 0{currentQ.missionNum}: {currentQ.missionTitle.toUpperCase()}</span>
-            </div>
-            <div className={s.topicTag}>
-              <span>VECTOR: {currentQ.topic}</span>
-            </div>
-          </div>
-
-          <div className={s.questionText}>
-            {currentQ.question}
-          </div>
-
-          {/* Options */}
-          <div className={s.optionsList}>
-            {currentQ.options.map((option, optIdx) => {
-              const isSelected = currentSelection === optIdx;
-              const isCorrect = isCurrentRevealed && optIdx === currentQ.correctIndex;
-              const isWrong = isCurrentRevealed && isSelected && optIdx !== currentQ.correctIndex;
-
-              let itemClass = s.optionItem;
-              let keyClass = s.optionKey;
-
-              if (isSelected) {
-                itemClass += ` ${s.optionSelected}`;
-                keyClass += ` ${s.keySelected}`;
-              }
-              if (isCorrect) {
-                itemClass += ` ${s.optionCorrect}`;
-                keyClass += ` ${s.keyCorrect}`;
-              }
-              if (isWrong) {
-                itemClass += ` ${s.optionWrong}`;
-                keyClass += ` ${s.keyWrong}`;
-              }
-
-              const letter = String.fromCharCode(65 + optIdx);
-
-              return (
-                <button
-                  key={optIdx}
-                  type="button"
-                  className={itemClass}
-                  onClick={() => handleSelectOption(optIdx)}
-                  disabled={isCurrentRevealed}
-                >
-                  <div className={keyClass}>
-                    {isCorrect ? '✓' : isWrong ? '✗' : letter}
-                  </div>
-                  <div className={s.optionText}>{option}</div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Revealed Explanation */}
-          {isCurrentRevealed && (
-            <div
-              className={`${s.explanationBox} ${
-                currentSelection !== currentQ.correctIndex ? s.explanationWrong : ''
-              }`}
-            >
-              <div
-                className={`${s.explanationTag} ${
-                  currentSelection === currentQ.correctIndex
-                    ? s.explanationTagSuccess
-                    : s.explanationTagFail
-                }`}
-              >
-                <IconShield size={16} />
-                <span>
-                  {currentSelection === currentQ.correctIndex
-                    ? 'VERIFIED CORRECT // FORENSIC TAKEAWAY'
-                    : 'INCORRECT EVALUATION // CORRECT RATIONALE'}
-                </span>
-              </div>
-              <p className={s.explanationText}>{currentQ.explanation}</p>
-            </div>
-          )}
-
-          {/* Action Bar */}
-          <div className={s.actionBar}>
-            <button
-              type="button"
-              className={s.secondaryBtn}
-              onClick={handlePrev}
-              disabled={currentIdx === 0}
-              style={{ visibility: currentIdx === 0 ? 'hidden' : 'visible' }}
-            >
-              ← PREVIOUS
-            </button>
-
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {!isCurrentRevealed ? (
-                <button
-                  type="button"
-                  className={s.primaryBtn}
-                  onClick={handleConfirmAnswer}
-                  disabled={currentSelection === undefined}
-                >
-                  <span>CONFIRM ANSWER</span>
-                  <IconCheckCircle size={16} />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className={s.primaryBtn}
-                  onClick={handleNext}
-                >
-                  <span>
-                    {currentIdx < mcqQuestions.length - 1
-                      ? 'NEXT QUESTION'
-                      : 'PROCEED TO WRITTEN SYNTHESIS'}
-                  </span>
-                  <IconArrowRight size={16} />
-                </button>
-              )}
-            </div>
           </div>
         </div>
       )}

@@ -42,20 +42,36 @@ function ViewRouter() {
 }
 
 export default function App() {
-  const [booted, setBooted] = useState(false);
-  const handleBoot = useCallback(() => setBooted(true), []);
+  const [booted, setBooted] = useState(() => {
+    return typeof window !== 'undefined' && sessionStorage.getItem('nexarange-booted') === 'true';
+  });
+  const handleBoot = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('nexarange-booted', 'true');
+    }
+    setBooted(true);
+  }, []);
   const { theme, isAuthenticated, route, isVerifyingSession } = useStore();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme || 'dark');
   }, [theme]);
 
-  // Synchronize authenticated session with backend
+  // Synchronize authenticated session with backend and sync route from current URL immediately
   useEffect(() => {
-    useStore.getState().syncSession?.();
+    const isAuthInitially = useStore.getState().isAuthenticated;
+    if (isAuthInitially) {
+      useStore.getState().syncRouteFromURL?.(window.location.pathname);
+    }
+    useStore.getState().syncSession?.().then(() => {
+      const isAuth = useStore.getState().isAuthenticated;
+      if (isAuth) {
+        useStore.getState().syncRouteFromURL?.(window.location.pathname);
+      }
+    });
   }, []);
 
-  // Handle browser back/forward buttons and enforce protected routes
+  // Handle browser back/forward buttons and enforce protected routes & deep linking
   useEffect(() => {
     const handlePopState = () => {
       const currentPath = window.location.pathname;
@@ -64,12 +80,15 @@ export default function App() {
         window.history.replaceState(null, '', '/login');
         useStore.setState({ route: '/login' });
       } else {
-        useStore.setState({ route: currentPath });
+        useStore.getState().syncRouteFromURL?.(currentPath);
       }
     };
     window.addEventListener('popstate', handlePopState);
+    if (isAuthenticated) {
+      useStore.getState().syncRouteFromURL?.(window.location.pathname);
+    }
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [isAuthenticated]);
 
   // Startup session verification screen (Requirement 20)
   if (isVerifyingSession) {
@@ -111,15 +130,6 @@ export default function App() {
     return (
       <>
         <LogoutPage />
-        <ToastSystem />
-      </>
-    );
-  }
-
-  if (route === '/login') {
-    return (
-      <>
-        <LoginPage />
         <ToastSystem />
       </>
     );

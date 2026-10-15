@@ -166,6 +166,45 @@
   transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 
+/* Sound SFX Button */
+.soundBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.soundActive {
+  background: rgba(0, 245, 200, 0.08);
+  border: 1px solid rgba(0, 245, 200, 0.35);
+  color: var(--cyan-primary);
+  box-shadow: 0 0 10px rgba(0, 245, 200, 0.15);
+}
+
+.soundActive:hover {
+  background: rgba(0, 245, 200, 0.18);
+  box-shadow: 0 0 14px rgba(0, 245, 200, 0.3);
+}
+
+.soundMuted {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-muted);
+}
+
+.soundMuted:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
 .profileBtn:hover {
   transform: scale(1.06);
 }

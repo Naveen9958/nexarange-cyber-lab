@@ -1,6 +1,6 @@
-// src/components/Layout/TopBar.jsx — Refined NexaRange Command Bar with Official Logo
 import { useState, useEffect } from 'react';
 import useStore from '../../store/useStore';
+import { cyberAudio } from '../../utils/cyberAudio';
 import s from './TopBar.module.css';
 
 export default function TopBar() {
@@ -13,6 +13,7 @@ export default function TopBar() {
   } = useStore();
 
   const [time, setTime] = useState('');
+  const [soundEnabled, setSoundEnabled] = useState(!cyberAudio.isMuted());
 
   useEffect(() => {
     const tick = () => {
@@ -69,6 +70,20 @@ export default function TopBar() {
         <div className={s.clockBox} title="Enclave UTC Time">
           <span className={s.clockTime}>{time}</span>
         </div>
+
+        {/* Cyber SFX Audio Toggle */}
+        <button
+          className={`${s.soundBtn} ${soundEnabled ? s.soundActive : s.soundMuted}`}
+          onClick={() => {
+            const muted = cyberAudio.toggleMute();
+            setSoundEnabled(!muted);
+            if (!muted) cyberAudio.playCommandBlip();
+          }}
+          title={soundEnabled ? 'Cyber SFX Audio: ON' : 'Cyber SFX Audio: MUTED'}
+          aria-label="Toggle Cyber Sound Effects"
+        >
+          <span>{soundEnabled ? '🔊 SFX' : '🔇 MUTE'}</span>
+        </button>
 
         {/* Profile Avatar Button (Toggles Profile & Appearance Menu) */}
         <button

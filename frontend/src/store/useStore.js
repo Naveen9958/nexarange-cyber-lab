@@ -102,11 +102,9 @@ const useStore = create((set, get) => ({
   badgeToast: null,
 
   // ── Authentication & Session State (Single Source of Truth) ──
-  isVerifyingSession: typeof window !== 'undefined'
-    ? Boolean(localStorage.getItem('nexarange-token') && localStorage.getItem('nexarange-auth') === 'true')
-    : false,
+  isVerifyingSession: false,
   isAuthenticated: typeof window !== 'undefined' 
-    ? Boolean(localStorage.getItem('nexarange-token') && localStorage.getItem('nexarange-auth') === 'true')
+    ? Boolean(localStorage.getItem('nexarange-auth') === 'true' && (localStorage.getItem('nexarange-token') || localStorage.getItem('nexarange-operator')))
     : false,
   authToken: typeof window !== 'undefined' ? localStorage.getItem('nexarange-token') : null,
   sessionState: typeof window !== 'undefined' && localStorage.getItem('nexarange-auth') === 'false' ? 'TERMINATED' : 'ACTIVE',
@@ -386,14 +384,24 @@ const useStore = create((set, get) => ({
   syncSession: async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('nexarange-token') : null;
     const isAuthStored = typeof window !== 'undefined' ? localStorage.getItem('nexarange-auth') === 'true' : false;
+    const isGuest = typeof window !== 'undefined' ? localStorage.getItem('nexarange-is-guest') === 'true' : false;
+    const storedOp = getStoredOperator();
 
-    if (!token || !isAuthStored) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('nexarange-token');
-        localStorage.setItem('nexarange-auth', 'false');
-        localStorage.removeItem('nexarange-operator');
-      }
+    if (!isAuthStored || (!token && !storedOp)) {
       set({ isAuthenticated: false, authToken: null, operator: null, isVerifyingSession: false });
+      return;
+    }
+
+    // Immediately restore authenticated state so F5 reloads never bounce to login screen
+    set({
+      operator: storedOp,
+      isAuthenticated: true,
+      authToken: token,
+      isVerifyingSession: false,
+    });
+
+    // If running in guest sandbox or offline mock, do not query backend /auth/me
+    if (isGuest || (token && token.startsWith('guest_'))) {
       return;
     }
 
@@ -423,7 +431,6 @@ const useStore = create((set, get) => ({
           isAuthenticated: true,
           authToken: token,
           totalXP: u.xp || 0,
-          isVerifyingSession: false,
         });
 
         // Load progress
@@ -441,16 +448,18 @@ const useStore = create((set, get) => ({
             });
           }
         } catch (pErr) {}
-      } else {
-        throw new Error('Failed to verify session');
       }
     } catch (err) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('nexarange-token');
-        localStorage.setItem('nexarange-auth', 'false');
-        localStorage.removeItem('nexarange-operator');
+      // ONLY logout if live backend explicitly responded with 401 Unauthorized (expired/revoked token)
+      // Never wipe login on network disconnection, proxy reset, or server restarting!
+      if (err?.status === 401) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('nexarange-token');
+          localStorage.setItem('nexarange-auth', 'false');
+          localStorage.removeItem('nexarange-operator');
+        }
+        set({ isAuthenticated: false, authToken: null, operator: null });
       }
-      set({ isAuthenticated: false, authToken: null, operator: null, isVerifyingSession: false });
     }
   },
 
@@ -478,9 +487,135 @@ const useStore = create((set, get) => ({
     return 1 + Math.floor(s.totalXP / 350);
   },
 
+  // ── Route & Deep URL Synchronization ──
+  syncRouteFromURL: (pathname = typeof window !== 'undefined' ? window.location.pathname : '/') => {
+    const path = pathname || '/';
+    const isAuth = get().isAuthenticated;
+    if (!isAuth && path !== '/login' && path !== '/logout') {
+      return;
+    }
+
+    // If authenticated user navigates to /login, route to dashboard automatically
+    if (isAuth && path === '/login') {
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', '/');
+      }
+      set({ view: 'dashboard', route: '/', profileDropdownOpen: false });
+      return;
+    }
+
+    // Helper to resolve labId safely
+    const resolveLabId = (val) => {
+      const num = parseInt(val, 10);
+      return !isNaN(num) ? num : val;
+    };
+
+    // Pattern: /labs/:labId/mission/:num
+    const missionMatch = path.match(/^\/labs\/([^/]+)\/mission\/(\d+)/i);
+    if (missionMatch) {
+      const labId = resolveLabId(missionMatch[1]);
+      const missionNum = parseInt(missionMatch[2], 10);
+      set({
+        view: 'mission',
+        currentLab: labId,
+        currentMission: Math.max(0, missionNum - 1),
+        threatLevel: 'ELEVATED',
+        route: path,
+        profileDropdownOpen: false,
+      });
+      return;
+    }
+
+    // Pattern: /labs/:labId/quiz
+    const quizMatch = path.match(/^\/labs\/([^/]+)\/quiz/i);
+    if (quizMatch) {
+      const labId = resolveLabId(quizMatch[1]);
+      set({
+        view: 'quiz',
+        currentLab: labId,
+        route: path,
+        profileDropdownOpen: false,
+      });
+      return;
+    }
+
+    // Pattern: /labs/:labId/debrief
+    const debriefMatch = path.match(/^\/labs\/([^/]+)\/debrief/i);
+    if (debriefMatch) {
+      const labId = resolveLabId(debriefMatch[1]);
+      set({
+        view: 'debrief',
+        currentLab: labId,
+        route: path,
+        profileDropdownOpen: false,
+      });
+      return;
+    }
+
+    // Pattern: /labs/:labId
+    const labMatch = path.match(/^\/labs\/([^/]+)/i);
+    if (labMatch) {
+      const labId = resolveLabId(labMatch[1]);
+      set({
+        view: 'labs',
+        currentLab: labId,
+        route: path,
+        profileDropdownOpen: false,
+      });
+      return;
+    }
+
+    // Static View Routes
+    const directViews = {
+      '/labs': 'labs',
+      '/terminal': 'terminal',
+      '/leaderboard': 'leaderboard',
+      '/analytics': 'analytics',
+      '/certificates': 'certificates',
+      '/friends': 'friends',
+      '/dashboard': 'dashboard',
+      '/': 'dashboard',
+    };
+
+    if (directViews[path]) {
+      set({
+        view: directViews[path],
+        route: path,
+        profileDropdownOpen: false,
+      });
+    }
+  },
+
   // ── Actions ──
-  setView: (view) => set({ view, profileDropdownOpen: false }),
-  setLab: (labId) => set({ currentLab: labId }),
+  setView: (view) => {
+    const s = get();
+    const routeMap = {
+      dashboard: '/',
+      labs: s.currentLab ? `/labs/${s.currentLab}` : '/labs',
+      terminal: '/terminal',
+      leaderboard: '/leaderboard',
+      friends: '/friends',
+      analytics: '/analytics',
+      certificates: '/certificates',
+      mission: s.currentLab ? `/labs/${s.currentLab}/mission/${(s.currentMission || 0) + 1}` : '/labs',
+      quiz: s.currentLab ? `/labs/${s.currentLab}/quiz` : '/labs',
+      debrief: s.currentLab ? `/labs/${s.currentLab}/debrief` : '/labs',
+    };
+    const targetRoute = routeMap[view] || '/';
+    if (typeof window !== 'undefined' && window.location.pathname !== targetRoute) {
+      window.history.pushState(null, '', targetRoute);
+    }
+    set({ view, route: targetRoute, profileDropdownOpen: false });
+  },
+
+  setLab: (labId) => {
+    const targetRoute = `/labs/${labId}`;
+    if (typeof window !== 'undefined' && window.location.pathname !== targetRoute) {
+      window.history.pushState(null, '', targetRoute);
+    }
+    set({ currentLab: labId, route: targetRoute });
+  },
+
   setMission: (idx) => set({ currentMission: idx }),
   setProfileDropdownOpen: (open, anchor = 'sidebar') =>
     set({ profileDropdownOpen: open, profileDropdownAnchor: anchor }),
@@ -493,14 +628,21 @@ const useStore = create((set, get) => ({
   missionReplayMode: false,
   setMissionReplayMode: (missionReplayMode) => set({ missionReplayMode }),
 
-  openMission: (labId, missionIdx, replay = false) =>
+  openMission: (labId, missionIdx, replay = false) => {
+    const targetRoute = `/labs/${labId}/mission/${missionIdx + 1}`;
+    if (typeof window !== 'undefined' && window.location.pathname !== targetRoute) {
+      window.history.pushState(null, '', targetRoute);
+    }
     set({
       currentLab: labId,
       currentMission: missionIdx,
       view: 'mission',
+      route: targetRoute,
       threatLevel: 'ELEVATED',
       missionReplayMode: Boolean(replay),
-    }),
+      profileDropdownOpen: false,
+    });
+  },
 
   initMissionTasks: (missionId, count) =>
     set((s) => ({
@@ -521,13 +663,13 @@ const useStore = create((set, get) => ({
       missionTasks: { ...s.missionTasks, [missionId]: Array(count).fill(false) },
     })),
 
-  completeMission: async (missionId, xp, badge) => {
+  completeMission: async (missionId, xp, badge, submittedFlag = null) => {
     const s = get();
     if (s.completedMissions[missionId]) return;
 
-    // Call backend API for atomic, verified completion & XP calculation
+    // Call backend API for atomic, verified completion & XP calculation with flag attestation
     try {
-      const res = await api.missions.complete(missionId, []);
+      const res = await api.missions.complete(missionId, [], submittedFlag);
       if (res.success && res.data) {
         const { totalXp, xpAwarded, alreadyCompleted, certificateUnlocked, certificate } = res.data;
         const newTotalXP = totalXp !== undefined ? totalXp : s.totalXP + xp;
@@ -661,9 +803,21 @@ const useStore = create((set, get) => ({
 
   initFriends: (friends, requests) => set({ friends, friendRequests: requests }),
 
-  showDebrief: (labId) => set({ view: 'debrief', currentLab: labId }),
+  showDebrief: (labId) => {
+    const targetRoute = `/labs/${labId}/debrief`;
+    if (typeof window !== 'undefined' && window.location.pathname !== targetRoute) {
+      window.history.pushState(null, '', targetRoute);
+    }
+    set({ view: 'debrief', currentLab: labId, route: targetRoute });
+  },
 
-  openLabQuiz: (labId) => set({ view: 'quiz', currentLab: labId, profileDropdownOpen: false }),
+  openLabQuiz: (labId) => {
+    const targetRoute = `/labs/${labId}/quiz`;
+    if (typeof window !== 'undefined' && window.location.pathname !== targetRoute) {
+      window.history.pushState(null, '', targetRoute);
+    }
+    set({ view: 'quiz', currentLab: labId, route: targetRoute, profileDropdownOpen: false });
+  },
 
   submitLabQuiz: (labId, answers, score, xpEarned = 0, operatorBrief = '') => {
     const s = get();

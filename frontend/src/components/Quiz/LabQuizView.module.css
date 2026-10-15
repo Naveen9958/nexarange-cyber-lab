@@ -763,3 +763,350 @@
   }
 }
 
+/* ══════════════════════════════════════════════════════════════
+   INTERACTIVE EVALUATION SUITE STYLES
+══════════════════════════════════════════════════════════════ */
+.quizModeTabs {
+  display: flex;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 6px 8px;
+  overflow-x: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.quizModeBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.quizModeBtn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.quizModeBtnActive {
+  background: rgba(0, 212, 255, 0.12) !important;
+  border-color: rgba(0, 212, 255, 0.4) !important;
+  color: var(--neon-cyan) !important;
+  box-shadow: 0 0 14px rgba(0, 212, 255, 0.2);
+}
+
+.modeBadge {
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ── MITRE ATT&CK Killchain Sequencer ── */
+.killchainContainer {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.killchainHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.killchainTitle {
+  font-family: var(--font-head);
+  font-size: 1.15rem;
+  color: var(--neon-cyan);
+  letter-spacing: 1px;
+}
+
+.killchainDesc {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.killchainList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.killchainNode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: #0f141d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.killchainNode:hover {
+  border-color: rgba(0, 212, 255, 0.35);
+  background: #141b26;
+}
+
+.killchainNodeCorrect {
+  border-color: rgba(63, 185, 80, 0.4) !important;
+  background: rgba(63, 185, 80, 0.06) !important;
+}
+
+.nodeLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nodeOrderBadge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #21262d;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #58a6ff;
+  flex-shrink: 0;
+}
+
+.nodeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nodeTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nodeTitle {
+  font-family: var(--font-head);
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.nodeCode {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  background: rgba(0, 212, 255, 0.12);
+  color: var(--neon-cyan);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.nodeFlaw {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.nodeControls {
+  display: flex;
+  gap: 6px;
+}
+
+.moveBtn {
+  background: #21262d;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #c9d1d9;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.moveBtn:hover:not(:disabled) {
+  background: #30363d;
+  color: #fff;
+}
+
+.moveBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.verifyKillchainBtn {
+  background: #238636;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(35, 134, 54, 0.4);
+  transition: all 0.2s ease;
+  align-self: flex-start;
+}
+
+.verifyKillchainBtn:hover {
+  background: #2ea043;
+}
+
+.killchainVerifiedBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(0, 255, 170, 0.1);
+  border: 1px solid rgba(0, 255, 170, 0.3);
+  border-radius: 6px;
+  color: #00ffaa;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ── Kali / Burp Terminal Challenge Box ── */
+.terminalChallengeCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.termScenarioText {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.termOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.termOptionBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #090d13;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #79c0ff;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.termOptionBtn:hover {
+  background: #111822;
+  border-color: #58a6ff;
+  color: #fff;
+}
+
+.termOptionSelected {
+  border-color: #00ffaa !important;
+  background: rgba(0, 255, 170, 0.08) !important;
+  color: #00ffaa !important;
+}
+
+.termScreenOut {
+  background: #090d13;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 14px;
+  font-family: 'JetBrains Mono', var(--font-mono), monospace;
+  font-size: 0.82rem;
+  color: #3fb950;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* ── Code Diff in MCQs ── */
+.codeDiffBox {
+  margin: 12px 0;
+  background: #090d13;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.codeDiffHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: #161b22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #8b949e;
+  font-weight: 700;
+}
+
+.codeDiffGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.codeDiffCol {
+  padding: 10px 14px;
+  background: #090d13;
+}
+
+.codeDiffVuln {
+  color: #ffa198;
+  font-family: 'JetBrains Mono', var(--font-mono), monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.codeDiffPatched {
+  color: #7ee787;
+  font-family: 'JetBrains Mono', var(--font-mono), monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+

@@ -165,6 +165,39 @@
   font-weight: 600;
 }
 
+.kaliBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #00ffaa;
+  background: rgba(0, 255, 170, 0.08);
+  border: 1px solid rgba(0, 255, 170, 0.25);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.burpBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #ffaa44;
+  background: rgba(255, 136, 0, 0.08);
+  border: 1px solid rgba(255, 136, 0, 0.25);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.exploitBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #ff5577;
+  background: rgba(255, 51, 102, 0.08);
+  border: 1px solid rgba(255, 51, 102, 0.25);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
 .labTitle {
   font-family: var(--font-head);
   font-size: var(--text-xl);

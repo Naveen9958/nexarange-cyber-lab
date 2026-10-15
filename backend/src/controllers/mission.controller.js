@@ -33,9 +33,30 @@ export const start = async (req, res, next) => {
 export const complete = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { tasks } = req.body;
-    const result = await missionService.completeMission(req.user._id, id, tasks);
+    const { tasks, flag, answer } = req.body;
+    const result = await missionService.completeMission(req.user._id, id, tasks, flag || answer);
     return sendSuccess(res, result, result.message);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyFlag = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { flag, answer } = req.body;
+    const result = await missionService.verifyFlag(id, flag || answer);
+    return sendSuccess(res, result, result.isValid ? 'Flag verified successfully' : 'Flag verification failed');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const executeAlgorithm = async (req, res, next) => {
+  try {
+    const { type } = req.params;
+    const result = await missionService.executeAlgorithm(type, req.body);
+    return sendSuccess(res, result, 'Algorithm execution telemetry processed');
   } catch (error) {
     next(error);
   }

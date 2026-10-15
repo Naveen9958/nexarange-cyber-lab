@@ -396,5 +396,352 @@
   border: 1px solid var(--border-subtle);
 }
 
+/* ══════════════════════════════════════════════════════════════
+   OFFICIAL INCIDENT REPORT (IR DOSSIER) EXPORT & MODAL
+   ══════════════════════════════════════════════════════════════ */
+.exportDossierBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.2), rgba(0, 245, 200, 0.15));
+  border: 1px solid #7c5cff;
+  border-radius: var(--radius);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 18px rgba(124, 92, 255, 0.3);
+}
+
+.exportDossierBtn:hover {
+  background: linear-gradient(135deg, #7c5cff, #00f5c8);
+  color: #030814;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(124, 92, 255, 0.5);
+}
+
+.exportDossierIcon {
+  font-size: 1.1rem;
+}
+
+.dossierModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 8, 20, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.dossierModalCard {
+  background: #0d121c;
+  border: 1px solid rgba(0, 245, 200, 0.3);
+  border-radius: var(--radius-lg);
+  width: 95%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.8);
+  animation: fadeIn 0.25s ease;
+}
+
+.dossierModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #111827;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dossierTag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: var(--cyan-primary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.dossierTitle {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.dossierHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.downloadMdBtn, .printPdfBtn {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.downloadMdBtn {
+  background: #00f5c8;
+  color: #030814;
+}
+
+.downloadMdBtn:hover {
+  background: #fff;
+  box-shadow: 0 0 10px #00f5c8;
+}
+
+.printPdfBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
+  color: #fff;
+}
+
+.printPdfBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #fff;
+}
+
+.closeDossierBtn {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeDossierBtn:hover {
+  color: #fff;
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dossierModalBody {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dossierMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-subtle);
+}
+
+.dossierMetaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaKey {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.metaVal {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.metaValSuccess {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #00ffaa;
+}
+
+.dossierSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dossierSubheading {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 1.5px;
+  color: var(--cyan-primary);
+  margin: 0;
+}
+
+.dossierTable {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.dossierTableHeader {
+  display: grid;
+  grid-template-columns: 70px 1.8fr 1.2fr 2fr;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dossierTableRow {
+  display: grid;
+  grid-template-columns: 70px 1.8fr 1.2fr 2fr;
+  padding: 10px 14px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 0.76rem;
+}
+
+.stageBadge {
+  font-family: var(--font-mono);
+  color: var(--cyan-primary);
+  font-weight: 700;
+}
+
+.stageTitle {
+  color: #fff;
+  font-weight: 600;
+}
+
+.stageMitre {
+  font-family: var(--font-mono);
+  color: #79c0ff;
+  font-size: 0.72rem;
+}
+
+.stageFlag {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 245, 200, 0.3);
+  color: #00ffaa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  word-break: break-all;
+}
+
+.remediationBulletList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 255, 170, 0.03);
+  border: 1px solid rgba(0, 255, 170, 0.2);
+  padding: 14px 18px;
+  border-radius: var(--radius);
+}
+
+.remediationBullet {
+  font-size: 0.78rem;
+  color: #d1fae5;
+  line-height: 1.5;
+}
+
+.remediationBullet strong {
+  color: #00ffaa;
+}
+
+.operatorBriefBox {
+  background: rgba(0, 0, 0, 0.4);
+  border-left: 3px solid #7c5cff;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.dossierSealWrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: rgba(124, 92, 255, 0.08);
+  border: 1px solid rgba(124, 92, 255, 0.35);
+  border-radius: var(--radius);
+}
+
+.sealIcon {
+  font-size: 2rem;
+}
+
+.sealLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #a78bfa;
+  letter-spacing: 1px;
+}
+
+.sealCode {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #c4b5fd;
+  margin: 2px 0;
+}
+
+.sealNote {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .dossierModalCard, .dossierModalCard * {
+    visibility: visible;
+  }
+  .dossierModalCard {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    border: none;
+    box-shadow: none;
+    background: #fff;
+    color: #000;
+  }
+  .dossierHeaderActions {
+    display: none !important;
+  }
+}
+
 
 

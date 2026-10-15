@@ -100,6 +100,9 @@ export default function LabsView() {
                     <span className={s.labDifficultyBadge}>
                       {`DIFFICULTY: ${lab.difficulty ? lab.difficulty.toUpperCase() : 'MEDIUM TO ADVANCED'}`}
                     </span>
+                    <span className={s.kaliBadge}>🐉 KALI SUITE</span>
+                    <span className={s.burpBadge}>🟠 BURP PROXY</span>
+                    <span className={s.exploitBadge}>⚡ BYPASS SANDBOX</span>
                   </div>
 
                   <h2 className={s.labTitle}>{lab.title}</h2>

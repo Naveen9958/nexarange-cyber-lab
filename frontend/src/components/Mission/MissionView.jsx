@@ -11,7 +11,12 @@ import MarketplaceBlock from './blocks/MarketplaceBlock';
 import K8sBlock from './blocks/K8sBlock';
 import DeepfakeBlock from './blocks/DeepfakeBlock';
 import CryptoBlock from './blocks/CryptoBlock';
+import KaliMissionTerminal from './blocks/KaliMissionTerminal';
+import BurpSuitePro from './blocks/BurpSuitePro';
+import BypassExploitStudio from './blocks/BypassExploitStudio';
+import BlueTeamRemediation from './blocks/BlueTeamRemediation';
 import HintPanel from './HintPanel';
+import { cyberAudio } from '../../utils/cyberAudio';
 import {
   IconZap,
   IconArrowRight,
@@ -45,6 +50,8 @@ export default function MissionView() {
 
   const [phase, setPhase] = useState(PHASE.BRIEFING);
   const [replayMode, setReplayMode] = useState(Boolean(missionReplayMode));
+  const [activeDeckTab, setActiveDeckTab] = useState(mission?.type === 'burp' ? 'burp' : 'kali');
+  const [discoveredFinding, setDiscoveredFinding] = useState(null);
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState(null); // 'correct' | 'wrong'
   const [answerOk, setAnswerOk] = useState(false);
@@ -57,6 +64,8 @@ export default function MissionView() {
     setAnswer('');
     setFeedback(null);
     setAnswerOk(false);
+    setDiscoveredFinding(null);
+    setActiveDeckTab(mission?.type === 'burp' ? 'burp' : 'kali');
     setAnimKey((k) => k + 1);
     setReplayMode(Boolean(missionReplayMode));
   }, [mission?.id, missionReplayMode]);
@@ -110,9 +119,11 @@ export default function MissionView() {
     }
 
     if (u && validAnswers.includes(u)) {
+      cyberAudio.playSuccessChime();
       setFeedback('correct');
       setAnswerOk(true);
     } else {
+      cyberAudio.playDeniedBuzz();
       setFeedback('wrong');
       setTimeout(() => {
         setFeedback(null);
@@ -122,8 +133,9 @@ export default function MissionView() {
 
   // ── Complete mission & advance ──
   function handleComplete() {
+    cyberAudio.playSuccessChime();
     if (!isDone) {
-      completeMission(mission.id, mission.xp, mission.badge);
+      completeMission(mission.id, mission.xp, mission.badge, answer || mission.answer);
     }
     setPhase(PHASE.COMPLETE);
     const nextIdx = missionIdx + 1;
@@ -138,15 +150,60 @@ export default function MissionView() {
   }
 
   // ── Tool block map (rendered on demand with safe fallbacks) ──
+  function handleCaptureIndicator(ind) {
+    cyberAudio.playSuccessChime();
+    setDiscoveredFinding(ind);
+    setAnswer(ind);
+  }
+
   function renderToolBlock() {
     if (!mission) return null;
+
+    if (activeDeckTab === 'kali') {
+      return (
+        <KaliMissionTerminal
+          mission={mission}
+          onCaptureIndicator={handleCaptureIndicator}
+        />
+      );
+    }
+
+    if (activeDeckTab === 'burp') {
+      return (
+        <BurpSuitePro
+          mission={mission}
+          requests={mission.burpRequests || []}
+          onCaptureIndicator={handleCaptureIndicator}
+        />
+      );
+    }
+
+    if (activeDeckTab === 'exploit') {
+      return (
+        <BypassExploitStudio
+          mission={mission}
+          onCaptureIndicator={handleCaptureIndicator}
+        />
+      );
+    }
+
+    if (activeDeckTab === 'remediation') {
+      return (
+        <BlueTeamRemediation
+          mission={mission}
+          onCaptureIndicator={handleCaptureIndicator}
+        />
+      );
+    }
+
+    // Target Enclave Artifacts view
     switch (mission.type) {
       case 'log':
         return <LogViewer lines={mission.logLines || []} />;
       case 'log_terminal':
         return <LogViewer lines={mission.logLines || []} termCmds={mission.terminalCmds || []} />;
       case 'burp':
-        return <BurpBlock requests={mission.burpRequests || []} />;
+        return <BurpBlock requests={mission.burpRequests || []} mission={mission} onCaptureIndicator={handleCaptureIndicator} />;
       case 'tickets':
         return <TicketBlock tickets={mission.tickets || []} />;
       case 'policy':
@@ -170,7 +227,7 @@ export default function MissionView() {
       case 'crypto':
         return <CryptoBlock algorithms={mission.cryptoAlgorithms || []} />;
       default:
-        return null;
+        return <LogViewer lines={mission.logLines || []} />;
     }
   }
 
@@ -438,9 +495,77 @@ export default function MissionView() {
               </div>
             )}
 
-            {/* Tool Interactive Block */}
-            <div className={s.toolContainer}>
-              {renderToolBlock()}
+            {/* Operations Deck Nav Bar */}
+            <div className={s.operationsDeckWrap}>
+              <div className={s.operationsDeckNav}>
+                <button
+                  type="button"
+                  className={`${s.opDeckBtn} ${activeDeckTab === 'kali' ? s.opDeckBtnKaliActive : ''}`}
+                  onClick={() => setActiveDeckTab('kali')}
+                >
+                  <span className={s.opDeckIcon}>🐉</span>
+                  <span>KALI LINUX TERMINAL</span>
+                  <span className={s.opDeckTag}>BASH</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${s.opDeckBtn} ${activeDeckTab === 'burp' ? s.opDeckBtnBurpActive : ''}`}
+                  onClick={() => setActiveDeckTab('burp')}
+                >
+                  <span className={s.opDeckIcon}>🟠</span>
+                  <span>BURP SUITE PROXY & REPEATER</span>
+                  <span className={s.opDeckTag}>HTTP</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${s.opDeckBtn} ${activeDeckTab === 'exploit' ? s.opDeckBtnExploitActive : ''}`}
+                  onClick={() => setActiveDeckTab('exploit')}
+                >
+                  <span className={s.opDeckIcon}>⚡</span>
+                  <span>EXPLOIT & BYPASS STUDIO</span>
+                  <span className={s.opDeckTag}>CVE</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${s.opDeckBtn} ${activeDeckTab === 'remediation' ? s.opDeckBtnRemediationActive : ''}`}
+                  onClick={() => setActiveDeckTab('remediation')}
+                >
+                  <span className={s.opDeckIcon}>🛡️</span>
+                  <span>BLUE TEAM REMEDIATION</span>
+                  <span className={s.opDeckTag}>PATCH</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${s.opDeckBtn} ${activeDeckTab === 'enclave' ? s.opDeckBtnActive : ''}`}
+                  onClick={() => setActiveDeckTab('enclave')}
+                >
+                  <span className={s.opDeckIcon}>🎯</span>
+                  <span>TARGET ENCLAVE ARTIFACTS</span>
+                  <span className={s.opDeckTag}>EVIDENCE</span>
+                </button>
+              </div>
+
+              {discoveredFinding && (
+                <div className={s.quickCaptureBar}>
+                  <div className={s.quickCaptureLeft}>
+                    <IconCheckCircle size={15} />
+                    <span>THREAT ARTIFACT ISOLATED:</span>
+                    <code>{discoveredFinding}</code>
+                  </div>
+                  <button
+                    type="button"
+                    className={s.quickCaptureFillBtn}
+                    onClick={() => setAnswer(discoveredFinding)}
+                  >
+                    Auto-Fill In Verification Gate ➔
+                  </button>
+                </div>
+              )}
+
+              {/* Tool Interactive Block */}
+              <div className={s.toolContainer}>
+                {renderToolBlock()}
+              </div>
             </div>
 
             {/* Submission Section */}
@@ -530,14 +655,29 @@ export default function MissionView() {
                   )}
                 </>
               ) : (
-                <button
-                  className={s.completeFinalBtn}
-                  disabled={!answerOk}
-                  onClick={handleComplete}
-                >
-                  <span>{isDone ? 'COMPLETE REPLAY & ADVANCE' : 'COMPLETE MISSION & ADVANCE'}</span>
-                  <IconArrowRight size={18} />
-                </button>
+                <>
+                  <div className={s.completeStatusInfo}>
+                    {answerOk ? (
+                      <span className={s.statusReady}>✓ FINDING CONFIRMED — READY TO COMPLETE</span>
+                    ) : (
+                      <span className={s.statusPending}>⚡ Enter finding or run exploit above to verify & proceed</span>
+                    )}
+                  </div>
+                  <button
+                    className={`${s.completeFinalBtn} ${answerOk ? s.completeFinalBtnReady : ''}`}
+                    onClick={() => {
+                      if (answerOk) {
+                        handleComplete();
+                      } else {
+                        handleSubmit();
+                      }
+                    }}
+                    title={answerOk ? "Complete mission & advance" : "Verify finding & complete"}
+                  >
+                    <span>{isDone ? 'COMPLETE REPLAY & ADVANCE' : 'COMPLETE MISSION & ADVANCE'}</span>
+                    <IconArrowRight size={18} />
+                  </button>
+                </>
               )}
             </div>
           </main>
