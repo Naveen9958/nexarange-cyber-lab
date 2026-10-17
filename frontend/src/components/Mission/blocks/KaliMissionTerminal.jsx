@@ -496,10 +496,13 @@ Output: [Executed in 0.04s]. Type "help" or click one of the Quick Cyber Tools a
           <button
             type="button"
             className={s.indicatorUseBtn}
-            onClick={() => onCaptureIndicator && onCaptureIndicator(captured)}
+            onClick={() => {
+              cyberAudio.playSuccessChime();
+              if (onCaptureIndicator) onCaptureIndicator(captured);
+            }}
           >
             <IconZap size={14} />
-            <span>Auto-Fill in Verification Gate</span>
+            <span>⚡ AUTO-SUBMIT TO VERIFICATION GATE</span>
           </button>
         </div>
       )}

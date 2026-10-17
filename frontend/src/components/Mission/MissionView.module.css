@@ -1232,6 +1232,13 @@
   box-shadow: 0 0 16px rgba(0, 255, 170, 0.3);
 }
 
+.opDeckBtnPcapActive {
+  background: rgba(0, 212, 255, 0.16) !important;
+  border-color: rgba(0, 212, 255, 0.55) !important;
+  color: #00d4ff !important;
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.3);
+}
+
 .opDeckIcon {
   font-size: 0.95rem;
 }

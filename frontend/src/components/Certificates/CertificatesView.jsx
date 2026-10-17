@@ -153,7 +153,7 @@ export default function CertificatesView() {
 
                 <div className={s.docBody}>
                   <p className={s.certifyText}>This credential hereby confirms that security operator</p>
-                  <div className={s.operatorNameDisplay}>{operator.name.toUpperCase()}</div>
+                  <div className={s.operatorNameDisplay}>{(operator?.name || operator?.fullName || operator?.callsign || 'Naveen').toUpperCase()}</div>
                   <p className={s.competencyText}>
                     has successfully solved, mitigated, and forensically documented all threat stages within the enterprise incident scenario:
                   </p>
@@ -186,11 +186,11 @@ export default function CertificatesView() {
               <button
                 className={s.downloadBtn}
                 onClick={() => {
-                  showToast(`Verification PDF for ${activeCert.code} generated.`, 'success');
+                  window.print();
                 }}
               >
                 <IconDownload size={16} />
-                <span>DOWNLOAD CREDENTIAL (PDF)</span>
+                <span>DOWNLOAD / PRINT CREDENTIAL (PDF)</span>
               </button>
               <button className={s.closeModalBtn} onClick={() => setActiveCert(null)}>
                 CLOSE

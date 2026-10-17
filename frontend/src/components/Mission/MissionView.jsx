@@ -15,6 +15,7 @@ import KaliMissionTerminal from './blocks/KaliMissionTerminal';
 import BurpSuitePro from './blocks/BurpSuitePro';
 import BypassExploitStudio from './blocks/BypassExploitStudio';
 import BlueTeamRemediation from './blocks/BlueTeamRemediation';
+import PcapStreamer from './blocks/PcapStreamer';
 import HintPanel from './HintPanel';
 import { cyberAudio } from '../../utils/cyberAudio';
 import {
@@ -190,6 +191,15 @@ export default function MissionView() {
     if (activeDeckTab === 'remediation') {
       return (
         <BlueTeamRemediation
+          mission={mission}
+          onCaptureIndicator={handleCaptureIndicator}
+        />
+      );
+    }
+
+    if (activeDeckTab === 'pcap') {
+      return (
+        <PcapStreamer
           mission={mission}
           onCaptureIndicator={handleCaptureIndicator}
         />
@@ -536,6 +546,15 @@ export default function MissionView() {
                 </button>
                 <button
                   type="button"
+                  className={`${s.opDeckBtn} ${activeDeckTab === 'pcap' ? s.opDeckBtnPcapActive : ''}`}
+                  onClick={() => setActiveDeckTab('pcap')}
+                >
+                  <span className={s.opDeckIcon}>🦈</span>
+                  <span>PCAP PACKET STREAMER</span>
+                  <span className={s.opDeckTag}>WIRESHARK</span>
+                </button>
+                <button
+                  type="button"
                   className={`${s.opDeckBtn} ${activeDeckTab === 'enclave' ? s.opDeckBtnActive : ''}`}
                   onClick={() => setActiveDeckTab('enclave')}
                 >
@@ -555,9 +574,14 @@ export default function MissionView() {
                   <button
                     type="button"
                     className={s.quickCaptureFillBtn}
-                    onClick={() => setAnswer(discoveredFinding)}
+                    onClick={() => {
+                      setAnswer(discoveredFinding);
+                      cyberAudio.playSuccessChime();
+                      setFeedback('correct');
+                      setAnswerOk(true);
+                    }}
                   >
-                    Auto-Fill In Verification Gate ➔
+                    ⚡ Auto-Submit & Verify Finding ➔
                   </button>
                 </div>
               )}
@@ -687,8 +711,14 @@ export default function MissionView() {
         {showHint && (
           <HintPanel
             hints={mission.hints}
-            missionId={mission.id}
+            mission={mission}
             onClose={() => setShowHint(false)}
+            onApplyAnswer={(ans) => {
+              setAnswer(ans);
+              cyberAudio.playSuccessChime();
+              setFeedback('correct');
+              setAnswerOk(true);
+            }}
           />
         )}
       </div>
